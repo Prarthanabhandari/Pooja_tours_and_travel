@@ -491,8 +491,8 @@ export default function PoojaLanding({
 
       {/* 4. CHOOSE LOCATION ON MAP MODAL */}
       {showMapModal && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center z-[150] p-4 select-none">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[200] p-4 select-none">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] z-[210] relative">
             
             {/* Header */}
             <div className="px-6 py-4 bg-gradient-to-r from-[#0d3859] to-[#0a2540] text-white flex justify-between items-center">

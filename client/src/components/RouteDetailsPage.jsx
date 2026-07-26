@@ -79,7 +79,7 @@ export default function RouteDetailsPage({ routeName, setCurrentPage, setSearchP
 
   const [activeTab, setActiveTab] = useState('1-4'); // '1-4', '1-6', '17'
 
-  // Tabs structure matching pawartravels style
+  // Tabs structure matching poojatravels style
   const categoryTabs = [
     { slug: '1-4', label: '1-4 Passengers (Sedan)' },
     { slug: '1-6', label: '1-6 Passengers (Ertiga/Carens)' },

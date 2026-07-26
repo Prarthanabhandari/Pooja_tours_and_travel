@@ -590,7 +590,7 @@ export default function App() {
                     <div className="flex flex-col text-xs sm:text-sm font-semibold text-slate-750">
                       <a href="tel:+917387129287" className="hover:text-[#00b4d8] transition-colors">+91 73871 29287</a>
                       <a href="tel:+919623324139" className="hover:text-[#00b4d8] transition-colors mt-1">+91 96233 24139</a>
-                      <span className="text-[0.62rem] font-bold text-slate-450 mt-1">booking@poojatravels.com</span>
+                      <span className="text-[0.62rem] font-bold text-slate-450 mt-1">booking@poojatoursandtravels.com</span>
                     </div>
                   </div>
                 </div>
