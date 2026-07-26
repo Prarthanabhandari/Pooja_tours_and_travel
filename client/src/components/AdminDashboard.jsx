@@ -3,6 +3,7 @@ import Logo from './Logo';
 
 export default function AdminDashboard({ setCurrentPage, currentUser }) {
   const [activeTab, setActiveTab] = useState('overview');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [bookings, setBookings] = useState([]);
   const [cabs, setCabs] = useState([]);
   const [buses, setBuses] = useState([]);
@@ -10,7 +11,7 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // New Cab/Bus Form States
+  // New Chauffeur/Bus Form States
   const [cabName, setCabName] = useState('');
   const [cabType, setCabType] = useState('SUV');
   const [cabPrice, setCabPrice] = useState('');
@@ -25,13 +26,13 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
   const [busDep, setBusDep] = useState('08:00:00');
   const [busArr, setBusArr] = useState('12:00:00');
 
-  // New Vendor Form States
+  // New Chauffeur Form States
   const [vendorName, setVendorName] = useState('');
   const [vendorEmail, setVendorEmail] = useState('');
   const [vendorPhone, setVendorPhone] = useState('');
   const [vendorPass, setVendorPass] = useState('password123');
 
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   // Core fetch function for live dynamic updates
   const fetchAdminData = async () => {
@@ -248,10 +249,22 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
   }
 
   return (
-    <div className="flex h-screen bg-[#f8fafc] w-full overflow-hidden text-slate-750 font-sans">
+    <div className="flex h-screen bg-[#f8fafc] w-full overflow-hidden text-slate-750 font-sans relative">
       
+      {/* Sidebar Backdrop Overlay on Mobile */}
+      {isSidebarOpen && (
+        <div 
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-40 lg:hidden animate-fade"
+        />
+      )}
+
       {/* 1. LEFT SIDEBAR PANEL (Premium Cosmos Cadet Navy Blue & Electric Cyan Accents) */}
-      <div className="w-64 bg-[#0b0f19] text-[#94a3b8] flex flex-col justify-between border-r border-[#1e293b] z-10 select-none">
+      <div 
+        className={`fixed lg:static top-0 left-0 h-full w-64 bg-[#0b0f19] text-[#94a3b8] flex flex-col justify-between border-r border-[#1e293b] z-50 select-none transition-transform duration-300 transform ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
         <div className="flex flex-col">
           
           {/* Logo Section */}
@@ -314,8 +327,11 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
             ].map(item => (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-3.5 px-4.5 py-3.5 rounded-lg text-sm font-black transition-all ${
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setIsSidebarOpen(false);
+                }}
+                className={`flex items-center gap-3.5 px-4.5 py-3.5 rounded-lg text-sm font-black transition-all w-full text-left ${
                   activeTab === item.id
                     ? 'bg-[#131c2e] text-white border-l-[3px] border-[#00b4d8]'
                     : 'text-[#64748b] hover:text-white hover:bg-[#070a12]'
@@ -359,13 +375,24 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         
         {/* Top Header Bar (Bright White matching the official site Header) */}
-        <header className="h-[70px] bg-white border-b border-slate-200 px-8 flex items-center justify-between text-slate-500 z-10 select-none">
+        <header className="h-[70px] bg-white border-b border-slate-200 px-6 sm:px-8 flex items-center justify-between text-slate-500 z-10 select-none">
           <div className="flex items-center gap-1.5 text-xs font-bold">
+            
+            {/* Sidebar toggle button on Mobile */}
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:text-[#00b4d8] mr-3"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+
             <span>Logged in as</span>
             <span className="text-[#00b4d8] font-black uppercase">Admin</span>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
             <button 
               onClick={() => setCurrentPage('home')}
               className="text-slate-500 hover:text-slate-800 text-xs font-bold flex items-center gap-1.5 transition-colors"
@@ -377,13 +404,13 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
               <div className="w-7 h-7 rounded-full bg-[#00b4d8] flex items-center justify-center text-white font-black text-xs shadow-sm shadow-[#00b4d8]/20">
                 {currentUser?.name?.charAt(0) || 'P'}
               </div>
-              <span className="text-xs font-black text-slate-800">{currentUser?.name || 'Prarthana'}</span>
+              <span className="text-xs font-black text-slate-800 hidden sm:inline">{currentUser?.name || 'Prarthana'}</span>
             </div>
           </div>
         </header>
 
         {/* Dynamic Inner Page Content - SCROLLABLE */}
-        <div className="flex-1 overflow-y-auto p-8 bg-[#f8fafc]">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#f8fafc]">
           
           {/* Overview Tab */}
           {activeTab === 'overview' && (

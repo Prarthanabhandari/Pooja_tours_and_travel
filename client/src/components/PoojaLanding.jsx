@@ -36,7 +36,7 @@ export default function PoojaLanding({
           <div className="lg:col-span-5 py-4 sm:py-6 lg:py-8 flex flex-col justify-start h-full bg-transparent">
             
             {/* Content Wrapper */}
-            <div className="w-full max-w-[400px] flex flex-col gap-6 bg-transparent text-left pt-3 lg:pt-10">
+            <div className="w-full max-w-[400px] mx-auto lg:mx-0 flex flex-col gap-6 bg-transparent text-left pt-3 lg:pt-10">
               
               {/* Editorial Heading */}
               <div className="text-left select-none">
