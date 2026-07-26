@@ -24,9 +24,9 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // --- MOCK DATA FOR FRONTEND OFFLINE FALLBACK ---
 const MOCK_CABS = [
-  { id: 1, type: 'Hatchback', name: 'Maruti Suzuki WagonR', price_per_km: 11, seating_capacity: 4, image: '🚗' },
-  { id: 2, type: 'SUV', name: 'Maruti Suzuki Brezza', price_per_km: 14, seating_capacity: 4, image: '🚘' },
-  { id: 3, type: 'Bus', name: 'Pooja Luxury Traveler (17-seater)', price_per_km: 22, seating_capacity: 17, image: '🚌' }
+  { id: 1, type: 'Hatchback', name: 'Maruti Suzuki WagonR', price_per_km: 13, seating_capacity: 4, image: '🚗' },
+  { id: 2, type: 'SUV', name: 'Maruti Suzuki Brezza', price_per_km: 16, seating_capacity: 4, image: '🚘' },
+  { id: 3, type: 'Bus', name: 'Pooja Luxury Traveler (17-seater)', price_per_km: 24, seating_capacity: 17, image: '🚌' }
 ];
 
 const MOCK_BUSES = [
@@ -572,8 +572,8 @@ export default function App() {
                       </svg>
                     </div>
                     <p className="text-xs sm:text-sm font-semibold text-slate-650 leading-relaxed">
-                      Tingre Nagar, Vishrantwadi,<br />
-                      Pune, Maharashtra - 411015
+                      BHUGAON ON MULSHI RD, Bhugaon, Bavdhan,<br />
+                      Bhugaon, Maharashtra - 412115
                     </p>
                   </div>
                 </div>

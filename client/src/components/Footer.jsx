@@ -108,7 +108,7 @@ export default function Footer({ setCurrentPage }) {
         <div>
           <h4 style={{ color: '#0f172a', fontSize: '0.9rem', fontWeight: 700, marginBottom: '12px' }}>Contact Info</h4>
           <p style={{ fontSize: '0.82rem', lineHeight: '1.6', color: '#475569' }}>
-            Address: Vishrantwadi, Tingre Nagar, Pune 411015<br />
+            Address: BHUGAON ON MULSHI RD, Bhugaon, Bavdhan, Bhugaon, Maharashtra 412115<br />
             Call Desk: +91 73871 29287<br />
             WhatsApp: +91 96233 24139<br />
             Email: booking@poojatravels.com

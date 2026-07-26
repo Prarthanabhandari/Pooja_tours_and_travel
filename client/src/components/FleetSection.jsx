@@ -10,7 +10,7 @@ export default function FleetSection({
     {
       title: 'Budget Outstation (Swift)',
       desc: 'Clean hatchback for budget outstation & city runs',
-      rate: 'From ₹10/km',
+      rate: 'From ₹13/km',
       seats: '4+1 Seats',
       bags: '2 Bags',
       ac: 'AC Cabin',
@@ -20,7 +20,7 @@ export default function FleetSection({
     {
       title: 'Family MUV (Ertiga / Similar)',
       desc: 'Best value 6-passenger family tour vehicle',
-      rate: 'From ₹13/km',
+      rate: 'From ₹16/km',
       seats: '6+1 Seats',
       bags: '4 Bags',
       ac: 'AC Cabin',
@@ -30,7 +30,7 @@ export default function FleetSection({
     {
       title: 'Premium MUV (Kia Carens)',
       desc: 'Luxury 6-seater MUV with premium cabin comfort',
-      rate: 'From ₹15/km',
+      rate: 'From ₹16/km',
       seats: '6+1 Seats',
       bags: '4 Bags',
       ac: 'Climate Control',
@@ -40,7 +40,7 @@ export default function FleetSection({
     {
       title: 'Premium MUV (Innova Crysta)',
       desc: 'Ultimate luxury and absolute highway comfort',
-      rate: 'From ₹17/km',
+      rate: 'From ₹21/km',
       seats: '7+1 Seats',
       bags: '5 Bags',
       ac: 'Dual AC',
@@ -48,19 +48,19 @@ export default function FleetSection({
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a Premium MUV (Innova Crysta) for my journey.'
     },
     {
-      title: '17-Seater Luxury Minibus',
+      title: '17-Seater Luxury Chauffeur Coach',
       desc: 'Ideal for group outings, weddings & corporate tours',
-      rate: 'From ₹22/km',
+      rate: 'From ₹24/km',
       seats: '17 Seats',
       bags: '12 Bags',
       ac: 'Blower AC',
       image: '/17-seat-tempo-traveller-right.jpg',
-      whatsappText: 'Hello Pooja Tours & Travels, I would like to book a 17-Seater Luxury Minibus for my group journey.'
+      whatsappText: 'Hello Pooja Tours & Travels, I would like to book a 17-Seater Luxury Chauffeur Coach for my group journey.'
     },
     {
       title: '50-Seater Luxury Bus',
       desc: 'Premium tourist coach for large corporate & family groups',
-      rate: 'From ₹45/km',
+      rate: 'From ₹48/km',
       seats: '50 Seats',
       bags: '40 Bags',
       ac: 'Climate Control',

@@ -26,9 +26,9 @@ const initializeMockDb = () => {
         { id: 2, name: "Pooja Admin", email: "admin@example.com", password: "adminpassword", phone: "9999999999", role: "admin" }
       ],
       cabs: [
-        { id: 1, type: "Hatchback", name: "Maruti Suzuki WagonR", price_per_km: 11.00, seating_capacity: 4, image_url: "hatchback.png" },
-        { id: 2, type: "SUV", name: "Maruti Suzuki Brezza", price_per_km: 14.00, seating_capacity: 4, image_url: "brezza.png" },
-        { id: 3, type: "Bus", name: "Pooja Luxury Traveler (17-seater)", price_per_km: 22.00, seating_capacity: 17, image_url: "traveller.png" }
+        { id: 1, type: "Hatchback", name: "Maruti Suzuki WagonR", price_per_km: 13.00, seating_capacity: 4, image_url: "hatchback.png" },
+        { id: 2, type: "SUV", name: "Maruti Suzuki Brezza", price_per_km: 16.00, seating_capacity: 4, image_url: "brezza.png" },
+        { id: 3, type: "Bus", name: "Pooja Luxury Traveler (17-seater)", price_per_km: 24.00, seating_capacity: 17, image_url: "traveller.png" }
       ],
       buses: [
         { id: 1, name: "Pooja Travels Luxury Coach 1", type: "17-Seater AC Luxury", total_seats: 17, price_per_seat: 750.00, departure_time: "06:00:00", arrival_time: "10:00:00", route_from: "Pune, Maharashtra, India", route_to: "Mumbai, Maharashtra, India" },

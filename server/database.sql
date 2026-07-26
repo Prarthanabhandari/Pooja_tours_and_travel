@@ -64,9 +64,9 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 
 -- Seed Cabs Data
 INSERT INTO cabs (type, name, price_per_km, seating_capacity, image_url) VALUES
-('Hatchback', 'Maruti Suzuki WagonR', 11.00, 4, 'hatchback.png'),
-('SUV', 'Maruti Suzuki Brezza', 14.00, 4, 'brezza.png'),
-('Bus', 'Pooja Luxury Traveler (17-seater)', 22.00, 17, 'traveller.png')
+('Hatchback', 'Maruti Suzuki WagonR', 13.00, 4, 'hatchback.png'),
+('SUV', 'Maruti Suzuki Brezza', 16.00, 4, 'brezza.png'),
+('Bus', 'Pooja Luxury Traveler (17-seater)', 24.00, 17, 'traveller.png')
 ON CONFLICT DO NOTHING;
 
 -- Seed Buses Data (3 Buses available, 17-seaters as specified by user)
