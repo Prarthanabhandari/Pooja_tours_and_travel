@@ -22,10 +22,83 @@ export default function PoojaLanding({
 }) {
   const [isDestDropdownOpen, setIsDestDropdownOpen] = useState(false);
   const [customDestText, setCustomDestText] = useState(searchParams.toCity ? searchParams.toCity.split(',')[0] : '');
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [selectedMapAddress, setSelectedMapAddress] = useState('');
 
   useEffect(() => {
     setCustomDestText(searchParams.toCity ? searchParams.toCity.split(',')[0] : '');
   }, [searchParams.toCity]);
+
+  // Load Leaflet map scripts on demand
+  useEffect(() => {
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+    if (!document.getElementById('leaflet-js')) {
+      const script = document.createElement('script');
+      script.id = 'leaflet-js';
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      document.body.appendChild(script);
+    }
+  }, []);
+
+  // Handle leaflet map display and reverse geocoding
+  useEffect(() => {
+    let mapInstance = null;
+    if (showMapModal) {
+      const timer = setTimeout(() => {
+        if (window.L) {
+          // Initialize map centered around Pune/Maharashtra region
+          mapInstance = window.L.map('map-container').setView([18.5204, 73.8567], 10);
+          
+          window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(mapInstance);
+
+          let marker = window.L.marker([18.5204, 73.8567], { draggable: true }).addTo(mapInstance);
+          setSelectedMapAddress('Pune, Maharashtra, India');
+
+          const reverseGeocode = async (lat, lng) => {
+            try {
+              const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=en`);
+              const data = await res.json();
+              if (data && data.display_name) {
+                // Shorten location address for text input displays
+                const parts = data.display_name.split(',');
+                const shortened = parts.slice(0, 3).join(',').trim();
+                setSelectedMapAddress(shortened || data.display_name);
+              }
+            } catch (err) {
+              console.warn("Reverse geocode failed: ", err);
+            }
+          };
+
+          mapInstance.on('click', (e) => {
+            const { lat, lng } = e.latlng;
+            marker.setLatLng([lat, lng]);
+            reverseGeocode(lat, lng);
+          });
+
+          marker.on('dragend', () => {
+            const { lat, lng } = marker.getLatLng();
+            reverseGeocode(lat, lng);
+          });
+        }
+      }, 300);
+
+      return () => {
+        clearTimeout(timer);
+        if (mapInstance) {
+          mapInstance.remove();
+        }
+      };
+    }
+  }, [showMapModal]);
 
   return (
     <div className="min-h-screen font-sans relative selection:bg-[#c69b3f] selection:text-white bg-white lg:bg-gradient-to-r lg:from-white lg:from-[50%] lg:to-[#f4f3ed] lg:to-[50%]">
@@ -131,6 +204,19 @@ export default function PoojaLanding({
                               className="w-full text-left px-3 py-2 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 text-orange-600 text-xs font-black flex items-center justify-between border border-orange-200 transition-colors"
                             >
                               <span>📦 View Tour Packages</span>
+                              <span>➔</span>
+                            </button>
+
+                            {/* Choose Location on Map Shortcut Link */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsDestDropdownOpen(false);
+                                setShowMapModal(true);
+                              }}
+                              className="w-full text-left px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-50 to-blue-50 hover:from-cyan-100 hover:to-blue-100 text-cyan-650 text-xs font-black flex items-center justify-between border border-cyan-200 transition-colors"
+                            >
+                              <span>🗺️ Choose Location on Map</span>
                               <span>➔</span>
                             </button>
 
@@ -419,6 +505,76 @@ export default function PoojaLanding({
         <Reviews />
         <OurServices />
       </div>
+
+      {/* 4. CHOOSE LOCATION ON MAP MODAL */}
+      {showMapModal && (
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center z-[150] p-4 select-none">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            {/* Header */}
+            <div className="px-6 py-4 bg-gradient-to-r from-[#0d3859] to-[#0a2540] text-white flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🗺️</span>
+                <span className="text-sm font-black uppercase tracking-wider">Choose Location on Map</span>
+              </div>
+              <button 
+                onClick={() => setShowMapModal(false)}
+                className="p-1 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+              >
+                <svg className="w-5.5 h-5.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 flex-1 flex flex-col gap-4 overflow-y-auto">
+              <p className="text-xs text-slate-500 font-bold leading-normal">
+                Click anywhere on the map or drag the location pin to select your target tour destination.
+              </p>
+
+              {/* Map Container - Leaflet will render inside this */}
+              <div 
+                id="map-container" 
+                className="w-full h-72 sm:h-80 rounded-xl border border-slate-200 shadow-inner overflow-hidden z-0"
+              />
+
+              {/* Selected Location Address block */}
+              <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-xl flex items-start gap-2.5 mt-2">
+                <span className="text-lg shrink-0 mt-0.5">📍</span>
+                <div className="flex flex-col">
+                  <span className="text-[0.62rem] font-black text-slate-400 uppercase tracking-widest leading-none">Selected Address</span>
+                  <span className="text-xs font-black text-slate-800 leading-normal mt-1.5 break-words">
+                    {selectedMapAddress || 'Resolving location pin...'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions Footer */}
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+              <button
+                onClick={() => setShowMapModal(false)}
+                className="px-4 py-2 border border-slate-200 bg-white rounded-xl text-xs font-black text-slate-500 hover:bg-slate-50 active:scale-95 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setSearchParams({ ...searchParams, toCity: selectedMapAddress });
+                  setCustomDestText(selectedMapAddress.split(',')[0]);
+                  setShowMapModal(false);
+                }}
+                disabled={!selectedMapAddress}
+                className="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-black shadow-md shadow-orange-500/10 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Confirm Location
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );
