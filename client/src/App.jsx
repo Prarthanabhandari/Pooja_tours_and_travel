@@ -362,7 +362,7 @@ export default function App() {
       
       {/* GLOBAL HEADER SECTION */}
       {currentPage !== 'admin' && (
-        <header className="bg-white lg:bg-gradient-to-r lg:from-white lg:from-[50%] lg:to-[#f4f3ed] lg:to-[50%] border-b border-gray-100 fixed top-0 left-0 right-0 z-50 shadow-sm h-16">
+        <header className="bg-white border-b border-gray-100 fixed top-0 left-0 right-0 z-50 shadow-sm h-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
             
             {/* Logo block */}
