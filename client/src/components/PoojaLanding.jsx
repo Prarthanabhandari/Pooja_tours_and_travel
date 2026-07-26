@@ -58,21 +58,21 @@ export default function PoojaLanding({
               </div>
 
               {/* Custom PLAN YOUR TRIP Form Widget */}
-              <div className="border border-[#0d3859]/80 rounded-xl overflow-hidden shadow-lg bg-white">
+              <div className="border border-[#0d3859]/80 rounded-xl shadow-lg bg-white relative z-20">
                 
                 {/* Form Title bar */}
-                <div className="bg-[#0d3859] text-white text-center py-3 text-xs font-bold uppercase tracking-widest">
+                <div className="bg-[#0d3859] text-white text-center py-3 text-xs font-bold uppercase tracking-widest rounded-t-xl">
                   Plan Your Trip
                 </div>
 
                 {/* Form Body Inputs */}
-                <form onSubmit={handleSearchSubmit} className="p-3.5 flex flex-col gap-2.5 bg-white">
+                <form onSubmit={handleSearchSubmit} className="p-3.5 flex flex-col gap-2.5 bg-white rounded-b-xl">
                   
                   {/* Row 1: Destination */}
-                  <div className="border border-slate-200 rounded-lg overflow-hidden flex items-stretch h-10 bg-white">
+                  <div className="border border-slate-200 rounded-lg flex items-stretch h-10 bg-white relative z-30">
                     
                     {/* Left Label block with outline location pin SVG */}
-                    <div className="w-[42%] bg-white border-r border-slate-200 flex items-center gap-2 px-3 text-slate-800 font-semibold text-[13px] select-none">
+                    <div className="w-[42%] bg-white border-r border-slate-200 flex items-center gap-2 px-3 text-slate-800 font-semibold text-[13px] select-none rounded-l-lg">
                       <svg className="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
