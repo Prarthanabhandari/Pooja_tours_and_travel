@@ -213,12 +213,39 @@ Navigate into the `server/` directory and install dependencies:
 cd server
 npm install
 ```
-Create a `.env` configuration file in `server/` with the following variables:
+Create a `.env` configuration file inside the `server/` directory. You can set it up using either of the following two formats:
+
+**Option A (Single Connection String):**
 ```env
 PORT=5000
-DATABASE_URL=postgres://postgres:password@localhost:5432/pooja_travels
+DATABASE_URL=postgres://postgres:YOUR_POSTGRES_PASSWORD@localhost:5432/pooja_travels
 JWT_SECRET=pooja_travels_super_secure_key
 ```
+
+**Option B (Individual Variables - Recommended):**
+```env
+PORT=5000
+DB_USER=postgres
+DB_PASSWORD=YOUR_POSTGRES_PASSWORD
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=pooja_travels
+JWT_SECRET=pooja_travels_super_secure_key
+```
+*(Make sure to replace `YOUR_POSTGRES_PASSWORD` with your actual local PostgreSQL user password).*
+
+#### ⚠️ Database Troubleshooting
+If you run `npm run dev` and see the warning:
+> `⚠️ PostgreSQL connection failed. Falling back to File-based Mock Database (mock_db.json).`
+
+Ensure that:
+1. PostgreSQL is installed and running locally on port `5432`.
+2. You have created a database named `pooja_travels` (or the name matches your `.env`).
+3. Your database username and password in the `.env` file are correct.
+4. You have run the SQL tables queries from `server/database.sql` to initialize the database tables.
+
+Once connection details are set up correctly, restart the server and it will connect successfully.
+
 Start the backend API server:
 ```bash
 npm run dev

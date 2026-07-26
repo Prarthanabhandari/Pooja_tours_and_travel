@@ -75,6 +75,22 @@ export default function TestimonialsPage({ setCurrentPage }) {
       {/* Main Grid Area */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full flex-1">
         
+        {/* Intro */}
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.7rem] font-black bg-[#00b4d8]/10 text-[#00b4d8] uppercase tracking-wider mb-3">
+            <svg className="w-3.5 h-3.5 text-[#00b4d8]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499c.196-.641 1.01-.641 1.206 0l2.062 6.643a1 1 0 00.95.69h6.905c.675 0 .954.869.408 1.289l-5.586 4.06a1 1 0 00-.364 1.118l2.062 6.642c.196.64-.563 1.185-1.107.785l-5.585-4.06a1 1 0 00-1.18 0l-5.585 4.06c-.543.4-.131-.145-.131-.785l2.062-6.642a1 1 0 00-.364-1.118L2.05 12.122c-.547-.42-.267-1.289.408-1.289h6.905a1 1 0 00.95-.69l2.062-6.643z" />
+            </svg>
+            <span>Client Testimonials</span>
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight mb-3">
+            What Our <span className="text-[#00b4d8]">Travelers Say</span>
+          </h2>
+          <p className="text-xs sm:text-sm font-semibold text-slate-500 max-w-xl mx-auto leading-relaxed">
+            Verified stories and feedback from customers who booked our Force Travellers and outstation cabs.
+          </p>
+        </div>
+        
         {/* Navigation & Action Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           

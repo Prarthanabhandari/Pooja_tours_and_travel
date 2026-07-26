@@ -17,7 +17,8 @@ export default function PoojaLanding({
   setShowAuthModal,
   setAuthMode,
   currentUser,
-  handleLogout
+  handleLogout,
+  setSelectedRouteName
 }) {
 
   return (
@@ -329,11 +330,15 @@ export default function PoojaLanding({
         <FleetSection 
           searchParams={searchParams}
           setSearchParams={setSearchParams}
+          setCurrentPage={setCurrentPage}
+          setSelectedRouteName={setSelectedRouteName}
         />
         <WhyChooseUs />
         <PopularPackages 
           searchParams={searchParams}
           setSearchParams={setSearchParams}
+          setCurrentPage={setCurrentPage}
+          setSelectedRouteName={setSelectedRouteName}
         />
         <HowItWorks />
         <Reviews />

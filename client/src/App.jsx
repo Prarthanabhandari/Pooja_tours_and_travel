@@ -17,6 +17,7 @@ import TestimonialsPage from './components/TestimonialsPage';
 import BlogPage from './components/BlogPage';
 import AuthModal from './components/AuthModal';
 import HeaderBreadcrumbs from './components/HeaderBreadcrumbs';
+import RouteDetailsPage from './components/RouteDetailsPage';
 
 // API Base URL - points to our Express server
 const API_URL = 'http://localhost:5000/api';
@@ -43,6 +44,7 @@ const POPULAR_PACKAGES = [
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
+  const [selectedRouteName, setSelectedRouteName] = useState('');
   const [theme, setTheme] = useState('dark');
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -474,6 +476,7 @@ export default function App() {
               setAuthMode={setAuthMode}
               currentUser={currentUser}
               handleLogout={handleLogout}
+              setSelectedRouteName={setSelectedRouteName}
             />
           </div>
         )}
@@ -489,6 +492,17 @@ export default function App() {
             setCurrentPage={setCurrentPage} 
             searchParams={searchParams} 
             setSearchParams={setSearchParams} 
+            setSelectedRouteName={setSelectedRouteName}
+          />
+        )}
+
+        {/* PAGE: ROUTE DETAILS */}
+        {currentPage === 'route-details' && (
+          <RouteDetailsPage 
+            routeName={selectedRouteName}
+            setCurrentPage={setCurrentPage}
+            setSearchParams={setSearchParams}
+            searchParams={searchParams}
           />
         )}
 
@@ -526,8 +540,24 @@ export default function App() {
             {/* Breadcrumbs Header */}
             <HeaderBreadcrumbs title="Contact Us" setCurrentPage={setCurrentPage} />
 
+            {/* Intro */}
+            <div className="relative z-10 max-w-3xl mx-auto px-4 text-center mt-8 sm:mt-12 mb-2 sm:mb-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.7rem] font-black bg-[#00b4d8]/10 text-[#00b4d8] uppercase tracking-wider mb-3">
+                <svg className="w-3.5 h-3.5 text-[#00b4d8]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.824-1.102-5.123-3.402-6.223-6.223l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                </svg>
+                <span>Get In Touch</span>
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight mb-3">
+                Start Your <span className="text-[#00b4d8]">Journey With Us</span>
+              </h2>
+              <p className="text-xs sm:text-sm font-semibold text-slate-500 max-w-xl mx-auto leading-relaxed">
+                Have questions about rates, vehicle availability, or custom routes? Drop us an inquiry or call us directly.
+              </p>
+            </div>
+
             {/* Main Content Area */}
-            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               
               {/* Left Column: Office details */}
               <div className="lg:col-span-5 bg-white/65 backdrop-blur-md border border-white/60 rounded-3xl p-6 sm:p-8 shadow-sm space-y-8">

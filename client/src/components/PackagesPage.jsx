@@ -314,7 +314,8 @@ const CATEGORIES = [
 export default function PackagesPage({ 
   setCurrentPage, 
   searchParams, 
-  setSearchParams 
+  setSearchParams,
+  setSelectedRouteName
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -505,19 +506,9 @@ export default function PackagesPage({
                       {/* Book Now Button */}
                       <button 
                         onClick={() => {
-                          // Autofill search inputs in App.jsx based on selected tour
-                          setSearchParams({
-                            ...searchParams,
-                            bookingType: 'cab',
-                            fromCity: 'Pune, Maharashtra, India',
-                            toCity: pkg.to
-                          });
-                          setCurrentPage('home');
-                          // smooth scroll to search console
-                          setTimeout(() => {
-                            const searchEl = document.getElementById('search-panel');
-                            if (searchEl) searchEl.scrollIntoView({ behavior: 'smooth' });
-                          }, 150);
+                          setSelectedRouteName(pkg.title);
+                          setCurrentPage('route-details');
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
                         }} 
                         className="bg-[#00b4d8] hover:bg-[#0083b0] text-white font-extrabold text-xs px-4 py-2 rounded-xl transition-colors shadow-sm shadow-[#00b4d8]/20 flex items-center justify-center gap-1.5"
                       >

@@ -1,7 +1,7 @@
 export const galleryImages = [
   {
     id: 1,
-    title: 'Tour Group posing in front of temple',
+    title: 'Luxury 17-Seater Force Traveller AC Coach',
     image: '/Gallery/WhatsApp Image 2026-07-06 at 9.06.50 PM.jpeg',
     category: 'tours',
     likes: 184

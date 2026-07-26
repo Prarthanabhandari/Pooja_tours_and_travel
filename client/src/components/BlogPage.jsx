@@ -39,6 +39,22 @@ export default function BlogPage({ setCurrentPage }) {
       {/* Main Grid Area */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full flex-1">
         
+        {/* Intro */}
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.7rem] font-black bg-[#00b4d8]/10 text-[#00b4d8] uppercase tracking-wider mb-3">
+            <svg className="w-3.5 h-3.5 text-[#00b4d8]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+            <span>Travel Stories &amp; Guides</span>
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight mb-3">
+            Pooja Travels <span className="text-[#00b4d8]">Travel Blog</span>
+          </h2>
+          <p className="text-xs sm:text-sm font-semibold text-slate-500 max-w-xl mx-auto leading-relaxed">
+            Guides, spiritual destination paths, safety tips, and travel inspirations written directly for your next tour.
+          </p>
+        </div>
+        
         {/* Filters and Search Bar Container */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           

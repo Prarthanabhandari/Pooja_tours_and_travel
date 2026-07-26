@@ -2,7 +2,9 @@ import React from 'react';
 
 export default function FleetSection({ 
   searchParams, 
-  setSearchParams 
+  setSearchParams,
+  setCurrentPage,
+  setSelectedRouteName
 }) {
   const categories = [
     {
@@ -245,17 +247,23 @@ export default function FleetSection({
                   </div>
 
                   {/* Book Button (Clean vector arrow, no emojis) */}
-                  <a 
-                    href={`https://wa.me/919623324139?text=${encodeURIComponent(cat.whatsappText)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  {/* Book Button */}
+                  <button 
+                    onClick={() => {
+                      if (setSelectedRouteName && setCurrentPage) {
+                        setSelectedRouteName('Pune ⇄ Mumbai Airport Drops'); // Open default route
+                        setCurrentPage('route-details');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
                     className="w-full py-2 bg-gradient-to-r from-[#00b4d8] to-[#0083b0] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 hover:from-[#ea580c] hover:to-[#d04a00] active:scale-95 transition-all shadow-sm shadow-[#00b4d8]/10"
+                    style={{ cursor: 'pointer' }}
                   >
                     <span>Book Now</span>
                     <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
