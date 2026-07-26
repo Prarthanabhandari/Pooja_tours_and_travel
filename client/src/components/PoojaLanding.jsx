@@ -20,6 +20,12 @@ export default function PoojaLanding({
   handleLogout,
   setSelectedRouteName
 }) {
+  const [isDestDropdownOpen, setIsDestDropdownOpen] = useState(false);
+  const [customDestText, setCustomDestText] = useState(searchParams.toCity ? searchParams.toCity.split(',')[0] : '');
+
+  useEffect(() => {
+    setCustomDestText(searchParams.toCity ? searchParams.toCity.split(',')[0] : '');
+  }, [searchParams.toCity]);
 
   return (
     <div className="min-h-screen font-sans relative selection:bg-[#c69b3f] selection:text-white bg-white lg:bg-gradient-to-r lg:from-white lg:from-[50%] lg:to-[#f4f3ed] lg:to-[50%]">
@@ -76,19 +82,88 @@ export default function PoojaLanding({
 
                     {/* Right Input selection */}
                     <div className="w-[58%] relative flex items-center">
-                      <select
-                        value={searchParams.toCity}
-                        onChange={(e) => setSearchParams({ ...searchParams, toCity: e.target.value })}
-                        className="w-full h-full text-slate-500 px-3 outline-none bg-transparent appearance-none cursor-pointer text-[13px]"
+                      <input
+                        type="text"
+                        placeholder="Where to go?"
+                        value={customDestText}
+                        onClick={() => setIsDestDropdownOpen(true)}
+                        readOnly
+                        className="w-full h-full text-slate-700 px-3 outline-none bg-transparent cursor-pointer text-[13px] font-bold"
                         required
-                      >
-                        <option value="">Where to go?</option>
-                        <option value="Mahabaleshwar, Maharashtra, India">Mahabaleshwar</option>
-                        <option value="Mumbai, Maharashtra, India">Mumbai City</option>
-                        <option value="Shirdi, Maharashtra, India">Shirdi Temple</option>
-                        <option value="Pune, Maharashtra, India">Pune City</option>
-                      </select>
+                      />
                       <div className="absolute right-3 pointer-events-none text-slate-400 text-[0.6rem]">▼</div>
+
+                      {/* Dropdown Menu Overlay */}
+                      {isDestDropdownOpen && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-40" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsDestDropdownOpen(false);
+                            }} 
+                          />
+                          <div className="absolute top-11 -right-2 w-[240px] xs:w-[280px] bg-white border border-slate-200 rounded-xl shadow-2xl z-50 p-2.5 flex flex-col gap-2 max-h-72 overflow-y-auto">
+                            
+                            {/* Custom Search/Type Input */}
+                            <div className="relative">
+                              <input 
+                                type="text"
+                                placeholder="🔍 Enter any destination..."
+                                value={customDestText}
+                                onChange={(e) => {
+                                  setCustomDestText(e.target.value);
+                                  setSearchParams({ ...searchParams, toCity: e.target.value });
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none focus:border-[#00b4d8] text-slate-800 bg-slate-50"
+                              />
+                            </div>
+
+                            {/* Tour Packages Shortcut Link */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsDestDropdownOpen(false);
+                                setCurrentPage('packages');
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                              }}
+                              className="w-full text-left px-3 py-2 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 text-orange-600 text-xs font-black flex items-center justify-between border border-orange-200 transition-colors"
+                            >
+                              <span>📦 View Tour Packages</span>
+                              <span>➔</span>
+                            </button>
+
+                            <div className="text-[0.58rem] font-black text-slate-400 uppercase tracking-widest px-2.5 pt-1.5 border-t border-slate-100">
+                              Direct Destinations
+                            </div>
+
+                            {/* Popular Selection options */}
+                            <div className="flex flex-col gap-0.5">
+                              {[
+                                { label: 'Mahabaleshwar', value: 'Mahabaleshwar, Maharashtra, India' },
+                                { label: 'Mumbai City', value: 'Mumbai, Maharashtra, India' },
+                                { label: 'Shirdi Temple', value: 'Shirdi, Maharashtra, India' },
+                                { label: 'Pune City', value: 'Pune, Maharashtra, India' }
+                              ].map(dest => (
+                                <button
+                                  key={dest.value}
+                                  type="button"
+                                  onClick={() => {
+                                    setSearchParams({ ...searchParams, toCity: dest.value });
+                                    setCustomDestText(dest.label);
+                                    setIsDestDropdownOpen(false);
+                                  }}
+                                  className="w-full text-left px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#00b4d8] transition-colors"
+                                >
+                                  📍 {dest.label}
+                                </button>
+                              ))}
+                            </div>
+
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
