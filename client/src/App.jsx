@@ -20,7 +20,7 @@ import HeaderBreadcrumbs from './components/HeaderBreadcrumbs';
 import RouteDetailsPage from './components/RouteDetailsPage';
 
 // API Base URL - points to our Express server
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // --- MOCK DATA FOR FRONTEND OFFLINE FALLBACK ---
 const MOCK_CABS = [
