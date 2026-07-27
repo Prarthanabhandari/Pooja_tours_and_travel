@@ -39,6 +39,16 @@ export default function Reviews() {
   return (
     <section id="reviews-section" className="py-16 bg-[#fafcff] w-full overflow-hidden select-none relative">
       
+      {/* Travel Doodle Background Pattern Watermark (extremely faint: ekdam pusat) */}
+      <div 
+        className="absolute inset-0 opacity-[0.13] pointer-events-none z-0" 
+        style={{
+          backgroundImage: `url('/What Customer says/Padrão de viagem com elementos e linhas de traço _ Vetor Premium (1).jpg')`,
+          backgroundSize: '360px',
+          backgroundRepeat: 'repeat',
+        }}
+      />
+
       {/* Delicate dashed flight path trail winding behind the cards */}
       <svg className="absolute inset-x-0 top-[40%] w-full h-24 opacity-[0.25] pointer-events-none text-slate-300 z-0" fill="none" preserveAspectRatio="none" viewBox="0 0 1440 100">
         <path d="M 0 50 Q 360 100 720 50 T 1440 50" stroke="currentColor" strokeWidth="1.5" strokeDasharray="5 5" />
@@ -87,6 +97,9 @@ export default function Reviews() {
               className="group relative bg-white border border-slate-200/50 rounded-[100px] sm:rounded-[120px] aspect-[2.6/4] p-8 flex flex-col justify-between items-center text-center shadow-[0_12px_24px_-6px_rgba(15,23,42,0.015),0_4px_10px_rgba(0,0,0,0.01)] hover:shadow-xl hover:border-[#0055ff]/20 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
             >
               
+              {/* Elegant inner dashed stitching line */}
+              <div className="absolute inset-3 rounded-[85px] sm:rounded-[105px] border border-dashed border-slate-200/60 group-hover:border-[#0055ff]/20 transition-all duration-300 pointer-events-none" />
+
               {/* Background quotes mark */}
               <span className="absolute top-8 text-slate-100 font-serif text-8xl leading-none select-none pointer-events-none group-hover:text-blue-50/50 transition-colors duration-300">
                 “
@@ -110,9 +123,15 @@ export default function Reviews() {
 
               {/* Bottom profile info block */}
               <div className="relative z-10 flex flex-col items-center gap-2 mb-6">
-                <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${rev.colorClass} flex items-center justify-center font-bold text-[0.72rem] tracking-wider shadow-sm`}>
-                  {rev.initials}
+                
+                {/* Decorative outer rotating dashed ring for avatar circle */}
+                <div className="relative p-1 rounded-full border border-slate-100 group-hover:border-[#0055ff]/20 transition-colors duration-300">
+                  <div className="absolute inset-0 rounded-full border border-dashed border-slate-200 group-hover:border-[#0055ff]/40 group-hover:animate-spin" style={{ animationDuration: '24s' }} />
+                  <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${rev.colorClass} flex items-center justify-center font-bold text-[0.72rem] tracking-wider shadow-sm relative z-10`}>
+                    {rev.initials}
+                  </div>
                 </div>
+
                 <div className="flex flex-col items-center">
                   <span className="text-[0.74rem] font-black text-slate-800 leading-none mb-1 flex items-center gap-1">
                     {rev.name}
