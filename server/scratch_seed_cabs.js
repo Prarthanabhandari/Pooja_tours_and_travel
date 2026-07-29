@@ -19,9 +19,9 @@ async function seed() {
   try {
     console.log('Seeding Cabs Table with exact rates...');
     
-    // Clear old cabs
-    await db.query('DELETE FROM cabs');
-    console.log('Cleared existing cabs.');
+    // Clear old cabs and reset sequence
+    await db.query('TRUNCATE TABLE cabs RESTART IDENTITY CASCADE');
+    console.log('Cleared existing cabs and reset ID sequence.');
 
     // Insert new cabs
     for (const cab of initialCabs) {
