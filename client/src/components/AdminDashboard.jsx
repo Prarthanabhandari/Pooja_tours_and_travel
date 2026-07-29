@@ -33,8 +33,10 @@ export default function AdminDashboard({
 
   // Gallery creation form state
   const [newGalleryTitle, setNewGalleryTitle] = useState('');
-  const [newGalleryImage, setNewGalleryImage] = useState('/Gallery/WhatsApp Image 2026-07-06 at 9.06.50 PM.jpeg');
+  const [newGalleryImage, setNewGalleryImage] = useState('');
   const [newGalleryCategory, setNewGalleryCategory] = useState('tours');
+  const [isUploading, setIsUploading] = useState(false);
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
 
   useEffect(() => {
     if (siteSettings) {
@@ -236,8 +238,42 @@ export default function AdminDashboard({
     }
   };
 
+  const handleGalleryImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      try {
+        const base64Data = reader.result;
+        const res = await fetch(`${API_URL}/upload`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64Data })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setNewGalleryImage(data.url);
+        } else {
+          alert('Failed to upload image. Please try again.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error uploading image.');
+      } finally {
+        setIsUploading(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleAddGallery = async (e) => {
     e.preventDefault();
+    if (!newGalleryImage) {
+      alert('Please upload an image first.');
+      return;
+    }
     try {
       const res = await fetch(`${API_URL}/gallery`, {
         method: 'POST',
@@ -251,7 +287,8 @@ export default function AdminDashboard({
       if (res.ok) {
         alert('Image added to gallery successfully!');
         setNewGalleryTitle('');
-        setNewGalleryImage('/Gallery/WhatsApp Image 2026-07-06 at 9.06.50 PM.jpeg');
+        setNewGalleryImage('');
+        setFileInputKey(Date.now());
         await fetchGallery();
       } else {
         alert('Failed to add gallery image.');
@@ -1679,14 +1716,23 @@ export default function AdminDashboard({
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-black text-slate-500 uppercase">Image URL *</label>
+                    <label className="text-xs font-black text-slate-500 uppercase">Upload Image from Desktop *</label>
                     <input 
-                      type="text" 
-                      required
-                      value={newGalleryImage}
-                      onChange={(e) => setNewGalleryImage(e.target.value)}
+                      key={fileInputKey}
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleGalleryImageUpload}
                       className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                      required={!newGalleryImage}
                     />
+                    {isUploading && (
+                      <span className="text-[10px] font-bold text-[#00b4d8] animate-pulse">Uploading image...</span>
+                    )}
+                    {newGalleryImage && (
+                      <div className="mt-2 text-[10px] font-bold text-emerald-600 flex items-center gap-1.5">
+                        <span>✓ Selected: {newGalleryImage}</span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-black text-slate-500 uppercase">Category *</label>
