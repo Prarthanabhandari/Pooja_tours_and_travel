@@ -95,6 +95,8 @@ try {
       useMockDb = true;
     } else {
       console.log('✅  PostgreSQL connected successfully:', res.rows[0].now);
+      // Run cabs synchronization check to align live DB with exact rates
+      syncCabsTable();
     }
   });
 } catch (e) {
@@ -113,6 +115,46 @@ const query = async (text, params) => {
   } catch (err) {
     console.error('Database query error:', err.message);
     throw err;
+  }
+};
+
+const syncCabsTable = async () => {
+  if (useMockDb) return;
+  const initialCabs = [
+    { id: 1, type: "Hatchback", name: "Maruti Suzuki WagonR", price_per_km: 13.00, seating_capacity: 4, image_url: "hatchback.png" },
+    { id: 2, type: "SUV", name: "Maruti Suzuki Brezza", price_per_km: 13.00, seating_capacity: 4, image_url: "brezza.png" },
+    { id: 3, type: "Sedan", name: "Maruti Suzuki Dzire", price_per_km: 13.00, seating_capacity: 4, image_url: "dzire.png" },
+    { id: 4, type: "Comfort Sedan", name: "Toyota Etios", price_per_km: 13.00, seating_capacity: 4, image_url: "etios.png" },
+    { id: 5, type: "Family MUV", name: "Maruti Ertiga", price_per_km: 16.00, seating_capacity: 7, image_url: "ertiga.png" },
+    { id: 6, type: "Comfort SUV", name: "Kia Carens", price_per_km: 16.00, seating_capacity: 7, image_url: "carens.png" },
+    { id: 7, type: "Comfort MUV", name: "Toyota Innova Crysta", price_per_km: 21.00, seating_capacity: 7, image_url: "innova.png" },
+    { id: 8, type: "AC Tourist Coach", name: "17-Seater Premium AC Tempo Traveller", price_per_km: 26.00, seating_capacity: 17, image_url: "traveller.png" },
+    { id: 9, type: "Standard Coach", name: "17-Seater Standard Non-AC Tempo Traveller", price_per_km: 24.00, seating_capacity: 17, image_url: "traveller.png" },
+    { id: 10, type: "Standard Coach", name: "20-Seater Standard Non-AC Tempo Traveller", price_per_km: 26.00, seating_capacity: 20, image_url: "traveller.png" },
+    { id: 11, type: "Tourist Coach", name: "32-Seater Comfort Tourist Coach", price_per_km: 35.00, seating_capacity: 32, image_url: "bus.png" },
+    { id: 12, type: "Tourist Bus", name: "50-Seater Comfort Tourist Bus", price_per_km: 48.00, seating_capacity: 50, image_url: "bus.png" }
+  ];
+
+  try {
+    console.log('🔄 Syncing cabs table with correct rates and IDs (1-12)...');
+    for (const cab of initialCabs) {
+      const res = await query('SELECT * FROM cabs WHERE id = $1', [cab.id]);
+      if (res.rows && res.rows.length > 0) {
+        await query(
+          'UPDATE cabs SET type = $1, name = $2, price_per_km = $3, seating_capacity = $4, image_url = $5 WHERE id = $6',
+          [cab.type, cab.name, cab.price_per_km, cab.seating_capacity, cab.image_url, cab.id]
+        );
+      } else {
+        await query(
+          'INSERT INTO cabs (id, type, name, price_per_km, seating_capacity, image_url) VALUES ($1, $2, $3, $4, $5, $6)',
+          [cab.id, cab.type, cab.name, cab.price_per_km, cab.seating_capacity, cab.image_url, cab.id]
+        );
+      }
+    }
+    await query("SELECT setval('cabs_id_seq', COALESCE((SELECT MAX(id) FROM cabs), 1))");
+    console.log('✅ Cabs table synced successfully!');
+  } catch (err) {
+    console.error('❌ Failed to sync cabs table:', err.message);
   }
 };
 
