@@ -51,6 +51,7 @@ export default function App() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Auth & Booking States
   const [currentUser, setCurrentUser] = useState(() => {
@@ -408,9 +409,7 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      
-      {/* GLOBAL HEADER SECTION */}
-      {currentPage !== 'admin' && (
+         {currentPage !== 'admin' && (
         <header className="bg-white border-b border-gray-100 fixed top-0 left-0 right-0 z-50 shadow-sm h-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
             
@@ -506,9 +505,145 @@ export default function App() {
                 Review
               </button>
             </nav>
+
+            {/* Hamburger Menu Trigger (Mobile only) */}
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+              className="md:hidden p-2 rounded-xl hover:bg-slate-100 active:scale-95 transition-all text-slate-800 flex items-center justify-center border border-slate-200 bg-[#f8fafc]"
+              style={{ cursor: 'pointer' }}
+              aria-label="Toggle menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                {isMobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
           </div>
         </header>
       )}
+
+      {/* Mobile Drawer Overlay Backdrop */}
+      {isMobileMenuOpen && (
+        <div 
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-[99] md:hidden"
+        />
+      )}
+
+      {/* Sliding Mobile Navigation Side Drawer */}
+      <div 
+        className={`fixed top-0 right-0 h-full w-[280px] bg-white border-l border-slate-200 shadow-2xl z-[100] p-6 flex flex-col justify-between transition-transform duration-300 transform md:hidden ${
+          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div>
+          {/* Drawer Header */}
+          <div className="flex justify-between items-center pb-4 border-b border-slate-100 mb-6">
+            <span className="text-[0.62rem] font-black text-slate-400 uppercase tracking-widest">Navigation</span>
+            <button 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-1.5 rounded-lg bg-slate-50 border border-slate-100 text-slate-500 hover:text-slate-800"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="flex flex-col gap-1.5">
+            <button 
+              onClick={() => { 
+                setCurrentPage('home'); 
+                setIsMobileMenuOpen(false); 
+                window.scrollTo({ top: 0, behavior: 'smooth' }); 
+              }} 
+              className={`w-full text-left py-2.5 px-3 rounded-xl text-xs font-black uppercase transition-colors ${currentPage === 'home' ? 'bg-[#00b4d8]/10 text-[#00b4d8]' : 'text-slate-700 hover:bg-slate-50'}`}
+            >
+              Home
+            </button>
+            {['Our Fleet', 'Tours', 'Gallery', 'About Us', 'Blog', 'Contact Us'].map((link) => {
+              const targetPage = 
+                link === 'Our Fleet' ? 'fleet-details' :
+                link === 'Tours' ? 'packages' :
+                link === 'Gallery' ? 'gallery' :
+                link === 'About Us' ? 'about' :
+                link === 'Blog' ? 'blog' : 'contact';
+              
+              const isActive = currentPage === targetPage;
+              
+              return (
+                <button
+                  key={link}
+                  onClick={() => {
+                    setCurrentPage(targetPage);
+                    setIsMobileMenuOpen(false);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`w-full text-left py-2.5 px-3 rounded-xl text-xs font-black uppercase transition-colors ${isActive ? 'bg-[#00b4d8]/10 text-[#00b4d8]' : 'text-slate-700 hover:bg-slate-50'}`}
+                >
+                  {link}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Drawer Drawer Bottom Area */}
+        <div className="border-t border-slate-100 pt-6">
+          <div className="flex flex-col gap-2.5">
+            {/* User Auth Info / Admin links */}
+            {currentUser ? (
+              <div className="flex flex-col gap-2">
+                {currentUser.role === 'admin' ? (
+                  <button 
+                    onClick={() => { setCurrentPage('admin'); setIsMobileMenuOpen(false); }} 
+                    className="w-full py-2.5 bg-[#0b1329] text-white text-xs font-black rounded-xl text-center flex items-center justify-center gap-1.5 shadow-sm"
+                  >
+                    👤 Admin Panel
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => { setCurrentPage('dashboard'); setIsMobileMenuOpen(false); }} 
+                    className="w-full py-2.5 bg-[#0b1329] text-white text-xs font-black rounded-xl text-center flex items-center justify-center gap-1.5 shadow-sm"
+                  >
+                    👤 Profile
+                  </button>
+                )}
+                <button 
+                  onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} 
+                  className="w-full py-2.5 bg-rose-50 border border-rose-200 text-rose-600 text-xs font-black rounded-xl text-center hover:bg-rose-100 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => { setIsMobileMenuOpen(false); setAuthMode('login'); setShowAuthModal(true); }}
+                className="w-full py-2.5 bg-[#0b1329] text-white text-xs font-black rounded-xl text-center flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-sm"
+              >
+                <span>👤</span>
+                <span>Login / Sign Up</span>
+              </button>
+            )}
+
+            {/* Testimonials Review CTA */}
+            <button
+              onClick={() => {
+                setCurrentPage('testimonials');
+                setIsMobileMenuOpen(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="w-full py-2.5 bg-[#4f46e5] text-white text-xs font-black rounded-xl text-center flex items-center justify-center shadow-sm uppercase tracking-wider"
+            >
+              Write Review
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* DYNAMIC PAGES CONTAINER */}
       <main style={{ flex: 1, paddingBottom: '60px', paddingTop: currentPage !== 'admin' ? '64px' : '0px' }}>
@@ -911,15 +1046,7 @@ export default function App() {
                     return (
                       <div 
                         key={item.id} 
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          padding: '20px',
-                          background: 'rgba(255,255,255,0.02)',
-                          border: '1px solid var(--border-light)',
-                          borderRadius: '8px'
-                        }}
+                        className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 bg-white/70 backdrop-blur-sm border border-slate-200 rounded-2xl gap-4 hover:border-[#00b4d8] hover:shadow-sm transition-all"
                       >
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -928,7 +1055,7 @@ export default function App() {
                           </div>
                           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '6px' }}>{detailsText}</p>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
+                        <div className="text-left sm:text-right w-full sm:w-auto flex sm:flex-col justify-between sm:justify-start items-center sm:items-end gap-2 sm:gap-0 mt-3 sm:mt-0 pt-3 sm:pt-0 border-t border-slate-100 sm:border-t-0">
                           <span style={{ display: 'block', fontSize: '1.25rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '8px' }}>{priceText}</span>
                           <button onClick={() => handleSelectItem(item)} className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Select</button>
                         </div>
@@ -1186,7 +1313,7 @@ export default function App() {
             )}
 
             {/* STEP 4: TICKET SUMMARY & MOCK QR */}
-            {bookingStep === 4 && activeTicket && (
+            {(bookingStep === 4 || bookingStep === 5) && activeTicket && (
               <div className="glass-panel" style={{ border: '2px dashed var(--primary)', padding: '30px', textAlign: 'left' }}>
                 <div style={{ textAlign: 'center', borderBottom: '1px dashed var(--border-light)', paddingBottom: '20px', marginBottom: '20px' }}>
                   <h3 style={{ color: 'var(--primary)', marginTop: '8px' }}>Booking Confirmed</h3>
@@ -1239,8 +1366,8 @@ export default function App() {
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', gap: '15px', marginTop: '25px' }}>
-                  <button onClick={() => window.print()} className="btn-secondary" style={{ flex: 1, padding: '10px' }}>
+                <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                  <button onClick={() => window.print()} className="btn-secondary w-full sm:flex-1 py-3 text-center justify-center flex items-center">
                     Print Ticket
                   </button>
                   <button 
@@ -1271,12 +1398,11 @@ export default function App() {
                       element.click();
                       document.body.removeChild(element);
                     }} 
-                    className="btn-secondary" 
-                    style={{ flex: 1, padding: '10px' }}
+                    className="btn-secondary w-full sm:flex-1 py-3 text-center justify-center flex items-center"
                   >
                     Download Details
                   </button>
-                  <button onClick={() => { setCurrentPage('home'); setBookingStep(1); }} className="btn-primary" style={{ flex: 1, padding: '10px', justifyContent: 'center' }}>
+                  <button onClick={() => { setCurrentPage('home'); setBookingStep(1); }} className="btn-primary w-full sm:flex-1 py-3 text-center justify-center flex items-center">
                     Go to Home
                   </button>
                 </div>

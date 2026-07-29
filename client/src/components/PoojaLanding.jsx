@@ -171,7 +171,7 @@ export default function PoojaLanding({
       {/* 2. SPLIT-SCREEN EDITORIAL LAYOUT HERO & BOOKING CONSOLE */}
       {/* Background arches collage set as a background image stretching 100% height */}
       <section 
-        className={`relative min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex items-stretch overflow-hidden bg-white lg:bg-[length:100%_100%] lg:bg-no-repeat lg:bg-center transition-all ${
+        className={`relative min-h-0 lg:min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex items-stretch overflow-hidden bg-white lg:bg-[length:100%_100%] lg:bg-no-repeat lg:bg-center transition-all ${
           showMap ? 'lg:bg-none bg-slate-50/50' : 'lg:bg-[url(\'/hero-bg-collage.png\')]'
         }`}
       >
@@ -620,11 +620,11 @@ export default function PoojaLanding({
         </div>
         
         {/* Mobile features row directly on background */}
-        <div className="w-full max-w-[500px] grid grid-cols-4 gap-2 bg-transparent">
+        <div className="w-full max-w-[500px] grid grid-cols-2 sm:grid-cols-4 gap-y-4 gap-x-2 bg-transparent">
           
           {/* Feature 1 */}
           <div className="flex flex-col items-center text-center">
-            <svg className="w-5.5 h-5.5 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <svg className="w-6 h-6 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 18H8.5a3.5 3.5 0 0 1-3.5-3.5V6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v6.5a1.5 1.5 0 0 0 1.5 1.5H19a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 18v2m-6-2v2" />
@@ -636,7 +636,7 @@ export default function PoojaLanding({
 
           {/* Feature 2 */}
           <div className="flex flex-col items-center text-center">
-            <svg className="w-5.5 h-5.5 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <svg className="w-6 h-6 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 19.5v.008H12V19.5zm-3.75-3.75a5.303 5.303 0 0 1 7.5 0M5.25 12a10.607 10.607 0 0 1 13.5 0M3 8.25a15.91 15.91 0 0 1 18 0" />
             </svg>
             <span className="text-[9px] font-black text-slate-800 tracking-tight leading-tight uppercase mt-1.5">
@@ -646,7 +646,7 @@ export default function PoojaLanding({
 
           {/* Feature 3 */}
           <div className="flex flex-col items-center text-center">
-            <svg className="w-5.5 h-5.5 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <svg className="w-6 h-6 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
             </svg>
             <span className="text-[9px] font-black text-slate-800 tracking-tight leading-tight uppercase mt-1.5">
@@ -656,7 +656,7 @@ export default function PoojaLanding({
 
           {/* Feature 4 */}
           <div className="flex flex-col items-center text-center">
-            <svg className="w-5.5 h-5.5 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <svg className="w-6 h-6 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
             </svg>
             <span className="text-[9px] font-black text-slate-800 tracking-tight leading-tight uppercase mt-1.5">

@@ -36,6 +36,28 @@ export default function Reviews({ setCurrentPage }) {
     }
   ];
 
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [windowWidth, setWindowWidth] = React.useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+
+  React.useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const cardsToShow = windowWidth >= 1024 ? 4 : (windowWidth >= 640 ? 2 : 1);
+  const maxIndex = customerReviews.length - cardsToShow;
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => {
+        if (maxIndex <= 0) return 0;
+        return (prev + 1) > maxIndex ? 0 : prev + 1;
+      });
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [maxIndex]);
+
   return (
     <section id="reviews-section" className="py-16 bg-[#fafcff] w-full overflow-hidden select-none relative">
       
@@ -89,62 +111,91 @@ export default function Reviews({ setCurrentPage }) {
           </p>
         </div>
 
-        {/* 4-Column Row of Custom Oval Review Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 justify-center items-stretch">
-          {customerReviews.map((rev, idx) => (
-            <div 
-              key={idx}
-              className="group relative bg-white border border-slate-200/50 rounded-[100px] sm:rounded-[120px] aspect-[2.6/4] p-8 flex flex-col justify-between items-center text-center shadow-[0_12px_24px_-6px_rgba(15,23,42,0.015),0_4px_10px_rgba(0,0,0,0.01)] hover:shadow-xl hover:border-[#0055ff]/20 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
-            >
-              
-              {/* Elegant inner dashed stitching line */}
-              <div className="absolute inset-3 rounded-[85px] sm:rounded-[105px] border border-dashed border-slate-200/60 group-hover:border-[#0055ff]/20 transition-all duration-300 pointer-events-none" />
+        {/* Unified Responsive Carousel Slider Track */}
+        <div className="relative w-full overflow-hidden py-4">
+          <div 
+            className="flex transition-transform duration-700 ease-in-out"
+            style={{ 
+              transform: `translateX(-${currentIndex * (100 / cardsToShow)}%)`,
+            }}
+          >
+            {customerReviews.map((rev, idx) => (
+              <div 
+                key={idx} 
+                className="shrink-0 px-3 flex justify-center"
+                style={{ width: `${100 / cardsToShow}%` }}
+              >
+                <div className="group relative bg-white border border-slate-200/50 rounded-[100px] sm:rounded-[120px] min-h-[350px] py-10 px-6 sm:px-8 flex flex-col justify-between items-center text-center shadow-[0_12px_24px_-6px_rgba(15,23,42,0.015),0_4px_10px_rgba(0,0,0,0.01)] hover:shadow-xl hover:border-[#0055ff]/20 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden w-full max-w-[280px] sm:max-w-[320px] mx-auto">
+                  
+                  {/* Elegant inner dashed stitching line */}
+                  <div className="absolute inset-3 rounded-[85px] sm:rounded-[105px] border border-dashed border-slate-200/60 group-hover:border-[#0055ff]/20 transition-all duration-300 pointer-events-none" />
 
-              {/* Background quotes mark */}
-              <span className="absolute top-8 text-slate-100 font-serif text-8xl leading-none select-none pointer-events-none group-hover:text-blue-50/50 transition-colors duration-300">
-                “
-              </span>
+                  {/* Background quotes mark */}
+                  <span className="absolute top-8 text-slate-100 font-serif text-8xl leading-none select-none pointer-events-none group-hover:text-blue-50/50 transition-colors duration-300">
+                    “
+                  </span>
 
-              {/* Top rating stars */}
-              <div className="relative z-10 flex gap-0.5 justify-center mt-4">
-                {Array.from({ length: rev.rating }).map((_, i) => (
-                  <svg key={i} className="w-3.5 h-3.5 text-amber-400 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                  </svg>
-                ))}
-              </div>
-
-              {/* Middle review text */}
-              <div className="relative z-10 my-4 flex-1 flex items-center justify-center">
-                <p className="text-[0.72rem] sm:text-[0.74rem] text-slate-500 font-semibold leading-relaxed italic px-2 select-text">
-                  {rev.text}
-                </p>
-              </div>
-
-              {/* Bottom profile info block */}
-              <div className="relative z-10 flex flex-col items-center gap-2 mb-6">
-                
-                {/* Decorative outer rotating dashed ring for avatar circle */}
-                <div className="relative p-1 rounded-full border border-slate-100 group-hover:border-[#0055ff]/20 transition-colors duration-300">
-                  <div className="absolute inset-0 rounded-full border border-dashed border-slate-200 group-hover:border-[#0055ff]/40 group-hover:animate-spin" style={{ animationDuration: '24s' }} />
-                  <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${rev.colorClass} flex items-center justify-center font-bold text-[0.72rem] tracking-wider shadow-sm relative z-10`}>
-                    {rev.initials}
+                  {/* Top rating stars */}
+                  <div className="relative z-10 flex gap-0.5 justify-center mt-4">
+                    {Array.from({ length: rev.rating }).map((_, i) => (
+                      <svg key={i} className="w-3.5 h-3.5 text-amber-400 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                      </svg>
+                    ))}
                   </div>
-                </div>
 
-                <div className="flex flex-col items-center">
-                  <span className="text-[0.74rem] font-black text-slate-800 leading-none mb-1 flex items-center gap-1">
-                    {rev.name}
-                    <span className="text-[0.62rem] text-emerald-500 font-black" title="Verified Customer">✓</span>
-                  </span>
-                  <span className="text-[0.58rem] font-bold text-slate-400 truncate max-w-[120px]">
-                    {rev.location}
-                  </span>
+                  {/* Review Text */}
+                  <div className="relative z-10 my-4 flex-1 flex items-center justify-center">
+                    <p className="text-[0.72rem] sm:text-[0.74rem] text-slate-500 font-semibold leading-relaxed italic px-2 select-text">
+                      {rev.text}
+                    </p>
+                  </div>
+
+                  {/* Bottom profile info block */}
+                  <div className="relative z-10 flex flex-col items-center gap-2 mb-6">
+                    
+                    {/* Decorative outer rotating dashed ring for avatar circle */}
+                    <div className="relative p-1 rounded-full border border-slate-100 group-hover:border-[#0055ff]/20 transition-colors duration-300">
+                      <div className="absolute inset-0 rounded-full border border-dashed border-slate-200 group-hover:border-[#0055ff]/40 group-hover:animate-spin" style={{ animationDuration: '24s' }} />
+                      <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${rev.colorClass} flex items-center justify-center font-bold text-[0.72rem] tracking-wider shadow-sm relative z-10`}>
+                        {rev.initials}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-center">
+                      <span className="text-[0.74rem] font-black text-slate-800 leading-none mb-1 flex items-center gap-1">
+                        {rev.name}
+                        <span className="text-[0.62rem] text-emerald-500 font-black" title="Verified Customer">✓</span>
+                      </span>
+                      <span className="text-[0.58rem] font-bold text-slate-400 truncate max-w-[120px]">
+                        {rev.location}
+                      </span>
+                    </div>
+                  </div>
+
                 </div>
               </div>
+            ))}
+          </div>
 
+          {/* Dots Indicator (Only show if there are scrollable indices, i.e., maxIndex > 0) */}
+          {maxIndex > 0 && (
+            <div className="flex justify-center gap-1.5 mt-5">
+              {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentIndex(idx)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    currentIndex === idx 
+                      ? 'bg-[#0055ff] w-4' 
+                      : 'bg-slate-200 hover:bg-slate-350'
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                  style={{ cursor: 'pointer' }}
+                />
+              ))}
             </div>
-          ))}
+          )}
         </div>
 
         {/* Write / Read Reviews CTA Buttons */}

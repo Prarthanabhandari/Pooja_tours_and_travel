@@ -3,7 +3,7 @@ import React from 'react';
 export default function HeaderBreadcrumbs({ title, setCurrentPage }) {
   return (
     <div className="relative z-10 bg-white/70 backdrop-blur-md border-b border-slate-200/50 py-4 px-4 sm:px-6 lg:px-8 shadow-sm">
-      <div className="max-w-7xl mx-auto flex flex-row justify-between items-center border-l-4 border-[#00b4d8] pl-4">
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-l-4 border-[#00b4d8] pl-4">
         <h1 className="text-lg sm:text-xl font-extrabold text-[#0f172a] tracking-tight">
           {title}
         </h1>

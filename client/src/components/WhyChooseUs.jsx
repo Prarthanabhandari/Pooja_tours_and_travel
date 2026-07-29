@@ -84,7 +84,7 @@ export default function WhyChooseUs() {
         <div className="w-12 h-[1px] bg-slate-400 mx-auto mt-3 mb-8 opacity-60" />
 
         {/* Minimal Flat Grid Layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 justify-center items-start">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-10 justify-center items-start">
           {features.map((feat, idx) => (
             <div 
               key={idx} 

@@ -421,23 +421,23 @@ export default function RouteDetailsPage({
                 </div>
 
                 {/* Price & Action Row */}
-                <div className="w-full flex items-center justify-between border-t border-slate-100 pt-4 mt-auto">
-                  <div className="flex flex-col">
+                <div className="w-full flex flex-col sm:flex-row items-stretch sm:items-center justify-between border-t border-slate-100 pt-4 mt-auto gap-3">
+                  <div className="flex flex-col text-left">
                     <span className="text-[0.55rem] font-bold text-slate-400 uppercase tracking-wider">Estimated Fare</span>
                     <span className="text-sm font-black text-slate-800">{card.onewayPrice}</span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <a 
                       href={`https://wa.me/919623324139?text=${encodeURIComponent(card.whatsappText)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-black shadow-sm shadow-emerald-500/20 hover:bg-emerald-600 transition-colors"
+                      className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-black shadow-sm shadow-emerald-500/20 hover:bg-emerald-600 transition-colors text-center"
                     >
                       WhatsApp Book
                     </a>
                     <button 
                       onClick={() => handleManualBookingRedirect(card.name)}
-                      className="px-4 py-2 bg-[#00b4d8] text-white rounded-xl text-xs font-black shadow-sm shadow-[#00b4d8]/20 hover:bg-[#0083b0] transition-colors"
+                      className="px-4 py-2 bg-[#00b4d8] text-white rounded-xl text-xs font-black shadow-sm shadow-[#00b4d8]/20 hover:bg-[#0083b0] transition-colors text-center"
                     >
                       Book Now
                     </button>
