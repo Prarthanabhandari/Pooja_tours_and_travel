@@ -640,7 +640,7 @@ export default function AdminDashboard({
               {currentUser?.name?.charAt(0) || 'A'}
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-xs font-black text-white truncate">{currentUser?.name || 'Ajay Basawraj Bhandari'}</span>
+              <span className="text-xs font-black text-white truncate">{currentUser?.name || 'Ajay Bhandari'}</span>
               <span className="text-[0.6rem] font-bold text-[#00b4d8] tracking-widest uppercase">Admin Role</span>
             </div>
           </div>
@@ -703,7 +703,7 @@ export default function AdminDashboard({
               <div className="w-7 h-7 rounded-full bg-[#00b4d8] flex items-center justify-center text-white font-black text-xs shadow-sm shadow-[#00b4d8]/20">
                 {currentUser?.name?.charAt(0) || 'P'}
               </div>
-              <span className="text-xs font-black text-slate-800 hidden sm:inline">{currentUser?.name || 'Ajay Basawraj Bhandari'}</span>
+              <span className="text-xs font-black text-slate-800 hidden sm:inline">{currentUser?.name || 'Ajay Bhandari'}</span>
             </div>
           </div>
         </header>

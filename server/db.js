@@ -23,7 +23,7 @@ const initializeMockDb = () => {
     const initialData = {
       users: [
         { id: 1, name: "Test User", email: "test@example.com", password: "password123", phone: "9876543210", role: "user" },
-        { id: 2, name: "Ajay Basawraj Bhandari", email: "booking.poojatravel@gmail.com", password: "Pooja@1111", phone: "9623324139", role: "admin" }
+        { id: 2, name: "Ajay Bhandari", email: "booking.poojatravel@gmail.com", password: "Pooja@1111", phone: "9623324139", role: "admin" }
       ],
       cabs: [
         { id: 1, type: "Hatchback", name: "Maruti Suzuki WagonR", price_per_km: 13.00, seating_capacity: 4, image_url: "hatchback.png" },
