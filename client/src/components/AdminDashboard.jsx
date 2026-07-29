@@ -73,6 +73,7 @@ export default function AdminDashboard({
   const [vendorPhone, setVendorPhone] = useState('');
   const [vendorPass, setVendorPass] = useState('password123');
 
+  const [expandedBookingId, setExpandedBookingId] = useState(null);
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   // Core fetch function for live dynamic updates
@@ -1031,85 +1032,194 @@ export default function AdminDashboard({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {bookings.map(b => (
-                      <tr key={b.id} className="hover:bg-slate-50/50">
-                        
-                        <td className="py-4 px-6">
-                          <div className="w-12 h-12 bg-slate-50 border border-slate-150 rounded-xl flex items-center justify-center text-slate-400">
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.129-1.125V11.25M3 14.25h15m0 0L15.75 9.75M3 14.25V11.25m15 3V11.25m0 0L15.75 9.75M15.75 9.75H8.25L6 11.25m9.75-1.5L13.5 6H8.25L6 11.25M8.25 6H6" />
-                            </svg>
-                          </div>
-                        </td>
+                    {bookings.map(b => {
+                      const isExpanded = expandedBookingId === b.id;
+                      const passengers = Array.isArray(b.passenger_details) ? b.passenger_details : [];
+                      
+                      return (
+                        <React.Fragment key={b.id}>
+                          <tr 
+                            className={`hover:bg-slate-50/80 transition-colors cursor-pointer ${isExpanded ? 'bg-slate-50/60' : ''}`}
+                            onClick={() => setExpandedBookingId(isExpanded ? null : b.id)}
+                          >
+                            <td className="py-4 px-6">
+                              <div className="w-12 h-12 bg-slate-50 border border-slate-150 rounded-xl flex items-center justify-center text-slate-400">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.129-1.125V11.25M3 14.25h15m0 0L15.75 9.75M3 14.25V11.25m15 3V11.25m0 0L15.75 9.75M15.75 9.75H8.25L6 11.25m9.75-1.5L13.5 6H8.25L6 11.25M8.25 6H6" />
+                                </svg>
+                              </div>
+                            </td>
 
-                        <td className="py-4 px-6">
-                          <div className="flex flex-col">
-                            <span className="font-black text-slate-800 text-sm leading-snug">
-                              {b.route_from.split(',')[0]} ➔ {b.route_to.split(',')[0]}
-                            </span>
-                            <span className="text-xs font-bold text-slate-400 block mt-1 uppercase tracking-wide">
-                              {b.booking_type === 'bus' ? 'Bus Route' : `Cab: ${b.vehicle_name || 'Taxi'}`}
-                            </span>
-                          </div>
-                        </td>
+                            <td className="py-4 px-6">
+                              <div className="flex flex-col">
+                                <span className="font-black text-slate-800 text-sm leading-snug">
+                                  {b.route_from.split(',')[0]} ➔ {b.route_to.split(',')[0]}
+                                </span>
+                                <span className="text-xs font-bold text-slate-400 block mt-1 uppercase tracking-wide">
+                                  {b.booking_type === 'bus' ? 'Bus Route' : `Cab: ${b.vehicle_name || 'Taxi'}`}
+                                </span>
+                              </div>
+                            </td>
 
-                        <td className="py-4 px-6">
-                          <div className="flex flex-col">
-                            {b.passenger_details && b.passenger_details[0] ? (
-                              <>
-                                <span className="font-bold text-slate-700">{b.passenger_details[0].name}</span>
-                                <span className="text-xs text-slate-400 mt-0.5">{b.passenger_details[0].phone || '—'}</span>
-                              </>
-                            ) : (
-                              <span className="text-slate-400 italic text-xs">No name details</span>
-                            )}
-                          </div>
-                        </td>
+                            <td className="py-4 px-6">
+                              <div className="flex flex-col">
+                                {passengers[0] ? (
+                                  <>
+                                    <span className="font-bold text-slate-700">{passengers[0].name}</span>
+                                    <span className="text-xs text-slate-400 mt-0.5">{passengers[0].phone || '—'}</span>
+                                  </>
+                                ) : (
+                                  <span className="text-slate-400 italic text-xs">No name details</span>
+                                )}
+                              </div>
+                            </td>
 
-                        <td className="py-4 px-6 font-bold text-slate-500">
-                          {new Date(b.travel_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </td>
+                            <td className="py-4 px-6 font-bold text-slate-500">
+                              {new Date(b.travel_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </td>
 
-                        <td className="py-4 px-6 font-black text-slate-800">
-                          ₹{parseFloat(b.amount).toLocaleString('en-IN')}
-                        </td>
+                            <td className="py-4 px-6 font-black text-slate-800">
+                              ₹{parseFloat(b.amount).toLocaleString('en-IN')}
+                            </td>
 
-                        <td className="py-4 px-6">
-                          <span className={`px-3 py-1 rounded-full text-[0.68rem] font-black uppercase ${
-                            b.status === 'confirmed' ? 'bg-emerald-50 text-emerald-600' :
-                            b.status === 'completed' ? 'bg-cyan-50 text-cyan-600' :
-                            'bg-rose-50 text-rose-600'
-                          }`}>
-                            {b.status}
-                          </span>
-                        </td>
+                            <td className="py-4 px-6">
+                              <div className="flex items-center gap-2">
+                                <span className={`px-3 py-1 rounded-full text-[0.68rem] font-black uppercase ${
+                                  b.status === 'confirmed' ? 'bg-emerald-50 text-emerald-600' :
+                                  b.status === 'completed' ? 'bg-cyan-50 text-cyan-600' :
+                                  'bg-rose-50 text-rose-600'
+                                }`}>
+                                  {b.status}
+                                </span>
+                                <span className="text-[10px] text-slate-400 font-bold hidden sm:inline">
+                                  {isExpanded ? '▲ Hide' : '▼ Details'}
+                                </span>
+                              </div>
+                            </td>
 
-                        <td className="py-4 px-6 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            {b.status !== 'completed' && b.status !== 'cancelled' && (
-                              <>
-                                <button
-                                  onClick={() => handleUpdateStatus(b.id, 'completed')}
-                                  className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-extrabold text-xs transition-colors"
-                                >
-                                  Complete
-                                </button>
-                                <button
-                                  onClick={() => handleUpdateStatus(b.id, 'cancelled')}
-                                  className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold text-xs transition-colors"
-                                >
-                                  Cancel
-                                </button>
-                              </>
-                            )}
-                            {(b.status === 'cancelled' || b.status === 'completed') && (
-                              <span className="text-slate-400 font-bold text-xs italic">Finished</span>
-                            )}
-                          </div>
-                        </td>
+                            <td className="py-4 px-6 text-center" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center justify-center gap-2">
+                                {b.status !== 'completed' && b.status !== 'cancelled' && (
+                                  <>
+                                    <button
+                                      onClick={() => handleUpdateStatus(b.id, 'completed')}
+                                      className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-extrabold text-xs transition-colors"
+                                    >
+                                      Complete
+                                    </button>
+                                    <button
+                                      onClick={() => handleUpdateStatus(b.id, 'cancelled')}
+                                      className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold text-xs transition-colors"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </>
+                                )}
+                                {(b.status === 'cancelled' || b.status === 'completed') && (
+                                  <span className="text-slate-400 font-bold text-xs italic">Finished</span>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
 
-                      </tr>
-                    ))}
+                          {/* Expandable detailed log container */}
+                          {isExpanded && (
+                            <tr className="bg-slate-50/50">
+                              <td colSpan={7} className="px-8 py-6 border-b border-slate-100" onClick={() => setExpandedBookingId(null)}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-700">
+                                  
+                                  {/* Left Grid: Booking Logs & Details */}
+                                  <div className="flex flex-col gap-3 bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm" onClick={(e) => e.stopPropagation()}>
+                                    <h4 className="font-black text-slate-800 text-[11px] uppercase tracking-wider border-b border-slate-100 pb-1.5 mb-1 flex items-center gap-1.5">
+                                      <svg className="w-3.5 h-3.5 text-[#00b4d8]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                      </svg>
+                                      Booking Receipt Logs
+                                    </h4>
+                                    <div className="flex justify-between items-center py-1">
+                                      <span className="font-bold text-slate-400">Ticket Receipt ID:</span>
+                                      <span className="font-black text-slate-800">#PJ-{b.id}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-1">
+                                      <span className="font-bold text-slate-400">Booking Creation Date/Time:</span>
+                                      <span className="font-bold text-slate-800">
+                                        {b.created_at 
+                                          ? new Date(b.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) 
+                                          : '—'}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-1">
+                                      <span className="font-bold text-slate-400">Travel Schedule Date:</span>
+                                      <span className="font-bold text-slate-800">
+                                        {new Date(b.travel_date).toLocaleDateString('en-IN', { dateStyle: 'long' })}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-1">
+                                      <span className="font-bold text-slate-400">Scheduled Departure Time:</span>
+                                      <span className="font-bold text-slate-800">{b.departure_time || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-1">
+                                      <span className="font-bold text-slate-400">Assigned Ride/Vehicle:</span>
+                                      <span className="font-bold text-[#00b4d8] uppercase tracking-wide">
+                                        {b.booking_type === 'bus' ? 'Luxury Coach Bus Line' : b.vehicle_name || 'Assigned Cab'}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-1">
+                                      <span className="font-bold text-slate-400">Total Booked Amount:</span>
+                                      <span className="font-black text-slate-800">₹{parseFloat(b.amount).toLocaleString('en-IN')}</span>
+                                    </div>
+                                  </div>
+
+                                  {/* Right Grid: Passenger manifest & Pickup details */}
+                                  <div className="flex flex-col gap-3 bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm" onClick={(e) => e.stopPropagation()}>
+                                    <h4 className="font-black text-slate-800 text-[11px] uppercase tracking-wider border-b border-slate-100 pb-1.5 mb-1 flex items-center gap-1.5">
+                                      <svg className="w-3.5 h-3.5 text-[#00b4d8]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0 1 10.089 18H6.25a7.2 7.2 0 0 1-5.007-1.94 10.5 10.5 0 0 1 15-4.214M18 10.5a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0ZM6.75 22.5a.75.75 0 0 1-.75-.75v-3a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-.75.75h-3.5ZM10.5 8.25a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                      </svg>
+                                      Passenger Manifest & Trip Details ({passengers.length} Booked)
+                                    </h4>
+                                    
+                                    <div className="flex flex-col gap-1">
+                                      <span className="font-bold text-slate-450 uppercase text-[9px] tracking-wider mb-1">Booked Passengers:</span>
+                                      <div className="flex flex-col gap-1 max-h-24 overflow-y-auto border border-slate-100 rounded-lg p-2 bg-slate-50/50">
+                                        {passengers.map((p, pIdx) => (
+                                          <div key={pIdx} className="flex justify-between text-slate-700 py-0.5 font-semibold">
+                                            <span>{pIdx + 1}. {p.name}</span>
+                                            <span className="text-slate-400">({p.age} yrs, {p.gender})</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    <div className="flex justify-between items-start py-1">
+                                      <span className="font-bold text-slate-400 shrink-0">Pickup Coordinates:</span>
+                                      <span className="font-bold text-slate-800 text-right max-w-[200px] truncate-3-lines">
+                                        {passengers[0]?.pickup_address || '—'}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex justify-between items-start py-1">
+                                      <span className="font-bold text-slate-400 shrink-0">Special Travel Notes:</span>
+                                      <span className="font-bold text-slate-800 text-right max-w-[200px] italic">
+                                        {passengers[0]?.special_notes || 'None'}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex justify-between items-center py-1">
+                                      <span className="font-bold text-slate-400">Contact Details:</span>
+                                      <span className="font-bold text-[#00b4d8] select-text">
+                                        {passengers[0]?.phone || '—'} {passengers[0]?.email ? `(${passengers[0].email})` : ''}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
