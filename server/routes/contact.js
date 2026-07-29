@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+const { sendInquiryEmail } = require('../utils/email');
+
 // @route   POST api/contact
 // @desc    Submit a contact inquiry form
 router.post('/', async (req, res) => {
@@ -17,9 +19,12 @@ router.post('/', async (req, res) => {
       [name, email, phone || '', message]
     );
 
+    const inquiry = result.rows[0];
+    sendInquiryEmail(inquiry).catch(err => console.error('Error dispatching inquiry email:', err));
+
     res.status(201).json({
       message: 'Your inquiry has been submitted successfully. Our team will contact you soon.',
-      inquiry: result.rows[0]
+      inquiry: inquiry
     });
   } catch (err) {
     console.error(err);

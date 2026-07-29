@@ -178,4 +178,113 @@ The owner will contact you shortly to coordinate your pickup details.
   }
 };
 
-module.exports = { sendBookingEmail };
+const sendInquiryEmail = async (inquiry) => {
+  const emailUser = process.env.EMAIL_USER || 'booking.poojatravel@gmail.com';
+  const emailPass = process.env.EMAIL_PASS; // App Password
+
+  console.log(`✉️ Preparing inquiry email from ${inquiry.name}...`);
+
+  const emailSubject = `New Booking Inquiry - From ${inquiry.name} - Pooja Tours & Travels`;
+  
+  const emailBody = `
+--------------------------------------------------
+POOJA TOURS & TRAVELS - NEW CUSTOMER INQUIRY ALERT
+--------------------------------------------------
+Customer Name:  ${inquiry.name}
+Email Address:  ${inquiry.email}
+Phone Number:   ${inquiry.phone || 'N/A'}
+
+MESSAGE & TRIP DETAILS:
+${inquiry.message}
+--------------------------------------------------
+`;
+
+  const htmlBody = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 2px solid #00b4d8; border-radius: 12px; background-color: #ffffff;">
+      <div style="text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px;">
+        <h2 style="color: #0d3859; margin: 0; text-transform: uppercase; tracking: 1px;">Pooja Tours & Travels</h2>
+        <p style="color: #ea580c; margin: 5px 0 0 0; font-weight: bold; font-size: 14px;">New Customer Inquiry Alert</p>
+      </div>
+
+      <div style="margin-bottom: 25px; line-height: 1.6; color: #334155;">
+        <p>Hello Ajay,</p>
+        <p>You have received a new business booking enquiry from the website contact form. Below are the traveler details:</p>
+      </div>
+
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: bold; color: #475569; width: 130px;">Customer Name:</td>
+            <td style="padding: 6px 0; font-weight: bold; color: #0f172a;">${inquiry.name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: bold; color: #475569;">Email Address:</td>
+            <td style="padding: 6px 0; color: #0f172a;"><a href="mailto:${inquiry.email}" style="color: #00b4d8; text-decoration: none;">${inquiry.email}</a></td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: bold; color: #475569;">Phone Number:</td>
+            <td style="padding: 6px 0; color: #0f172a;">${inquiry.phone || 'N/A'}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="margin-bottom: 25px; background-color: #fffaf0; border: 1px solid #ffd8a8; border-radius: 8px; padding: 15px;">
+        <h4 style="color: #d9480f; margin: 0 0 10px 0; font-size: 13px; text-transform: uppercase;">Message & Journey Details</h4>
+        <p style="margin: 0; font-size: 13.5px; color: #495057; line-height: 1.6; white-space: pre-line;">
+          ${inquiry.message}
+        </p>
+      </div>
+
+      <div style="text-align: center; border-top: 1px solid #f1f5f9; padding-top: 15px; font-size: 12px; color: #94a3b8; line-height: 1.5;">
+        <p style="margin: 0;">Pooja Tours & Travels | System Notification</p>
+      </div>
+    </div>
+  `;
+
+  // Write to local logs
+  const logDir = path.join(__dirname, '..', 'logs');
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir);
+  }
+  const logPath = path.join(logDir, 'sent_emails.log');
+  const logEntry = `\n==================================================\n` +
+    `INQUIRY EMAIL DATE: ${new Date().toISOString()}\n` +
+    `FROM: website_inquiry@poojatravels.com\n` +
+    `TO: ${emailUser}\n` +
+    `SUBJECT: ${emailSubject}\n` +
+    emailBody +
+    `==================================================\n`;
+  fs.appendFileSync(logPath, logEntry, 'utf-8');
+
+  if (!emailPass) {
+    console.warn(`⚠️ EMAIL_PASS is not configured in server/.env. Skipped actual SMTP dispatch.`);
+    return false;
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: emailUser,
+        pass: emailPass
+      }
+    });
+
+    const mailOptions = {
+      from: `"Pooja Travels Website" <${emailUser}>`,
+      to: emailUser, // Sent directly to the owner
+      subject: emailSubject,
+      text: emailBody,
+      html: htmlBody
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Inquiry Email successfully dispatched via SMTP: ${info.messageId}`);
+    return true;
+  } catch (error) {
+    console.error(`❌ SMTP transport failed:`, error.message);
+    return false;
+  }
+};
+
+module.exports = { sendBookingEmail, sendInquiryEmail };
