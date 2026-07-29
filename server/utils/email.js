@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const sendBookingEmail = async (booking) => {
   const emailUser = process.env.EMAIL_USER || 'booking.poojatravel@gmail.com';
@@ -27,6 +28,14 @@ const sendBookingEmail = async (booking) => {
 
   const emailSubject = `Booking Confirmation - Ticket #PJ-${booking.id} - Pooja Tours & Travels`;
   
+  const formattedTravelDate = booking.travel_date 
+    ? (typeof booking.travel_date === 'string' 
+        ? booking.travel_date.split('T')[0] 
+        : (booking.travel_date instanceof Date 
+            ? booking.travel_date.toISOString().split('T')[0] 
+            : String(booking.travel_date).split('T')[0]))
+    : 'N/A';
+
   const emailBody = `
 --------------------------------------------------
 POOJA TOURS & TRAVELS - BOOKING CONFIRMATION RECEIPT
@@ -34,7 +43,7 @@ POOJA TOURS & TRAVELS - BOOKING CONFIRMATION RECEIPT
 Ticket ID:      #PJ-${booking.id}
 Route:          ${booking.route_from} to ${booking.route_to}
 Vehicle Type:   ${booking.vehicle_name || (booking.booking_type === 'bus' ? 'Bus Seat(s)' : 'Assigned Cab')}
-Travel Date:    ${booking.travel_date.split('T')[0]}
+Travel Date:    ${formattedTravelDate}
 Pickup Time:    ${pickupTime || 'N/A'}
 Pickup Address: ${pickupAddress || 'N/A'}
 Total Amount:   ₹${booking.amount}
@@ -81,7 +90,7 @@ The owner will contact you shortly to coordinate your pickup details.
           </tr>
           <tr>
             <td style="padding: 6px 0; font-weight: bold; color: #475569;">Travel Date:</td>
-            <td style="padding: 6px 0; color: #0f172a;">${booking.travel_date.split('T')[0]}</td>
+            <td style="padding: 6px 0; color: #0f172a;">${formattedTravelDate}</td>
           </tr>
           <tr>
             <td style="padding: 6px 0; font-weight: bold; color: #475569;">Pickup Time:</td>
