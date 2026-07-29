@@ -7,6 +7,7 @@ export default function HeaderBreadcrumbs({ title, setCurrentPage }) {
         <h1 className="text-lg sm:text-xl font-extrabold text-[#0f172a] tracking-tight">
           {title}
         </h1>
+
         <div className="text-xs sm:text-sm font-semibold text-slate-500 flex items-center gap-1.5">
           <button 
             onClick={() => {

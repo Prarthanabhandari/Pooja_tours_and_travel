@@ -275,8 +275,8 @@ export default function FleetSection({
         <button 
           className="px-6 py-2.5 border border-slate-200 text-[#0f172a] hover:bg-[#00b4d8] hover:text-white hover:border-[#00b4d8] text-xs font-bold rounded-xl active:scale-95 transition-all shadow-sm"
           onClick={() => {
-            setSearchParams({ ...searchParams, bookingType: 'bus' });
-            document.getElementById('booking-console')?.scrollIntoView({ behavior: 'smooth' });
+            setCurrentPage('fleet-details');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
         >
           Explore Full Fleet Details

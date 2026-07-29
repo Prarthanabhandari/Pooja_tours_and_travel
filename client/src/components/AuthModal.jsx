@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function AuthModal({ 
   authMode, 
@@ -8,6 +8,18 @@ export default function AuthModal({
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const [loginRole, setLoginRole] = useState('customer'); // 'customer' or 'vendor' (Only for login)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    if (authMode === 'login' && loginRole === 'vendor') {
+      setEmail('booking.poojatravel@gmail.com');
+      setPassword('Pooja@1111');
+    } else {
+      setEmail('');
+      setPassword('');
+    }
+  }, [loginRole, authMode]);
 
   return (
     <div 
@@ -146,6 +158,8 @@ export default function AuthModal({
                       type="email" 
                       name="email" 
                       required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@example.com"
                       className="w-full border border-slate-200/80 bg-slate-50/20 rounded-xl pl-10 pr-4 py-2.5 text-xs font-semibold text-slate-750 focus:outline-none focus:border-[#00b4d8] focus:ring-1 focus:ring-[#00b4d8]/15 transition-all"
                     />
@@ -165,6 +179,8 @@ export default function AuthModal({
                       type={showPassword ? "text" : "password"} 
                       name="password" 
                       required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
                       className="w-full border border-slate-200/80 bg-slate-50/20 rounded-xl pl-10 pr-10 py-2.5 text-xs font-semibold text-slate-750 focus:outline-none focus:border-[#00b4d8] focus:ring-1 focus:ring-[#00b4d8]/15 transition-all"
                     />

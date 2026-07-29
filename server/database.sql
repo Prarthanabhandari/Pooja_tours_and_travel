@@ -75,3 +75,35 @@ INSERT INTO buses (name, type, total_seats, price_per_seat, departure_time, arri
 ('Pooja Travels Luxury Coach 2', '17-Seater AC Luxury', 17, 600.00, '07:30:00', '11:30:00', 'Pune, Maharashtra, India', 'Mahabaleshwar, Maharashtra, India'),
 ('Pooja Travels Luxury Coach 3', '17-Seater AC Luxury', 17, 700.00, '08:00:00', '13:30:00', 'Pune, Maharashtra, India', 'Shirdi, Maharashtra, India')
 ON CONFLICT DO NOTHING;
+
+-- Site Settings Table
+CREATE TABLE IF NOT EXISTS site_settings (
+    id SERIAL PRIMARY KEY,
+    key VARCHAR(100) UNIQUE NOT NULL,
+    value TEXT NOT NULL,
+    category VARCHAR(50) DEFAULT 'general',
+    description TEXT
+);
+
+-- Blogs Table
+CREATE TABLE IF NOT EXISTS blogs (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    excerpt TEXT,
+    content TEXT NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    date VARCHAR(50) NOT NULL,
+    read_time VARCHAR(50) NOT NULL,
+    image TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Gallery Table
+CREATE TABLE IF NOT EXISTS gallery (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    image TEXT NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    likes INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -95,16 +95,55 @@ router.put('/price/:id', async (req, res) => {
 // @route   POST api/cabs
 // @desc    Add a new cab to the fleet (Admin)
 router.post('/', async (req, res) => {
-  const { type, name, price_per_km, seating_capacity, image_url } = req.body;
+  const { 
+    type, 
+    name, 
+    price_per_km, 
+    seating_capacity, 
+    image_url, 
+    bags, 
+    ac, 
+    description, 
+    inclusions, 
+    exclusions 
+  } = req.body;
   try {
     const result = await db.query(
-      'INSERT INTO cabs (type, name, price_per_km, seating_capacity, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [type, name, price_per_km, seating_capacity, image_url || 'hatchback.png']
+      `INSERT INTO cabs (type, name, price_per_km, seating_capacity, image_url, bags, ac, description, inclusions, exclusions) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+      [
+        type, 
+        name, 
+        price_per_km, 
+        seating_capacity, 
+        image_url || 'hatchback.png', 
+        bags || '2 Bags', 
+        ac || 'AC Cabin', 
+        description || '', 
+        inclusions || ['Fuel Charges', 'Toll Charges', 'Driver Allowance'], 
+        exclusions || ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      ]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error adding new cab' });
+  }
+});
+
+// @route   DELETE api/cabs/:id
+// @desc    Delete a cab from the fleet (Admin)
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await db.query('DELETE FROM cabs WHERE id = $1 RETURNING *', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Cab not found' });
+    }
+    res.json({ message: 'Cab deleted successfully', cab: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error deleting cab' });
   }
 });
 

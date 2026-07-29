@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { sendBookingEmail } = require('../utils/email');
 
 // @route   POST api/bookings
 // @desc    Create a new booking (bus or cab)
@@ -44,7 +45,25 @@ router.post('/', async (req, res) => {
       ]
     );
 
-    res.status(201).json(result.rows[0]);
+    const booking = result.rows[0];
+    
+    // Fetch vehicle name if applicable for cleaner receipt details
+    if (booking.booking_type === 'cab' && booking.cab_id) {
+      const cabRes = await db.query('SELECT name, type FROM cabs WHERE id = $1', [booking.cab_id]);
+      if (cabRes.rows && cabRes.rows.length > 0) {
+        booking.vehicle_name = `${cabRes.rows[0].name} (${cabRes.rows[0].type})`;
+      }
+    } else if (booking.booking_type === 'bus' && booking.bus_id) {
+      const busRes = await db.query('SELECT name FROM buses WHERE id = $1', [booking.bus_id]);
+      if (busRes.rows && busRes.rows.length > 0) {
+        booking.vehicle_name = busRes.rows[0].name;
+      }
+    }
+
+    // Trigger async email dispatch
+    sendBookingEmail(booking).catch(err => console.error('Error dispatching booking email:', err));
+
+    res.status(201).json(booking);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error creating booking' });

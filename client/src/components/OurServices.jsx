@@ -51,11 +51,11 @@ export default function OurServices() {
   };
 
   return (
-    <section id="services-section" className="py-12 bg-slate-50/50 w-full overflow-hidden border-b border-slate-200/50">
+    <section id="services-section" className="pt-4 pb-6 bg-slate-50/50 w-full overflow-hidden border-b border-slate-200/50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Simple Mockup Header */}
-        <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight text-center mb-10">
+        <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight text-center mb-4">
           Our Services
         </h2>
 
@@ -72,7 +72,7 @@ export default function OurServices() {
                 <button
                   type="button"
                   onClick={() => toggleSection(key)}
-                  className="w-full flex justify-between items-center text-left py-4 focus:outline-none group"
+                  className="w-full flex justify-between items-center text-left py-2.5 focus:outline-none group"
                 >
                   <h3 className="text-xl sm:text-2xl font-extrabold text-[#00b4d8] hover:text-[#0083b0] transition-colors duration-300">
                     {section.title}

@@ -23,7 +23,7 @@ const initializeMockDb = () => {
     const initialData = {
       users: [
         { id: 1, name: "Test User", email: "test@example.com", password: "password123", phone: "9876543210", role: "user" },
-        { id: 2, name: "Pooja Admin", email: "admin@example.com", password: "adminpassword", phone: "9999999999", role: "admin" }
+        { id: 2, name: "Ajay Basawraj Bhandari", email: "booking.poojatravel@gmail.com", password: "Pooja@1111", phone: "9623324139", role: "admin" }
       ],
       cabs: [
         { id: 1, type: "Hatchback", name: "Maruti Suzuki WagonR", price_per_km: 13.00, seating_capacity: 4, image_url: "hatchback.png" },
@@ -36,7 +36,32 @@ const initializeMockDb = () => {
         { id: 3, name: "Pooja Travels Luxury Coach 3", type: "17-Seater AC Luxury", total_seats: 17, price_per_seat: 700.00, departure_time: "08:00:00", arrival_time: "13:30:00", route_from: "Pune, Maharashtra, India", route_to: "Shirdi, Maharashtra, India" }
       ],
       bookings: [],
-      contact_messages: []
+      contact_messages: [],
+      site_settings: [
+        { id: 1, key: "contact_email", value: "booking.poojatravel@gmail.com", category: "contact", description: "Primary contact email address for reservations and support" },
+        { id: 2, key: "contact_phone", value: "+919623324139", category: "contact", description: "Primary business mobile number" },
+        { id: 3, key: "contact_phone_alt", value: "+917387129287", category: "contact", description: "Alternative backup mobile number" },
+        { id: 4, key: "hero_title", value: "Explore Maharashtra with Pooja Tours & Travels", category: "content", description: "Headline text displayed in the home page hero section" },
+        { id: 5, key: "hero_subtitle", value: "Premium Chauffeur Cabs & AC Bus Rentals out of Pune. Low price guarantee, transparent pricing.", category: "content", description: "Subheadline text displayed under the main hero title" },
+        { id: 6, key: "about_text", value: "Pooja Tours and Travels is a leading travel operator based in Pune, offering outstation chauffeur cabs and luxury bus rental solutions. We pride ourselves on punctuality, safety, and excellent service quality.", category: "content", description: "Short company introduction paragraph displayed in About and Footer" }
+      ],
+      blogs: [
+        {
+          id: 1,
+          title: "Top 5 Places to Visit in Mahabaleshwar During Monsoon",
+          excerpt: "Discover the lush green valleys, strawberry farms, and waterfalls of Mahabaleshwar that come alive during the monsoon season.",
+          content: "Mahabaleshwar is Maharashtra's ultimate monsoon getaway...",
+          category: "travel",
+          date: "July 12, 2026",
+          read_time: "4 mins read",
+          image: "/mahabaleshwar.jpg"
+        }
+      ],
+      gallery: [
+        { id: 1, title: "Luxury 17-Seater Force Traveller AC Coach", image: "/Gallery/WhatsApp Image 2026-07-06 at 9.06.50 PM.jpeg", category: "tours", likes: 184 },
+        { id: 2, title: "Happy family trip next to Force Traveller", image: "/Gallery/WhatsApp Image 2026-07-07 at 11.16.19 AM.jpeg", category: "tours", likes: 215 },
+        { id: 3, title: "Pooja Travels Fleet Lineup (Coaches & Cabs)", image: "/Gallery/WhatsApp Image 2026-07-07 at 11.16.39 AM.jpeg", category: "fleet", likes: 198 }
+      ]
     };
     fs.writeFileSync(mockDbPath, JSON.stringify(initialData, null, 2), 'utf-8');
   }
@@ -268,6 +293,78 @@ const handleMockQuery = (text, params = []) => {
     data.buses.push(newBus);
     saveMockData(data);
     return { rows: [newBus] };
+  }
+
+  // 12. Site Settings queries
+  if (normalizedText.includes('select * from site_settings') || normalizedText.includes('select*from site_settings')) {
+    return { rows: data.site_settings || [] };
+  }
+
+  if (normalizedText.includes('update site_settings set value = $1 where key = $2') || normalizedText.includes('update site_settings')) {
+    const val = params[0];
+    const keyName = params[1];
+    const idx = data.site_settings.findIndex(s => s.key === keyName);
+    if (idx !== -1) {
+      data.site_settings[idx].value = val;
+      saveMockData(data);
+      return { rows: [data.site_settings[idx]] };
+    }
+    return { rows: [] };
+  }
+
+  // 13. Blogs queries
+  if (normalizedText.includes('select * from blogs') || normalizedText.includes('select*from blogs')) {
+    return { rows: data.blogs || [] };
+  }
+
+  if (normalizedText.includes('insert into blogs')) {
+    const newBlog = {
+      id: data.blogs.length + 1,
+      title: params[0],
+      excerpt: params[1],
+      content: params[2],
+      category: params[3],
+      date: params[4] || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      read_time: params[5] || '3 mins read',
+      image: params[6] || '/mahabaleshwar.jpg',
+      created_at: new Date().toISOString()
+    };
+    data.blogs.push(newBlog);
+    saveMockData(data);
+    return { rows: [newBlog] };
+  }
+
+  if (normalizedText.includes('delete from blogs where id = $1')) {
+    const blogId = parseInt(params[0]);
+    data.blogs = data.blogs.filter(b => b.id !== blogId);
+    saveMockData(data);
+    return { rows: [{ id: blogId }] };
+  }
+
+  // 14. Gallery queries
+  if (normalizedText.includes('select * from gallery') || normalizedText.includes('select*from gallery')) {
+    return { rows: data.gallery || [] };
+  }
+
+  if (normalizedText.includes('insert into gallery')) {
+    const newImg = {
+      id: data.gallery.length + 1,
+      title: params[0],
+      image: params[1],
+      category: params[2],
+      likes: parseInt(params[3] || '0'),
+      created_at: new Date().toISOString()
+    };
+    data.gallery.push(newImg);
+    saveMockData(data);
+    return { rows: [newImg] };
+  }
+
+  if (normalizedText.includes('delete from gallery where id = $1')) {
+    const imgId = parseInt(params[0]);
+    data.gallery = data.gallery.filter(g => g.id !== imgId);
+    saveMockData(data);
+    return { rows: [{ id: imgId }] };
   }
 
   return { rows: [] };

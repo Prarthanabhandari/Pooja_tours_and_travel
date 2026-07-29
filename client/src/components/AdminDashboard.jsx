@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Logo from './Logo';
 
-export default function AdminDashboard({ setCurrentPage, currentUser }) {
+export default function AdminDashboard({ 
+  setCurrentPage, 
+  currentUser, 
+  handleLogout, 
+  siteSettings, 
+  fetchSiteSettings 
+}) {
   const [activeTab, setActiveTab] = useState('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [bookings, setBookings] = useState([]);
@@ -11,11 +17,42 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // CMS States
+  const [blogsList, setBlogsList] = useState([]);
+  const [galleryList, setGalleryList] = useState([]);
+  const [editingSettings, setEditingSettings] = useState({});
+
+  // Blog creation form state
+  const [newBlogTitle, setNewBlogTitle] = useState('');
+  const [newBlogExcerpt, setNewBlogExcerpt] = useState('');
+  const [newBlogContent, setNewBlogContent] = useState('');
+  const [newBlogCategory, setNewBlogCategory] = useState('travel');
+  const [newBlogImage, setNewBlogImage] = useState('/mahabaleshwar.jpg');
+  const [newBlogImage2, setNewBlogImage2] = useState('');
+  const [newBlogImage3, setNewBlogImage3] = useState('');
+
+  // Gallery creation form state
+  const [newGalleryTitle, setNewGalleryTitle] = useState('');
+  const [newGalleryImage, setNewGalleryImage] = useState('/Gallery/WhatsApp Image 2026-07-06 at 9.06.50 PM.jpeg');
+  const [newGalleryCategory, setNewGalleryCategory] = useState('tours');
+
+  useEffect(() => {
+    if (siteSettings) {
+      setEditingSettings(siteSettings);
+    }
+  }, [siteSettings]);
+
   // New Chauffeur/Bus Form States
   const [cabName, setCabName] = useState('');
   const [cabType, setCabType] = useState('SUV');
   const [cabPrice, setCabPrice] = useState('');
   const [cabCapacity, setCabCapacity] = useState('4');
+  const [cabBags, setCabBags] = useState('2 Bags');
+  const [cabAc, setCabAc] = useState('AC Cabin');
+  const [cabImageUrl, setCabImageUrl] = useState('white-swift-right.png');
+  const [cabDescription, setCabDescription] = useState('');
+  const [cabInclusions, setCabInclusions] = useState('Fuel Charges, Toll Charges, Driver Allowance');
+  const [cabExclusions, setCabExclusions] = useState('State Permit (if any), Parking Fees, Extra Hours / KM');
 
   const [busName, setBusName] = useState('');
   const [busType, setBusType] = useState('17-Seater AC Luxury');
@@ -63,14 +100,221 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
     }
   };
 
+  const fetchBlogs = async () => {
+    try {
+      const res = await fetch(`${API_URL}/blogs`);
+      if (res.ok) {
+        const data = await res.json();
+        setBlogsList(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch blogs for CMS', err);
+    }
+  };
+
+  const fetchGallery = async () => {
+    try {
+      const res = await fetch(`${API_URL}/gallery`);
+      if (res.ok) {
+        const data = await res.json();
+        setGalleryList(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch gallery for CMS', err);
+    }
+  };
+
   useEffect(() => {
     const initFetch = async () => {
       setLoading(true);
-      await fetchAdminData();
+      await Promise.all([fetchAdminData(), fetchBlogs(), fetchGallery()]);
       setLoading(false);
     };
     initFetch();
   }, []);
+
+  const handleUpdateSettings = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${API_URL}/settings`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingSettings)
+      });
+      if (res.ok) {
+        alert('Settings updated successfully!');
+        if (fetchSiteSettings) await fetchSiteSettings();
+      } else {
+        alert('Failed to update settings.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error updating settings.');
+    }
+  };
+
+  const handleImageUpload = (file, imageNumber) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64Data = reader.result;
+      try {
+        const res = await fetch(`${API_URL}/upload`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64Data })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (imageNumber === 1) {
+            setNewBlogImage(data.url);
+          } else if (imageNumber === 2) {
+            setNewBlogImage2(data.url);
+          } else if (imageNumber === 3) {
+            setNewBlogImage3(data.url);
+          }
+        } else {
+          alert('Upload failed.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Upload error.');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCreateBlog = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${API_URL}/blogs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newBlogTitle,
+          excerpt: newBlogExcerpt,
+          content: newBlogContent,
+          category: newBlogCategory,
+          image: newBlogImage,
+          image2: newBlogImage2 || null,
+          image3: newBlogImage3 || null
+        })
+      });
+      if (res.ok) {
+        alert('Blog post created successfully!');
+        setNewBlogTitle('');
+        setNewBlogExcerpt('');
+        setNewBlogContent('');
+        setNewBlogImage('/mahabaleshwar.jpg');
+        setNewBlogImage2('');
+        setNewBlogImage3('');
+        await fetchBlogs();
+      } else {
+        alert('Failed to create blog post.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error creating blog post.');
+    }
+  };
+
+  const handleDeleteBlog = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this blog post?')) return;
+    try {
+      const res = await fetch(`${API_URL}/blogs/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        alert('Blog post deleted successfully.');
+        await fetchBlogs();
+      } else {
+        alert('Failed to delete blog post.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error deleting blog post.');
+    }
+  };
+
+  const handleAddGallery = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${API_URL}/gallery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newGalleryTitle,
+          image: newGalleryImage,
+          category: newGalleryCategory
+        })
+      });
+      if (res.ok) {
+        alert('Image added to gallery successfully!');
+        setNewGalleryTitle('');
+        setNewGalleryImage('/Gallery/WhatsApp Image 2026-07-06 at 9.06.50 PM.jpeg');
+        await fetchGallery();
+      } else {
+        alert('Failed to add gallery image.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error adding gallery image.');
+    }
+  };
+
+  const handleDeleteGallery = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this image?')) return;
+    try {
+      const res = await fetch(`${API_URL}/gallery/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        alert('Image deleted from gallery successfully.');
+        await fetchGallery();
+      } else {
+        alert('Failed to delete gallery image.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error deleting gallery image.');
+    }
+  };
+
+  const handleDeleteCab = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this cab?')) return;
+    try {
+      const res = await fetch(`${API_URL}/cabs/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        alert('Cab deleted from fleet successfully.');
+        await fetchAdminData();
+      } else {
+        alert('Failed to delete cab.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error deleting cab.');
+    }
+  };
+
+  const handleDeleteBus = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this bus route?')) return;
+    try {
+      const res = await fetch(`${API_URL}/buses/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        alert('Bus route deleted successfully.');
+        await fetchAdminData();
+      } else {
+        alert('Failed to delete bus route.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error deleting bus route.');
+    }
+  };
 
   // Modify Booking Status (Live dispatch)
   const handleUpdateStatus = async (id, status) => {
@@ -131,12 +375,22 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
   const handleAddCab = async (e) => {
     e.preventDefault();
     if (!cabName || !cabPrice) return;
+    
+    // Split comma-separated inclusions/exclusions into trimmed string arrays
+    const inclusionsArr = cabInclusions.split(',').map(s => s.trim()).filter(Boolean);
+    const exclusionsArr = cabExclusions.split(',').map(s => s.trim()).filter(Boolean);
+
     const newCab = {
       type: cabType,
       name: cabName,
       price_per_km: parseFloat(cabPrice),
       seating_capacity: parseInt(cabCapacity),
-      image_url: cabType === 'SUV' ? 'white-brezza.png' : '17-seat-tempo-traveller.png'
+      image_url: cabImageUrl || 'white-swift-right.png',
+      bags: cabBags,
+      ac: cabAc,
+      description: cabDescription,
+      inclusions: inclusionsArr,
+      exclusions: exclusionsArr
     };
 
     try {
@@ -149,6 +403,12 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
         await fetchAdminData(); // Live dynamic update
         setCabName('');
         setCabPrice('');
+        setCabDescription('');
+        setCabBags('2 Bags');
+        setCabAc('AC Cabin');
+        setCabImageUrl('white-swift-right.png');
+        setCabInclusions('Fuel Charges, Toll Charges, Driver Allowance');
+        setCabExclusions('State Permit (if any), Parking Fees, Extra Hours / KM');
         alert('Cab added to fleet successfully!');
       }
     } catch (err) {
@@ -323,6 +583,33 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                   </svg>
                 ) 
+              },
+              { 
+                id: 'cms_content', 
+                label: 'Content Editor', 
+                icon: (
+                  <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                  </svg>
+                ) 
+              },
+              { 
+                id: 'cms_blogs', 
+                label: 'Blog Manager', 
+                icon: (
+                  <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                  </svg>
+                ) 
+              },
+              { 
+                id: 'cms_gallery', 
+                label: 'Gallery Manager', 
+                icon: (
+                  <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                  </svg>
+                ) 
               }
             ].map(item => (
               <button
@@ -353,21 +640,33 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
               {currentUser?.name?.charAt(0) || 'A'}
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-xs font-black text-white truncate">{currentUser?.name || 'Prarthana'}</span>
+              <span className="text-xs font-black text-white truncate">{currentUser?.name || 'Ajay Basawraj Bhandari'}</span>
               <span className="text-[0.6rem] font-bold text-[#00b4d8] tracking-widest uppercase">Admin Role</span>
             </div>
           </div>
           
-          <button
-            onClick={() => setCurrentPage('home')}
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-xs font-bold border border-[#1e293b] hover:bg-[#131c2e] text-[#94a3b8] hover:text-white transition-all"
-            style={{ cursor: 'pointer' }}
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-            </svg>
-            <span>Exit Dashboard</span>
-          </button>
+          <div className="flex flex-col gap-2 w-full">
+            <button
+              onClick={() => setCurrentPage('home')}
+              className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-xs font-bold border border-[#1e293b] hover:bg-[#131c2e] text-[#94a3b8] hover:text-white transition-all"
+              style={{ cursor: 'pointer' }}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+              </svg>
+              <span>Back to Site</span>
+            </button>
+            <button
+              onClick={() => handleLogout ? handleLogout() : setCurrentPage('home')}
+              className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-xs font-bold bg-rose-600/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/20 hover:border-rose-500 transition-all"
+              style={{ cursor: 'pointer' }}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+              </svg>
+              <span>Log Out</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -404,7 +703,7 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
               <div className="w-7 h-7 rounded-full bg-[#00b4d8] flex items-center justify-center text-white font-black text-xs shadow-sm shadow-[#00b4d8]/20">
                 {currentUser?.name?.charAt(0) || 'P'}
               </div>
-              <span className="text-xs font-black text-slate-800 hidden sm:inline">{currentUser?.name || 'Prarthana'}</span>
+              <span className="text-xs font-black text-slate-800 hidden sm:inline">{currentUser?.name || 'Ajay Basawraj Bhandari'}</span>
             </div>
           </div>
         </header>
@@ -760,10 +1059,19 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {cabs.map(c => (
                       <div key={c.id} className="border border-[#e2e8f0] rounded-xl p-5 bg-slate-50/20 flex flex-col justify-between h-[210px]">
-                        <div>
-                          <span className="text-xs font-black text-[#00b4d8] uppercase tracking-wider">{c.type}</span>
-                          <h4 className="text-sm font-black text-slate-800 mt-1">{c.name}</h4>
-                          <span className="text-xs font-bold text-slate-450 block mt-1">Seats: {c.seating_capacity} passengers</span>
+                        <div className="flex justify-between items-start gap-2">
+                          <div>
+                            <span className="text-xs font-black text-[#00b4d8] uppercase tracking-wider">{c.type}</span>
+                            <h4 className="text-sm font-black text-slate-800 mt-1">{c.name}</h4>
+                            <span className="text-xs font-bold text-slate-450 block mt-1">Seats: {c.seating_capacity} passengers</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCab(c.id)}
+                            className="text-rose-500 hover:text-rose-700 text-xs font-black px-2 py-1 rounded border border-rose-100 bg-rose-50/50 hover:bg-rose-50 transition-colors"
+                          >
+                            Delete
+                          </button>
                         </div>
                         <div className="border-t border-slate-100 pt-4 flex flex-col gap-2">
                           <label className="text-[0.68rem] font-black text-slate-450 uppercase tracking-wider">Per-KM Price (₹)</label>
@@ -792,7 +1100,7 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
 
                 {/* Bus section */}
                 <div className="bg-white border border-[#e2e8f0] rounded-2xl p-6 shadow-sm">
-                  <h3 className="text-base font-black text-slate-800 mb-4">Bus Route Tickets Control</h3>
+                  <h3 className="text-base font-black text-slate-800 mb-4">Bus Route Control</h3>
                   <div className="flex flex-col gap-4 divide-y divide-slate-100">
                     {buses.map(b => (
                       <div key={b.id} className="flex flex-col sm:flex-row justify-between sm:items-center pt-4 first:pt-0 gap-4">
@@ -804,7 +1112,7 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="flex flex-col gap-1">
-                            <label className="text-[0.62rem] font-black text-slate-450 uppercase">Ticket Cost (₹)</label>
+                            <label className="text-[0.62rem] font-black text-slate-450 uppercase">Route Price (₹)</label>
                             <div className="flex gap-2">
                               <input 
                                 type="number" 
@@ -820,6 +1128,13 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
                                 className="bg-[#00b4d8] hover:bg-[#0083b0] text-white text-xs font-black px-3.5 rounded-lg shadow-sm transition-colors"
                               >
                                 Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteBus(b.id)}
+                                className="text-rose-500 hover:text-rose-700 text-xs font-black px-2.5 py-1.5 rounded border border-rose-100 bg-rose-50/50 hover:bg-rose-50 transition-colors"
+                              >
+                                Delete
                               </button>
                             </div>
                           </div>
@@ -885,6 +1200,73 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
                         />
                       </div>
                     </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-black text-slate-500 uppercase">Bags Capacity</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. 2 Bags"
+                          value={cabBags}
+                          onChange={(e) => setCabBags(e.target.value)}
+                          className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-black text-slate-500 uppercase">AC System</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. AC Cabin"
+                          value={cabAc}
+                          onChange={(e) => setCabAc(e.target.value)}
+                          className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-black text-slate-500 uppercase">Image Filename</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. white-swift-right.png"
+                        value={cabImageUrl}
+                        onChange={(e) => setCabImageUrl(e.target.value)}
+                        className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-black text-slate-500 uppercase">Description</label>
+                      <textarea 
+                        rows="2"
+                        placeholder="Vehicle description details..."
+                        value={cabDescription}
+                        onChange={(e) => setCabDescription(e.target.value)}
+                        className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8] resize-none"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-black text-slate-500 uppercase">Inclusions (Comma separated)</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. Fuel Charges, Toll Charges"
+                        value={cabInclusions}
+                        onChange={(e) => setCabInclusions(e.target.value)}
+                        className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-black text-slate-500 uppercase">Exclusions (Comma separated)</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. Parking Fees, State Permit"
+                        value={cabExclusions}
+                        onChange={(e) => setCabExclusions(e.target.value)}
+                        className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                      />
+                    </div>
                     <button type="submit" className="bg-[#00b4d8] hover:bg-[#0083b0] text-white text-xs font-bold py-2.5 rounded-lg mt-2 transition-colors">
                       Add to Fleet List
                     </button>
@@ -932,7 +1314,7 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-black text-slate-500 uppercase">Ticket Price *</label>
+                        <label className="text-xs font-black text-slate-500 uppercase">Hire Price *</label>
                         <input 
                           type="number" 
                           required
@@ -1068,7 +1450,7 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
             <div className="bg-white border border-[#e2e8f0] rounded-2xl shadow-sm overflow-hidden flex flex-col max-w-6xl">
               <div className="p-6 border-b border-slate-100">
                 <h3 className="text-lg font-black text-slate-800">Customer Inquiries Inbox</h3>
-                <p className="text-xs font-bold text-slate-400 mt-1">Review contact form submissions and requests.</p>
+                <p className="text-xs font-bold text-slate-450 mt-1">Review contact form submissions and requests.</p>
               </div>
 
               <div className="overflow-x-auto">
@@ -1107,6 +1489,334 @@ export default function AdminDashboard({ setCurrentPage, currentUser }) {
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
+
+          {/* Content Editor Tab */}
+          {activeTab === 'cms_content' && (
+            <div className="bg-white border border-[#e2e8f0] rounded-2xl shadow-sm max-w-4xl p-6">
+              <h3 className="text-lg font-black text-slate-800 mb-2">Website Content Editor</h3>
+              <p className="text-xs font-bold text-slate-400 mb-6 pb-2 border-b border-slate-100">Update contacts, phone numbers, and page content dynamically.</p>
+              
+              <form onSubmit={handleUpdateSettings} className="flex flex-col gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black text-slate-600 uppercase">Primary Contact Email *</label>
+                    <input 
+                      type="email" 
+                      required
+                      value={editingSettings.contact_email || ''}
+                      onChange={(e) => setEditingSettings({ ...editingSettings, contact_email: e.target.value })}
+                      className="border border-slate-200 rounded-lg px-3.5 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black text-slate-600 uppercase">Primary Phone Number *</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingSettings.contact_phone || ''}
+                      onChange={(e) => setEditingSettings({ ...editingSettings, contact_phone: e.target.value })}
+                      className="border border-slate-200 rounded-lg px-3.5 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black text-slate-600 uppercase">Alternate Phone Number (WhatsApp) *</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingSettings.contact_phone_alt || ''}
+                      onChange={(e) => setEditingSettings({ ...editingSettings, contact_phone_alt: e.target.value })}
+                      className="border border-slate-200 rounded-lg px-3.5 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black text-slate-600 uppercase">Home Hero Title *</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingSettings.hero_title || ''}
+                      onChange={(e) => setEditingSettings({ ...editingSettings, hero_title: e.target.value })}
+                      className="border border-slate-200 rounded-lg px-3.5 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-black text-slate-600 uppercase">Home Hero Subtitle / Description *</label>
+                  <textarea 
+                    rows="2"
+                    required
+                    value={editingSettings.hero_subtitle || ''}
+                    onChange={(e) => setEditingSettings({ ...editingSettings, hero_subtitle: e.target.value })}
+                    className="border border-slate-200 rounded-lg px-3.5 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-black text-slate-600 uppercase">About Us Paragraph / Footer Text *</label>
+                  <textarea 
+                    rows="3"
+                    required
+                    value={editingSettings.about_text || ''}
+                    onChange={(e) => setEditingSettings({ ...editingSettings, about_text: e.target.value })}
+                    className="border border-slate-200 rounded-lg px-3.5 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="bg-[#00b4d8] hover:bg-[#0083b0] text-white text-xs font-black py-2.5 rounded-lg transition-colors shadow-sm uppercase tracking-wider"
+                >
+                  Save Settings Content
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* Blog Manager Tab */}
+          {activeTab === 'cms_blogs' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-6xl">
+              
+              {/* Blogs List */}
+              <div className="lg:col-span-7 bg-white border border-[#e2e8f0] rounded-2xl shadow-sm p-6">
+                <h3 className="text-base font-black text-slate-800 mb-4 pb-2 border-b border-slate-100">Active Blog Posts</h3>
+                
+                {blogsList.length === 0 ? (
+                  <div className="text-center py-10 text-slate-400 italic text-xs">No blogs found in database.</div>
+                ) : (
+                  <div className="flex flex-col gap-4 divide-y divide-slate-100">
+                    {blogsList.map(blog => (
+                      <div key={blog.id} className="pt-4 first:pt-0 flex justify-between items-start gap-4">
+                        <div className="flex gap-3">
+                          <img 
+                            src={blog.image || '/mahabaleshwar.jpg'} 
+                            alt={blog.title} 
+                            className="w-16 h-12 rounded-lg object-cover bg-slate-50 shrink-0" 
+                          />
+                          <div>
+                            <span className="text-[0.62rem] font-black text-[#00b4d8] uppercase tracking-wider">{blog.category}</span>
+                            <h4 className="text-xs font-black text-slate-800 leading-tight mt-0.5 line-clamp-1">{blog.title}</h4>
+                            <p className="text-[0.68rem] text-slate-455 mt-1 line-clamp-1 font-semibold">{blog.excerpt}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteBlog(blog.id)}
+                          className="text-rose-500 hover:text-rose-700 text-xs font-black px-2.5 py-1 rounded bg-rose-50 border border-rose-100 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Add Blog Post Form */}
+              <div className="lg:col-span-5 bg-white border border-[#e2e8f0] rounded-2xl shadow-sm p-6 flex flex-col gap-4">
+                <h3 className="text-base font-black text-slate-800 pb-2 border-b border-slate-100">Write New Blog Post</h3>
+                
+                <form onSubmit={handleCreateBlog} className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black text-slate-500 uppercase">Post Title *</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="e.g. Monsoon travels in Lonavala"
+                      value={newBlogTitle}
+                      onChange={(e) => setNewBlogTitle(e.target.value)}
+                      className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black text-slate-500 uppercase">Short Excerpt (Intro) *</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="e.g. A quick guide to scenic spots..."
+                      value={newBlogExcerpt}
+                      onChange={(e) => setNewBlogExcerpt(e.target.value)}
+                      className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black text-slate-500 uppercase">Category *</label>
+                    <select
+                      value={newBlogCategory}
+                      onChange={(e) => setNewBlogCategory(e.target.value)}
+                      className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none"
+                    >
+                      <option value="travel">Travel Tips</option>
+                      <option value="pilgrimage">Pilgrimage</option>
+                      <option value="fleet">Fleet Guide</option>
+                      <option value="roadtrips">Road Trips</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <label className="text-xs font-black text-slate-500 uppercase">Blog Images (Upload up to 3 images)</label>
+                    
+                    {/* Image 1 (Featured) */}
+                    <div className="flex flex-col gap-1 border border-slate-100 p-2.5 rounded-xl bg-slate-50/50">
+                      <span className="text-[10px] font-black text-[#00b4d8] uppercase">Featured Image (Required) *</span>
+                      <div className="flex gap-2 items-center">
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={(e) => handleImageUpload(e.target.files[0], 1)}
+                          className="text-[10px] text-slate-550 w-1/2 cursor-pointer"
+                        />
+                        <input 
+                          type="text" 
+                          required
+                          placeholder="Image URL"
+                          value={newBlogImage}
+                          onChange={(e) => setNewBlogImage(e.target.value)}
+                          className="border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold w-1/2 focus:outline-none focus:border-[#00b4d8]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Image 2 */}
+                    <div className="flex flex-col gap-1 border border-slate-100 p-2.5 rounded-xl bg-slate-50/50">
+                      <span className="text-[10px] font-black text-slate-400 uppercase">Additional Image 2 (Optional)</span>
+                      <div className="flex gap-2 items-center">
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={(e) => handleImageUpload(e.target.files[0], 2)}
+                          className="text-[10px] text-slate-555 w-1/2 cursor-pointer"
+                        />
+                        <input 
+                          type="text" 
+                          placeholder="Image URL"
+                          value={newBlogImage2}
+                          onChange={(e) => setNewBlogImage2(e.target.value)}
+                          className="border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold w-1/2 focus:outline-none focus:border-[#00b4d8]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Image 3 */}
+                    <div className="flex flex-col gap-1 border border-slate-100 p-2.5 rounded-xl bg-slate-50/50">
+                      <span className="text-[10px] font-black text-slate-400 uppercase">Additional Image 3 (Optional)</span>
+                      <div className="flex gap-2 items-center">
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={(e) => handleImageUpload(e.target.files[0], 3)}
+                          className="text-[10px] text-slate-555 w-1/2 cursor-pointer"
+                        />
+                        <input 
+                          type="text" 
+                          placeholder="Image URL"
+                          value={newBlogImage3}
+                          onChange={(e) => setNewBlogImage3(e.target.value)}
+                          className="border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold w-1/2 focus:outline-none focus:border-[#00b4d8]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black text-slate-500 uppercase">Body Content *</label>
+                    <textarea 
+                      rows="5"
+                      required
+                      placeholder="Write your blog post content details here..."
+                      value={newBlogContent}
+                      onChange={(e) => setNewBlogContent(e.target.value)}
+                      className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                    />
+                  </div>
+                  <button type="submit" className="bg-[#00b4d8] hover:bg-[#0083b0] text-white text-xs font-black py-2.5 rounded-lg transition-colors uppercase tracking-wider">
+                    Publish Blog Post
+                  </button>
+                </form>
+              </div>
+
+            </div>
+          )}
+
+          {/* Gallery Manager Tab */}
+          {activeTab === 'cms_gallery' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-6xl">
+              
+              {/* Gallery Items Grid */}
+              <div className="lg:col-span-7 bg-white border border-[#e2e8f0] rounded-2xl shadow-sm p-6">
+                <h3 className="text-base font-black text-slate-800 mb-4 pb-2 border-b border-slate-100">Gallery Media Library</h3>
+                
+                {galleryList.length === 0 ? (
+                  <div className="text-center py-10 text-slate-400 italic text-xs">No gallery images found in database.</div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2">
+                    {galleryList.map(item => (
+                      <div key={item.id} className="border border-slate-100 rounded-xl overflow-hidden bg-slate-50 relative group flex flex-col">
+                        <img 
+                          src={item.image} 
+                          alt={item.title} 
+                          className="w-full aspect-[4/3] object-cover bg-slate-100" 
+                        />
+                        <div className="p-2 flex flex-col justify-between flex-1 gap-1">
+                          <span className="text-[0.58rem] font-black text-[#00b4d8] uppercase tracking-wider">{item.category}</span>
+                          <span className="text-[0.68rem] font-bold text-slate-700 leading-tight block truncate">{item.title}</span>
+                          <button
+                            onClick={() => handleDeleteGallery(item.id)}
+                            className="w-full text-center text-rose-500 hover:text-white bg-rose-50 hover:bg-rose-500 py-1 rounded text-[0.68rem] font-black transition-all border border-rose-100 mt-1"
+                          >
+                            Delete Image
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Add Gallery Image Form */}
+              <div className="lg:col-span-5 bg-white border border-[#e2e8f0] rounded-2xl shadow-sm p-6 flex flex-col gap-4">
+                <h3 className="text-base font-black text-slate-800 pb-2 border-b border-slate-100">Add New Gallery Image</h3>
+                
+                <form onSubmit={handleAddGallery} className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black text-slate-500 uppercase">Image Title *</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="e.g. Pune to Mahabaleshwar tour trip pose"
+                      value={newGalleryTitle}
+                      onChange={(e) => setNewGalleryTitle(e.target.value)}
+                      className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black text-slate-500 uppercase">Image URL *</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={newGalleryImage}
+                      onChange={(e) => setNewGalleryImage(e.target.value)}
+                      className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black text-slate-500 uppercase">Category *</label>
+                    <select
+                      value={newGalleryCategory}
+                      onChange={(e) => setNewGalleryCategory(e.target.value)}
+                      className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none"
+                    >
+                      <option value="fleet">Our Fleet</option>
+                      <option value="tours">Outstation Tours</option>
+                    </select>
+                  </div>
+                  <button type="submit" className="bg-[#00b4d8] hover:bg-[#0083b0] text-white text-xs font-black py-2.5 rounded-lg transition-colors uppercase tracking-wider">
+                    Add Media Image
+                  </button>
+                </form>
+              </div>
+
             </div>
           )}
 

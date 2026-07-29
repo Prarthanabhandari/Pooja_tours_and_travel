@@ -71,110 +71,256 @@ const ROUTES_SPECIFIC_FARES = {
   }
 };
 
-export default function RouteDetailsPage({ routeName, setCurrentPage, setSearchParams, searchParams }) {
+export default function RouteDetailsPage({ 
+  routeName, 
+  setCurrentPage, 
+  setSearchParams, 
+  searchParams,
+  setSelectedItem,
+  setBookingStep
+}) {
   const routeData = ROUTES_SPECIFIC_FARES[routeName] || {
     ...DEFAULT_ROUTE_DATA,
     title: routeName || DEFAULT_ROUTE_DATA.title
   };
 
-  const [activeTab, setActiveTab] = useState('1-4'); // '1-4', '1-6', '17'
+  const [activeTab, setActiveTab] = useState('1-4'); // '1-4', '1-7', '17-20', '32-50'
 
-  // Tabs structure matching poojatravels style
+  // Tabs structure matching updated 13 fleets
   const categoryTabs = [
-    { slug: '1-4', label: '1-4 Passengers (Sedan)' },
-    { slug: '1-6', label: '1-6 Passengers (Ertiga/Carens)' },
-    { slug: '17', label: '17 Seater (Tempo Traveller)' }
+    { slug: '1-4', label: '1-4 Passengers (Hatchback/Sedan/SUV)' },
+    { slug: '1-7', label: '1-7 Passengers (Ertiga/Carens/Innova)' },
+    { slug: '17-20', label: '17-20 Seater (Tempo Traveller)' },
+    { slug: '32-50', label: '32-50 Seater (Tourist Bus)' }
   ];
 
-  // Helper to retrieve prices for current active tab
+  const parsePrice = (priceStr) => {
+    if (!priceStr || priceStr.includes('N/A')) return 0;
+    return parseInt(priceStr.replace(/[^\d]/g, ''));
+  };
+
+  const formatPrice = (priceVal) => {
+    if (!priceVal || priceVal <= 0) return 'N/A';
+    return `₹${priceVal.toLocaleString('en-IN')}`;
+  };
+
+  // Helper to retrieve prices for current active tab (handles all 13 vehicles dynamically)
   const getFaresForTab = () => {
     const table = routeData.faresTable;
+    
+    // Base prices
+    const sedanOneway = parsePrice(table[0]?.oneway);
+    const sedanRound = parsePrice(table[0]?.round);
+    
+    const ertigaOneway = parsePrice(table[1]?.oneway);
+    const ertigaRound = parsePrice(table[1]?.round);
+    
+    const carensOneway = parsePrice(table[2]?.oneway);
+    const carensRound = parsePrice(table[2]?.round);
+    
+    const tempoOneway = parsePrice(table[3]?.oneway);
+    const tempoRound = parsePrice(table[3]?.round);
+
+    const isOnewayNA = table[0]?.oneway && table[0].oneway.includes('N/A');
+
     if (activeTab === '1-4') {
-      return {
-        card1: {
-          name: 'Sedan (Suzuki Dzire / Similar)',
+      return [
+        {
+          name: 'Suzuki Swift (Hatchback)',
           image: '/white-swift-right.png',
           seats: '4 Seats',
           bags: '2 Bags',
           ac: 'AC Cabin',
-          onewayPrice: table[0].oneway,
-          roundPrice: table[0].round,
-          whatsappText: `Hello Pooja Tours & Travels, I would like to book a Sedan (Dzire) for ${routeData.title}.`
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(sedanOneway - 100),
+          roundPrice: formatPrice(sedanRound - 200),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a Suzuki Swift for ${routeData.title}.`
         },
-        card2: {
-          name: 'Premium Sedan (Toyota Etios / Similar)',
+        {
+          name: 'Suzuki Dzire (Sedan)',
           image: '/white-swift.png',
+          seats: '4 Seats',
+          bags: '2 Bags',
+          ac: 'AC Cabin',
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(sedanOneway),
+          roundPrice: formatPrice(sedanRound),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a Suzuki Dzire for ${routeData.title}.`
+        },
+        {
+          name: 'Toyota Etios (Comfort Sedan)',
+          image: '/white-swift-right.png',
           seats: '4 Seats',
           bags: '3 Bags',
           ac: 'AC Cabin',
-          onewayPrice: table[0].oneway !== 'N/A (Round Trip Only)' ? `₹${parseInt(table[0].oneway.replace(/[^\d]/g, '')) + 200}` : 'N/A',
-          roundPrice: `₹${parseInt(table[0].round.replace(/[^\d]/g, '')) + 400}`,
-          whatsappText: `Hello Pooja Tours & Travels, I would like to book a Premium Sedan (Etios) for ${routeData.title}.`
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(sedanOneway),
+          roundPrice: formatPrice(sedanRound),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a Toyota Etios for ${routeData.title}.`
+        },
+        {
+          name: 'Maruti Brezza (Comfort SUV)',
+          image: '/white-brezza-right.png',
+          seats: '4 Seats',
+          bags: '3 Bags',
+          ac: 'AC Cabin',
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(sedanOneway + 100),
+          roundPrice: formatPrice(sedanRound + 200),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a Maruti Brezza for ${routeData.title}.`
         }
-      };
-    } else if (activeTab === '1-6') {
-      return {
-        card1: {
-          name: 'Family SUV (Maruti Ertiga / Similar)',
+      ];
+    } else if (activeTab === '1-7') {
+      return [
+        {
+          name: 'Maruti Ertiga (Family MUV)',
           image: '/white-ertiga-right.png',
           seats: '6 Seats',
           bags: '4 Bags',
           ac: 'AC Cabin',
-          onewayPrice: table[1].oneway,
-          roundPrice: table[1].round,
-          whatsappText: `Hello Pooja Tours & Travels, I would like to book a Family SUV (Ertiga) for ${routeData.title}.`
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(ertigaOneway),
+          roundPrice: formatPrice(ertigaRound),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a Maruti Ertiga for ${routeData.title}.`
         },
-        card2: {
-          name: 'Premium SUV (Kia Carens)',
-          image: '/white-carens-right.jpg',
+        {
+          name: 'Kia Carens (Comfort SUV)',
+          image: '/white-carens-right.png',
           seats: '6 Seats',
           bags: '4 Bags',
           ac: 'Climate Control',
-          onewayPrice: table[2].oneway,
-          roundPrice: table[2].round,
-          whatsappText: `Hello Pooja Tours & Travels, I would like to book a Premium SUV (Kia Carens) for ${routeData.title}.`
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(carensOneway),
+          roundPrice: formatPrice(carensRound),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a Kia Carens for ${routeData.title}.`
+        },
+        {
+          name: 'Toyota Innova Crysta (Comfort MUV)',
+          image: '/white-innova-right.png',
+          seats: '7 Seats',
+          bags: '5 Bags',
+          ac: 'Dual AC',
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(carensOneway + 800),
+          roundPrice: formatPrice(carensRound + 1500),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a Toyota Innova Crysta for ${routeData.title}.`
         }
-      };
-    } else {
-      return {
-        card1: {
-          name: 'Tempo Traveller (17-Seater AC)',
+      ];
+    } else if (activeTab === '17-20') {
+      return [
+        {
+          name: '17-Seater Premium AC Tempo Traveller',
           image: '/17-seat-tempo-traveller-right.png',
           seats: '17 Seats',
-          bags: '10 Bags',
-          ac: 'AC Coach',
-          onewayPrice: table[3].oneway,
-          roundPrice: table[3].round,
-          whatsappText: `Hello Pooja Tours & Travels, I would like to book a 17-Seater AC Tempo Traveller for ${routeData.title}.`
+          bags: '12 Bags',
+          ac: 'Premium Dual AC',
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(tempoOneway + 500),
+          roundPrice: formatPrice(tempoRound + 1000),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a 17-Seater Premium AC Tempo Traveller for ${routeData.title}.`
         },
-        card2: {
-          name: 'Tempo Traveller (17-Seater Non-AC)',
+        {
+          name: '17-Seater Executive AC Tempo Traveller',
           image: '/17-seat-tempo-traveller.png',
           seats: '17 Seats',
-          bags: '10 Bags',
+          bags: '12 Bags',
+          ac: 'Standard AC',
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(tempoOneway),
+          roundPrice: formatPrice(tempoRound),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a 17-Seater Executive AC Tempo Traveller for ${routeData.title}.`
+        },
+        {
+          name: '17-Seater Standard Non-AC Tempo Traveller',
+          image: '/17-seat-tempo-traveller-right.jpg',
+          seats: '17 Seats',
+          bags: '12 Bags',
           ac: 'Blower System',
-          onewayPrice: table[3].oneway !== 'N/A (Round Trip Only)' ? `₹${parseInt(table[3].oneway.replace(/[^\d]/g, '')) - 1000}` : 'N/A',
-          roundPrice: `₹${parseInt(table[3].round.replace(/[^\d]/g, '')) - 2000}`,
-          whatsappText: `Hello Pooja Tours & Travels, I would like to book a 17-Seater Non-AC Tempo Traveller for ${routeData.title}.`
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(tempoOneway - 1000),
+          roundPrice: formatPrice(tempoRound - 2000),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a 17-Seater Standard Non-AC Tempo Traveller for ${routeData.title}.`
+        },
+        {
+          name: '20-Seater Standard Non-AC Tempo Traveller',
+          image: '/17-seat-tempo-traveller-right.jpg',
+          seats: '20 Seats',
+          bags: '15 Bags',
+          ac: 'Blower System',
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(tempoOneway - 500),
+          roundPrice: formatPrice(tempoRound - 1000),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a 20-Seater Standard Non-AC Tempo Traveller for ${routeData.title}.`
         }
-      };
+      ];
+    } else {
+      return [
+        {
+          name: '32-Seater Comfort Tourist Coach',
+          image: '/50-seat-bus-right.png',
+          seats: '32 Seats',
+          bags: '25 Bags',
+          ac: 'Air Suspension',
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(Math.round(tempoOneway * 1.5)),
+          roundPrice: formatPrice(Math.round(tempoRound * 1.5)),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a 32-Seater Comfort Tourist Coach for ${routeData.title}.`
+        },
+        {
+          name: '50-Seater Comfort Tourist Bus',
+          image: '/50-seat-bus-right.png',
+          seats: '50 Seats',
+          bags: '40 Bags',
+          ac: 'Climate Control',
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(Math.round(tempoOneway * 2.0)),
+          roundPrice: formatPrice(Math.round(tempoRound * 2.0)),
+          whatsappText: `Hello Pooja Tours & Travels, I would like to book a 50-Seater Comfort Tourist Bus for ${routeData.title}.`
+        }
+      ];
     }
   };
 
   const activeFares = getFaresForTab();
 
   const handleManualBookingRedirect = (carName) => {
+    const isBus = (activeTab === '17-20' || activeTab === '32-50');
+    const card = activeFares.find(f => f.name === carName) || {};
+    
+    // Choose one-way or round-trip price based on trip type selection
+    const priceStr = (searchParams.tripType === 'roundtrip') ? card.roundPrice : card.onewayPrice;
+    const finalPrice = parsePrice(priceStr) || parsePrice(card.onewayPrice) || parsePrice(card.roundPrice);
+
     setSearchParams({
       ...searchParams,
-      bookingType: activeTab === '17' ? 'bus' : 'cab',
-      fromCity: 'Pune, Maharashtra, India',
-      toCity: routeData.to
+      bookingType: isBus ? 'bus' : 'cab',
+      fromCity: searchParams.fromCity || 'Pune, Maharashtra, India',
+      toCity: routeData.to + ', Maharashtra, India'
     });
-    setCurrentPage('home');
-    setTimeout(() => {
-      const searchEl = document.getElementById('search-panel');
-      if (searchEl) searchEl.scrollIntoView({ behavior: 'smooth' });
-    }, 200);
+
+    if (setSelectedItem && setBookingStep) {
+      let dbId = isBus ? 1 : 2; // Default fallbacks
+      if (!isBus) {
+        if (activeTab === '17-20') {
+          dbId = 3; // Pooja Luxury Traveler is ID 3
+        } else if (activeTab === '1-4') {
+          if (carName.toLowerCase().includes('wagonr') || carName.toLowerCase().includes('dzire')) {
+            dbId = 1; // WagonR is ID 1
+          } else {
+            dbId = 2; // Brezza/SUV is ID 2
+          }
+        }
+      } else {
+        if (routeData && routeData.title && routeData.title.toLowerCase().includes('mumbai')) {
+          dbId = 1;
+        } else if (routeData && routeData.title && routeData.title.toLowerCase().includes('mahabaleshwar')) {
+          dbId = 2;
+        } else {
+          dbId = 3;
+        }
+      }
+
+      setSelectedItem({
+        id: dbId,
+        name: carName,
+        image: isBus ? '🚌' : '🚗',
+        price_per_seat: isBus ? finalPrice : null,
+        price_per_km: !isBus ? (activeTab === '1-4' ? 13 : 16) : null,
+        exactPrice: finalPrice,
+        details: (card.seats || '') + ' | ' + (card.bags || '') + ' | ' + (card.ac || '')
+      });
+      setBookingStep(3); // Go straight to passenger details
+      setCurrentPage('booking-flow');
+    } else {
+      setCurrentPage('home');
+    }
   };
 
   return (
@@ -214,8 +360,8 @@ export default function RouteDetailsPage({ routeName, setCurrentPage, setSearchP
           </p>
         </div>
 
-        {/* Seating category tabs matching reference style */}
-        <div className="flex justify-center items-center flex-wrap gap-2 mb-8 bg-white border border-slate-200/50 p-2 rounded-2xl max-w-2xl mx-auto shadow-sm">
+        {/* Seating category tabs in one horizontal row */}
+        <div className="flex justify-center items-center flex-wrap md:flex-nowrap gap-2 mb-8 bg-white border border-slate-200/50 p-2 rounded-2xl max-w-5xl mx-auto shadow-sm">
           {categoryTabs.map(tab => (
             <button
               key={tab.slug}
@@ -231,143 +377,75 @@ export default function RouteDetailsPage({ routeName, setCurrentPage, setSearchP
           ))}
         </div>
 
-        {/* Comparison Cards (Two columns side by side) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-12">
-          
-          {/* Card 1 */}
-          <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
-            <div className="p-3 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
-              <span className="text-xs font-black text-slate-800">{activeFares.card1.name}</span>
-              <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[0.62rem] font-bold uppercase tracking-wider">Available</span>
-            </div>
-            
-            <div className="p-6 flex-1 flex flex-col items-center">
-              <img 
-                src={activeFares.card1.image} 
-                alt={activeFares.card1.name} 
-                className="w-auto h-32 object-contain mb-4 transition-transform hover:scale-103"
-              />
+        {/* Comparison Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-12 justify-center">
+          {activeFares.map((card, idx) => (
+            <div key={idx} className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
+              <div className="p-3 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
+                <span className="text-xs font-black text-slate-800">{card.name}</span>
+                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[0.62rem] font-bold uppercase tracking-wider">Available</span>
+              </div>
               
-              {/* Vehicle parameters strip */}
-              <div className="flex justify-center gap-4 text-slate-500 text-[0.65rem] font-bold mb-6">
-                <span className="flex items-center gap-1"><span className="text-slate-400">👤</span> {activeFares.card1.seats}</span>
-                <span className="flex items-center gap-1"><span className="text-slate-400">🧳</span> {activeFares.card1.bags}</span>
-                <span className="flex items-center gap-1"><span className="text-slate-400">❄️</span> {activeFares.card1.ac}</span>
-              </div>
+              <div className="p-6 flex-1 flex flex-col items-center">
+                <img 
+                  src={card.image} 
+                  alt={card.name} 
+                  className="w-auto h-32 object-contain mb-4 transition-transform hover:scale-103"
+                />
+                
+                {/* Vehicle parameters strip */}
+                <div className="flex justify-center gap-4 text-slate-500 text-[0.65rem] font-bold mb-6">
+                  <span className="flex items-center gap-1"><span className="text-slate-400">👤</span> {card.seats}</span>
+                  <span className="flex items-center gap-1"><span className="text-slate-400">🧳</span> {card.bags}</span>
+                  <span className="flex items-center gap-1"><span className="text-slate-400">❄️</span> {card.ac}</span>
+                </div>
 
-              {/* Inclusions / Exclusions */}
-              <div className="w-full grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 mb-6">
-                <div>
-                  <h4 className="text-[0.65rem] font-black text-[#00b4d8] uppercase tracking-wider mb-2">Inclusion</h4>
-                  <ul className="text-[0.62rem] font-semibold text-slate-500 space-y-1">
-                    <li>✓ Fuel Charges</li>
-                    <li>✓ Toll Charges</li>
-                    <li>✓ Driver Allowance</li>
-                  </ul>
+                {/* Inclusions / Exclusions */}
+                <div className="w-full grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 mb-6">
+                  <div>
+                    <h4 className="text-[0.65rem] font-black text-[#00b4d8] uppercase tracking-wider mb-2">Inclusion</h4>
+                    <ul className="text-[0.62rem] font-semibold text-slate-500 space-y-1">
+                      <li>✓ Fuel Charges</li>
+                      <li>✓ Toll Charges</li>
+                      <li>✓ Driver Allowance</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-[0.65rem] font-black text-rose-500 uppercase tracking-wider mb-2">Exclusion</h4>
+                    <ul className="text-[0.62rem] font-semibold text-slate-500 space-y-1">
+                      <li>✗ State Permit (if any)</li>
+                      <li>✗ Parking Fees</li>
+                      <li>✗ Extra Hours / KM</li>
+                    </ul>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-[0.65rem] font-black text-rose-500 uppercase tracking-wider mb-2">Exclusion</h4>
-                  <ul className="text-[0.62rem] font-semibold text-slate-500 space-y-1">
-                    <li>✗ State Permit (if any)</li>
-                    <li>✗ Parking Fees</li>
-                    <li>✗ Extra Hours / KM</li>
-                  </ul>
-                </div>
-              </div>
 
-              {/* Price & Action Row */}
-              <div className="w-full flex items-center justify-between border-t border-slate-100 pt-4 mt-auto">
-                <div className="flex flex-col">
-                  <span className="text-[0.55rem] font-bold text-slate-400 uppercase tracking-wider">Estimated Fare</span>
-                  <span className="text-sm font-black text-slate-800">{activeFares.card1.onewayPrice}</span>
-                </div>
-                <div className="flex gap-2">
-                  <a 
-                    href={`https://wa.me/919623324139?text=${encodeURIComponent(activeFares.card1.whatsappText)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-black shadow-sm shadow-emerald-500/20 hover:bg-emerald-600 transition-colors"
-                  >
-                    WhatsApp Book
-                  </a>
-                  <button 
-                    onClick={() => handleManualBookingRedirect(activeFares.card1.name)}
-                    className="px-4 py-2 bg-[#00b4d8] text-white rounded-xl text-xs font-black shadow-sm shadow-[#00b4d8]/20 hover:bg-[#0083b0] transition-colors"
-                  >
-                    Book Now
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 2 */}
-          <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
-            <div className="p-3 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
-              <span className="text-xs font-black text-slate-800">{activeFares.card2.name}</span>
-              <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[0.62rem] font-bold uppercase tracking-wider">Available</span>
-            </div>
-            
-            <div className="p-6 flex-1 flex flex-col items-center">
-              <img 
-                src={activeFares.card2.image} 
-                alt={activeFares.card2.name} 
-                className="w-auto h-32 object-contain mb-4 transition-transform hover:scale-103"
-              />
-              
-              {/* Vehicle parameters strip */}
-              <div className="flex justify-center gap-4 text-slate-500 text-[0.65rem] font-bold mb-6">
-                <span className="flex items-center gap-1"><span className="text-slate-400">👤</span> {activeFares.card2.seats}</span>
-                <span className="flex items-center gap-1"><span className="text-slate-400">🧳</span> {activeFares.card2.bags}</span>
-                <span className="flex items-center gap-1"><span className="text-slate-400">❄️</span> {activeFares.card2.ac}</span>
-              </div>
-
-              {/* Inclusions / Exclusions */}
-              <div className="w-full grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 mb-6">
-                <div>
-                  <h4 className="text-[0.65rem] font-black text-[#00b4d8] uppercase tracking-wider mb-2">Inclusion</h4>
-                  <ul className="text-[0.62rem] font-semibold text-slate-500 space-y-1">
-                    <li>✓ Fuel Charges</li>
-                    <li>✓ Toll Charges</li>
-                    <li>✓ Driver Allowance</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="text-[0.65rem] font-black text-rose-500 uppercase tracking-wider mb-2">Exclusion</h4>
-                  <ul className="text-[0.62rem] font-semibold text-slate-500 space-y-1">
-                    <li>✗ State Permit (if any)</li>
-                    <li>✗ Parking Fees</li>
-                    <li>✗ Extra Hours / KM</li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* Price & Action Row */}
-              <div className="w-full flex items-center justify-between border-t border-slate-100 pt-4 mt-auto">
-                <div className="flex flex-col">
-                  <span className="text-[0.55rem] font-bold text-slate-400 uppercase tracking-wider">Estimated Fare</span>
-                  <span className="text-sm font-black text-slate-800">{activeFares.card2.onewayPrice}</span>
-                </div>
-                <div className="flex gap-2">
-                  <a 
-                    href={`https://wa.me/919623324139?text=${encodeURIComponent(activeFares.card2.whatsappText)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-black shadow-sm shadow-emerald-500/20 hover:bg-emerald-600 transition-colors"
-                  >
-                    WhatsApp Book
-                  </a>
-                  <button 
-                    onClick={() => handleManualBookingRedirect(activeFares.card2.name)}
-                    className="px-4 py-2 bg-[#00b4d8] text-white rounded-xl text-xs font-black shadow-sm shadow-[#00b4d8]/20 hover:bg-[#0083b0] transition-colors"
-                  >
-                    Book Now
-                  </button>
+                {/* Price & Action Row */}
+                <div className="w-full flex items-center justify-between border-t border-slate-100 pt-4 mt-auto">
+                  <div className="flex flex-col">
+                    <span className="text-[0.55rem] font-bold text-slate-400 uppercase tracking-wider">Estimated Fare</span>
+                    <span className="text-sm font-black text-slate-800">{card.onewayPrice}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <a 
+                      href={`https://wa.me/919623324139?text=${encodeURIComponent(card.whatsappText)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-black shadow-sm shadow-emerald-500/20 hover:bg-emerald-600 transition-colors"
+                    >
+                      WhatsApp Book
+                    </a>
+                    <button 
+                      onClick={() => handleManualBookingRedirect(card.name)}
+                      className="px-4 py-2 bg-[#00b4d8] text-white rounded-xl text-xs font-black shadow-sm shadow-[#00b4d8]/20 hover:bg-[#0083b0] transition-colors"
+                    >
+                      Book Now
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
+          ))}
         </div>
 
         {/* Fares comparison table matching reference layout */}

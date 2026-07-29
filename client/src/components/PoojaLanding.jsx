@@ -18,12 +18,55 @@ export default function PoojaLanding({
   setAuthMode,
   currentUser,
   handleLogout,
-  setSelectedRouteName
+  setSelectedRouteName,
+  siteSettings = {}
 }) {
   const [isDestDropdownOpen, setIsDestDropdownOpen] = useState(false);
   const [customDestText, setCustomDestText] = useState(searchParams.toCity ? searchParams.toCity.split(',')[0] : '');
-  const [showMapModal, setShowMapModal] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const [selectedMapAddress, setSelectedMapAddress] = useState('');
+  const [mapSearchQuery, setMapSearchQuery] = useState('');
+  const [searchingMap, setSearchingMap] = useState(false);
+  const [estimatedKm, setEstimatedKm] = useState(null);
+  const [estimatedTime, setEstimatedTime] = useState(null);
+
+  const mapRef = React.useRef(null);
+  const markerRef = React.useRef(null);
+
+  const calculateEstimates = (lat, lng) => {
+    const PUNE_LAT = 18.5204;
+    const PUNE_LNG = 73.8567;
+    
+    // Haversine distance formula
+    const R = 6371;
+    const dLat = (lat - PUNE_LAT) * Math.PI / 180;
+    const dLng = (lng - PUNE_LNG) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(PUNE_LAT * Math.PI / 180) * Math.cos(lat * Math.PI / 180) * 
+      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const straightDist = R * c;
+    const roadDist = Math.round(straightDist * 1.35); // road distance factor
+
+    if (roadDist < 5) {
+      setEstimatedKm(0);
+      setEstimatedTime("Local Trip");
+      return;
+    }
+    
+    setEstimatedKm(roadDist);
+    
+    // Est. time at average 55 km/h
+    const totalMinutes = Math.round((roadDist / 55) * 60);
+    const hrs = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    
+    let timeStr = "";
+    if (hrs > 0) timeStr += `${hrs} hr `;
+    if (mins > 0) timeStr += `${mins} min`;
+    setEstimatedTime(timeStr.trim());
+  };
 
   useEffect(() => {
     setCustomDestText(searchParams.toCity ? searchParams.toCity.split(',')[0] : '');
@@ -32,11 +75,12 @@ export default function PoojaLanding({
   // Handle leaflet map display and reverse geocoding
   useEffect(() => {
     let mapInstance = null;
-    if (showMapModal) {
+    if (showMap) {
       const timer = setTimeout(() => {
         if (window.L) {
           // Initialize map centered around Pune/Maharashtra region
           mapInstance = window.L.map('map-container').setView([18.5204, 73.8567], 10);
+          mapRef.current = mapInstance;
           
           window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -44,7 +88,10 @@ export default function PoojaLanding({
           }).addTo(mapInstance);
 
           let marker = window.L.marker([18.5204, 73.8567], { draggable: true }).addTo(mapInstance);
+          markerRef.current = marker;
+          
           setSelectedMapAddress('Pune, Maharashtra, India');
+          calculateEstimates(18.5204, 73.8567);
 
           const reverseGeocode = async (lat, lng) => {
             try {
@@ -65,11 +112,13 @@ export default function PoojaLanding({
             const { lat, lng } = e.latlng;
             marker.setLatLng([lat, lng]);
             reverseGeocode(lat, lng);
+            calculateEstimates(lat, lng);
           });
 
           marker.on('dragend', () => {
             const { lat, lng } = marker.getLatLng();
             reverseGeocode(lat, lng);
+            calculateEstimates(lat, lng);
           });
         }
       }, 300);
@@ -81,7 +130,40 @@ export default function PoojaLanding({
         }
       };
     }
-  }, [showMapModal]);
+  }, [showMap]);
+
+  // Search address coordinates via OSM Nominatim API
+  const handleMapSearchSubmit = async () => {
+    if (!mapSearchQuery.trim()) return;
+    setSearchingMap(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(mapSearchQuery)}&limit=1&accept-language=en`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const { lat, lon, display_name } = data[0];
+        const latitude = parseFloat(lat);
+        const longitude = parseFloat(lon);
+
+        if (mapRef.current) {
+          mapRef.current.setView([latitude, longitude], 12);
+        }
+        if (markerRef.current) {
+          markerRef.current.setLatLng([latitude, longitude]);
+        }
+
+        const parts = display_name.split(',');
+        const shortened = parts.slice(0, 3).join(',').trim();
+        setSelectedMapAddress(shortened || display_name);
+        calculateEstimates(latitude, longitude);
+      } else {
+        alert("Location not found. Please try a different query.");
+      }
+    } catch (err) {
+      console.warn("Geocoding search failed: ", err);
+    } finally {
+      setSearchingMap(false);
+    }
+  };
 
   return (
     <div className="min-h-screen font-sans relative selection:bg-[#c69b3f] selection:text-white bg-white lg:bg-gradient-to-r lg:from-white lg:from-[50%] lg:to-[#f4f3ed] lg:to-[50%]">
@@ -89,7 +171,9 @@ export default function PoojaLanding({
       {/* 2. SPLIT-SCREEN EDITORIAL LAYOUT HERO & BOOKING CONSOLE */}
       {/* Background arches collage set as a background image stretching 100% height */}
       <section 
-        className="relative min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex items-stretch overflow-hidden bg-white lg:bg-[url('/hero-bg-collage.png')] lg:bg-[length:100%_100%] lg:bg-no-repeat lg:bg-center"
+        className={`relative min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex items-stretch overflow-hidden bg-white lg:bg-[length:100%_100%] lg:bg-no-repeat lg:bg-center transition-all ${
+          showMap ? 'lg:bg-none bg-slate-50/50' : 'lg:bg-[url(\'/hero-bg-collage.png\')]'
+        }`}
       >
         {/* Inner container that aligns perfectly with the Logo margin (max-w-7xl mx-auto px-4 sm:px-6 lg:px-8) */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full h-full grid grid-cols-1 lg:grid-cols-12 items-stretch z-10">
@@ -102,14 +186,11 @@ export default function PoojaLanding({
               
               {/* Editorial Heading */}
               <div className="text-left select-none">
-                <h1 className="text-[#0a2540] text-3xl sm:text-4xl lg:text-[38px] font-black tracking-tight leading-tight">
-                  Every Journey Has a Story.
-                </h1>
-                <h1 className="text-[#c69b3f] text-3xl sm:text-4xl lg:text-[38px] font-black tracking-tight leading-tight mt-1.5">
-                  Start Yours Here.
+                <h1 className="text-[#0a2540] text-3xl sm:text-4.5xl font-black tracking-tight leading-tight">
+                  {siteSettings.hero_title || 'Every Journey Has a Story. Start Yours Here.'}
                 </h1>
                 <p className="text-slate-500 text-[0.68rem] sm:text-xs font-bold mt-2.5 uppercase tracking-wider leading-relaxed">
-                  Discover Maharashtra with Pooja Travels
+                  {siteSettings.hero_subtitle || 'Discover Maharashtra with Pooja Travels'}
                 </p>
               </div>
 
@@ -195,7 +276,7 @@ export default function PoojaLanding({
                               type="button"
                               onClick={() => {
                                 setIsDestDropdownOpen(false);
-                                setShowMapModal(true);
+                                setShowMap(true);
                               }}
                               className="w-full text-left px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-50 to-blue-50 hover:from-cyan-100 hover:to-blue-100 text-cyan-650 text-xs font-black flex items-center justify-between border border-cyan-200 transition-colors"
                             >
@@ -348,55 +429,173 @@ export default function PoojaLanding({
             </div>
           </div>
           
-          {/* Right Column: pb-2 (reduced padding to push elements slightly lower down, increasing gap with the arches above) */}
-          <div className="hidden lg:flex lg:col-span-7 flex-col justify-end items-center pb-2 px-6 bg-transparent pointer-events-none select-none">
-            
-            {/* 4 separate features grid drawn directly on the background */}
-            <div className="w-full max-w-[530px] grid grid-cols-4 gap-4 z-20 pointer-events-auto">
-              
-              {/* Feature 1: Comfortable Seating */}
-              <div className="flex flex-col items-center text-center">
-                <svg className="w-6 h-6 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 18H8.5a3.5 3.5 0 0 1-3.5-3.5V6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v6.5a1.5 1.5 0 0 0 1.5 1.5H19a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 18v2m-6-2v2" />
-                </svg>
-                <span className="text-[10px] xl:text-[10.5px] font-extrabold text-slate-800 tracking-tight leading-tight uppercase mt-1.5">
-                  Comfortable Seating
-                </span>
-              </div>
+          {/* Right Column */}
+          <div className={`lg:col-span-7 flex flex-col justify-center items-center py-4 px-4 sm:px-6 lg:px-8 select-none transition-all ${
+            showMap ? 'flex w-full min-h-[400px] lg:min-h-auto pointer-events-auto' : 'hidden lg:flex pointer-events-none'
+          }`}>
+            {showMap ? (
+              <div className="bg-white border border-[#0d3859]/30 rounded-2xl shadow-xl w-full max-w-xl overflow-hidden flex flex-col pointer-events-auto animate-fade">
+                {/* Header */}
+                <div className="px-5 py-3.5 bg-gradient-to-r from-[#0d3859] to-[#0a2540] text-white flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🗺️</span>
+                    <span className="text-xs font-black uppercase tracking-wider">Choose Location on Map</span>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => setShowMap(false)}
+                    className="p-1 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
 
-              {/* Feature 2: AC & WiFi */}
-              <div className="flex flex-col items-center text-center">
-                <svg className="w-6 h-6 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 19.5v.008H12V19.5zm-3.75-3.75a5.303 5.303 0 0 1 7.5 0M5.25 12a10.607 10.607 0 0 1 13.5 0M3 8.25a15.91 15.91 0 0 1 18 0" />
-                </svg>
-                <span className="text-[10px] xl:text-[10.5px] font-extrabold text-slate-800 tracking-tight leading-tight uppercase mt-1.5">
-                  AC & WiFi
-                </span>
-              </div>
+                {/* Body */}
+                <div className="p-4 sm:p-5 flex-1 flex flex-col gap-4">
+                  <p className="text-[0.68rem] text-slate-500 font-bold leading-normal">
+                    Click anywhere on the map or drag the location pin to select your target tour destination.
+                  </p>
 
-              {/* Feature 3: Professional Drivers */}
-              <div className="flex flex-col items-center text-center">
-                <svg className="w-6 h-6 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                </svg>
-                <span className="text-[10px] xl:text-[10.5px] font-extrabold text-slate-800 tracking-tight leading-tight uppercase mt-1.5">
-                  Professional Drivers
-                </span>
-              </div>
+                  {/* Search bar overlay */}
+                  <div className="flex gap-2 w-full">
+                    <input 
+                      type="text"
+                      placeholder="🔍 Search location (e.g. Mahabaleshwar, Mumbai)..."
+                      value={mapSearchQuery}
+                      onChange={(e) => setMapSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleMapSearchSubmit();
+                        }
+                      }}
+                      className="flex-1 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold outline-none text-slate-850 bg-slate-50 focus:bg-white focus:border-[#00b4d8] transition-all duration-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleMapSearchSubmit}
+                      disabled={searchingMap}
+                      className="px-4 py-2 bg-[#0d3859] hover:bg-[#00b4d8] disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl text-xs font-black transition-colors shadow-md shadow-[#0d3859]/10"
+                    >
+                      {searchingMap ? 'Searching...' : 'Search'}
+                    </button>
+                  </div>
 
-              {/* Feature 4: On-Time Service */}
-              <div className="flex flex-col items-center text-center">
-                <svg className="w-6 h-6 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
-                </svg>
-                <span className="text-[10px] xl:text-[10.5px] font-extrabold text-slate-800 tracking-tight leading-tight uppercase mt-1.5">
-                  On-Time Service
-                </span>
-              </div>
+                  {/* Map Container */}
+                  <div 
+                    id="map-container" 
+                    className="w-full h-64 sm:h-72 rounded-xl border border-slate-200 shadow-inner overflow-hidden z-0"
+                  />
 
-            </div>
+                  {/* Selected Location Address block & estimates */}
+                  <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-xl flex flex-col gap-3">
+                    {/* Address row */}
+                    <div className="flex items-start gap-2.5">
+                      <span className="text-base shrink-0 mt-0.5">📍</span>
+                      <div className="flex flex-col">
+                        <span className="text-[0.55rem] font-black text-slate-400 uppercase tracking-widest leading-none">Selected Address</span>
+                        <span className="text-xs font-black text-slate-850 leading-normal mt-1 break-words">
+                          {selectedMapAddress || 'Resolving location pin...'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Estimates row */}
+                    {estimatedKm !== null && (
+                      <div className="flex border-t border-slate-200/60 pt-3 justify-between items-center px-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs">🛣️</span>
+                          <div className="flex flex-col">
+                            <span className="text-[0.52rem] font-bold text-slate-400 uppercase tracking-wider leading-none">Distance</span>
+                            <span className="text-xs font-black text-[#00b4d8] mt-1">{estimatedKm > 0 ? `${estimatedKm} km` : 'Local Area'}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs">⏱️</span>
+                          <div className="flex flex-col">
+                            <span className="text-[0.52rem] font-bold text-slate-400 uppercase tracking-wider leading-none">Est. Duration</span>
+                            <span className="text-xs font-black text-[#00b4d8] mt-1">{estimatedTime}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Actions Footer */}
+                <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-100 flex justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setShowMap(false)}
+                    className="px-4 py-2 border border-slate-200 bg-white rounded-xl text-xs font-black text-slate-505 hover:bg-slate-50 active:scale-95 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchParams({ ...searchParams, toCity: selectedMapAddress });
+                      setCustomDestText(selectedMapAddress.split(',')[0]);
+                      setShowMap(false);
+                    }}
+                    disabled={!selectedMapAddress}
+                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-black shadow-md shadow-orange-500/10 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Confirm Location
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // 4 separate features grid drawn directly on the background
+              <div className="w-full max-w-[530px] grid grid-cols-4 gap-4 z-20 pointer-events-auto mt-auto pb-2">
+                
+                {/* Feature 1: Comfortable Seating */}
+                <div className="flex flex-col items-center text-center">
+                  <svg className="w-6 h-6 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 18H8.5a3.5 3.5 0 0 1-3.5-3.5V6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v6.5a1.5 1.5 0 0 0 1.5 1.5H19a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 18v2m-6-2v2" />
+                  </svg>
+                  <span className="text-[10px] xl:text-[10.5px] font-extrabold text-slate-800 tracking-tight leading-tight uppercase mt-1.5">
+                    Comfortable Seating
+                  </span>
+                </div>
+
+                {/* Feature 2: AC & WiFi */}
+                <div className="flex flex-col items-center text-center">
+                  <svg className="w-6 h-6 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 19.5v.008H12V19.5zm-3.75-3.75a5.303 5.303 0 0 1 7.5 0M5.25 12a10.607 10.607 0 0 1 13.5 0M3 8.25a15.91 15.91 0 0 1 18 0" />
+                  </svg>
+                  <span className="text-[10px] xl:text-[10.5px] font-extrabold text-slate-800 tracking-tight leading-tight uppercase mt-1.5">
+                    AC & WiFi
+                  </span>
+                </div>
+
+                {/* Feature 3: Professional Drivers */}
+                <div className="flex flex-col items-center text-center">
+                  <svg className="w-6 h-6 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  </svg>
+                  <span className="text-[10px] xl:text-[10.5px] font-extrabold text-slate-800 tracking-tight leading-tight uppercase mt-1.5">
+                    Professional Drivers
+                  </span>
+                </div>
+
+                {/* Feature 4: On-Time Service */}
+                <div className="flex flex-col items-center text-center">
+                  <svg className="w-6 h-6 text-slate-700 mb-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+                  </svg>
+                  <span className="text-[10px] xl:text-[10.5px] font-extrabold text-slate-800 tracking-tight leading-tight uppercase mt-1.5">
+                    On-Time Service
+                  </span>
+                </div>
+
+              </div>
+            )}
           </div>
 
         </div>
@@ -485,79 +684,11 @@ export default function PoojaLanding({
           setSelectedRouteName={setSelectedRouteName}
         />
         <HowItWorks />
-        <Reviews />
+        <Reviews setCurrentPage={setCurrentPage} />
         <OurServices />
       </div>
 
-      {/* 4. CHOOSE LOCATION ON MAP MODAL */}
-      {showMapModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[200] p-4 select-none">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] z-[210] relative">
-            
-            {/* Header */}
-            <div className="px-6 py-4 bg-gradient-to-r from-[#0d3859] to-[#0a2540] text-white flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🗺️</span>
-                <span className="text-sm font-black uppercase tracking-wider">Choose Location on Map</span>
-              </div>
-              <button 
-                onClick={() => setShowMapModal(false)}
-                className="p-1 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
-              >
-                <svg className="w-5.5 h-5.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
 
-            {/* Body */}
-            <div className="p-6 flex-1 flex flex-col gap-4 overflow-y-auto">
-              <p className="text-xs text-slate-500 font-bold leading-normal">
-                Click anywhere on the map or drag the location pin to select your target tour destination.
-              </p>
-
-              {/* Map Container - Leaflet will render inside this */}
-              <div 
-                id="map-container" 
-                className="w-full h-72 sm:h-80 rounded-xl border border-slate-200 shadow-inner overflow-hidden z-0"
-              />
-
-              {/* Selected Location Address block */}
-              <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-xl flex items-start gap-2.5 mt-2">
-                <span className="text-lg shrink-0 mt-0.5">📍</span>
-                <div className="flex flex-col">
-                  <span className="text-[0.62rem] font-black text-slate-400 uppercase tracking-widest leading-none">Selected Address</span>
-                  <span className="text-xs font-black text-slate-800 leading-normal mt-1.5 break-words">
-                    {selectedMapAddress || 'Resolving location pin...'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions Footer */}
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-              <button
-                onClick={() => setShowMapModal(false)}
-                className="px-4 py-2 border border-slate-200 bg-white rounded-xl text-xs font-black text-slate-500 hover:bg-slate-50 active:scale-95 transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  setSearchParams({ ...searchParams, toCity: selectedMapAddress });
-                  setCustomDestText(selectedMapAddress.split(',')[0]);
-                  setShowMapModal(false);
-                }}
-                disabled={!selectedMapAddress}
-                className="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-black shadow-md shadow-orange-500/10 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Confirm Location
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
 
     </div>
   );

@@ -2,22 +2,43 @@ import React, { useState, useEffect } from 'react';
 import HeaderBreadcrumbs from './HeaderBreadcrumbs';
 import { galleryImages } from '../data/galleryImages';
 
-export default function GalleryPage({ setCurrentPage }) {
+export default function GalleryPage({ setCurrentPage, API_URL }) {
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   // Load liked items from local storage
   const [likedItems, setLikedItems] = useState(() => {
     return JSON.parse(localStorage.getItem('gallery_likes') || '{}');
   });
 
-  // Load images, adjusting initial counts based on persistent likes state
-  const [images, setImages] = useState(() => {
-    const savedLikes = JSON.parse(localStorage.getItem('gallery_likes') || '{}');
-    return galleryImages.map(item => {
-      if (savedLikes[item.id]) {
-        return { ...item, likes: item.likes + 1 };
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const url = API_URL ? `${API_URL}/gallery` : 'http://localhost:5000/api/gallery';
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          // Adjust likes count based on locally liked items
+          const savedLikes = JSON.parse(localStorage.getItem('gallery_likes') || '{}');
+          const adjustedData = data.map(item => {
+            if (savedLikes[item.id]) {
+              return { ...item, likes: (item.likes || 0) + 1 };
+            }
+            return item;
+          });
+          setImages(adjustedData);
+        } else {
+          setImages(galleryImages);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch live gallery, falling back:', err.message);
+        setImages(galleryImages);
+      } finally {
+        setLoading(false);
       }
-      return item;
-    });
-  });
+    };
+    fetchImages();
+  }, [API_URL]);
 
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [activeImageIndex, setActiveImageIndex] = useState(null); // Lightbox index
@@ -32,10 +53,17 @@ export default function GalleryPage({ setCurrentPage }) {
       // Update local count
       setImages(curr => curr.map(item => {
         if (item.id === id) {
-          return { ...item, likes: isLiked ? item.likes - 1 : item.likes + 1 };
+          return { ...item, likes: isLiked ? Math.max(0, item.likes - 1) : item.likes + 1 };
         }
         return item;
       }));
+      
+      // Async database write
+      if (!isLiked) {
+        const url = API_URL ? `${API_URL}/gallery/like/${id}` : `http://localhost:5000/api/gallery/like/${id}`;
+        fetch(url, { method: 'PUT' })
+          .catch(err => console.warn('Failed to register like on server:', err.message));
+      }
       
       return updated;
     });
@@ -125,9 +153,18 @@ export default function GalleryPage({ setCurrentPage }) {
         </div>
 
         {/* Image Card Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredImages.map((item, idx) => (
-            <div 
+        {loading ? (
+          <div className="flex justify-center py-20 w-full col-span-full">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00b4d8]"></div>
+          </div>
+        ) : filteredImages.length === 0 ? (
+          <div className="text-center py-16 bg-white/60 border border-slate-200/50 rounded-2xl p-6 shadow-sm w-full col-span-full">
+            <p className="text-xs sm:text-sm font-semibold text-slate-500">No images found.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredImages.map((item, idx) => (
+              <div 
               key={item.id}
               onClick={() => setActiveImageIndex(idx)}
               className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col cursor-pointer"
@@ -183,7 +220,8 @@ export default function GalleryPage({ setCurrentPage }) {
 
             </div>
           ))}
-        </div>
+          </div>
+        )}
 
       </div>
 

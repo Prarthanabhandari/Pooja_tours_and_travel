@@ -1,17 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HeaderBreadcrumbs from './HeaderBreadcrumbs';
 import { blogData } from '../data/blogData';
 
-export default function BlogPage({ setCurrentPage }) {
+export default function BlogPage({ setCurrentPage, API_URL }) {
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [activePost, setActivePost] = useState(null); // For Read More Modal
 
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const url = API_URL ? `${API_URL}/blogs` : 'http://localhost:5000/api/blogs';
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          const formatted = data.map(post => {
+            const categoryLabels = {
+              travel: 'Travel Tips',
+              pilgrimage: 'Pilgrimage',
+              fleet: 'Fleet Guide',
+              roadtrips: 'Road Trips'
+            };
+            return {
+              ...post,
+              categoryLabel: categoryLabels[post.category] || post.category || 'Travel',
+              readTime: post.read_time || '3 mins read',
+              image: post.image ? (post.image.startsWith('/') || post.image.startsWith('http') ? post.image : `/${post.image}`) : '/mahabaleshwar.jpg',
+              image2: post.image2 ? (post.image2.startsWith('/') || post.image2.startsWith('http') ? post.image2 : `/${post.image2}`) : null,
+              image3: post.image3 ? (post.image3.startsWith('/') || post.image3.startsWith('http') ? post.image3 : `/${post.image3}`) : null
+            };
+          });
+          setBlogs(formatted);
+        } else {
+          setBlogs(blogData);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch live blogs, falling back:', err.message);
+        setBlogs(blogData);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBlogs();
+  }, [API_URL]);
+
   // Filter posts
-  const filteredPosts = blogData.filter(post => {
-    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          post.content.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredPosts = blogs.filter(post => {
+    const matchesSearch = (post.title || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (post.excerpt || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (post.content || '').toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesCategory = selectedFilter === 'all' ? true : post.category === selectedFilter;
     
@@ -100,7 +139,11 @@ export default function BlogPage({ setCurrentPage }) {
         </div>
 
         {/* Articles Cards Grid */}
-        {filteredPosts.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00b4d8]"></div>
+          </div>
+        ) : filteredPosts.length === 0 ? (
           <div className="text-center py-16 bg-white/60 backdrop-blur-md border border-slate-200/50 rounded-2xl p-6 shadow-sm">
             <p className="text-xs sm:text-sm font-semibold text-slate-500">No blog posts found matching your search. Try adjusting filters.</p>
           </div>
@@ -223,6 +266,22 @@ export default function BlogPage({ setCurrentPage }) {
               <div className="text-xs sm:text-sm font-semibold text-slate-650 leading-relaxed text-justify space-y-4 whitespace-pre-line">
                 {activePost.content}
               </div>
+
+              {/* Additional Images Gallery */}
+              {(activePost.image2 || activePost.image3) && (
+                <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-slate-100">
+                  {activePost.image2 && (
+                    <div className="rounded-xl overflow-hidden bg-slate-50 border border-slate-100 aspect-[4/3] flex items-center justify-center">
+                      <img src={activePost.image2} alt={`${activePost.title} gallery 2`} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  {activePost.image3 && (
+                    <div className="rounded-xl overflow-hidden bg-slate-50 border border-slate-100 aspect-[4/3] flex items-center justify-center">
+                      <img src={activePost.image3} alt={`${activePost.title} gallery 3`} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Modal Footer actions */}
