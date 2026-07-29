@@ -286,25 +286,37 @@ export default function RouteDetailsPage({
     });
 
     if (setSelectedItem && setBookingStep) {
-      let dbId = isBus ? 1 : 2; // Default fallbacks
-      if (!isBus) {
-        if (activeTab === '17-20') {
-          dbId = 3; // Pooja Luxury Traveler is ID 3
-        } else if (activeTab === '1-4') {
-          if (carName.toLowerCase().includes('wagonr') || carName.toLowerCase().includes('dzire')) {
-            dbId = 1; // WagonR is ID 1
-          } else {
-            dbId = 2; // Brezza/SUV is ID 2
-          }
-        }
-      } else {
-        if (routeData && routeData.title && routeData.title.toLowerCase().includes('mumbai')) {
-          dbId = 1;
-        } else if (routeData && routeData.title && routeData.title.toLowerCase().includes('mahabaleshwar')) {
-          dbId = 2;
-        } else {
-          dbId = 3;
-        }
+      let dbId = 1;
+      const ln = carName.toLowerCase();
+      if (ln.includes('wagonr')) dbId = 1;
+      else if (ln.includes('brezza')) dbId = 2;
+      else if (ln.includes('dzire')) dbId = 3;
+      else if (ln.includes('etios')) dbId = 4;
+      else if (ln.includes('ertiga')) dbId = 5;
+      else if (ln.includes('carens')) dbId = 6;
+      else if (ln.includes('innova')) dbId = 7;
+      else if (ln.includes('17-seater') && (ln.includes('premium') || ln.includes('executive'))) dbId = 8;
+      else if (ln.includes('17-seater') && ln.includes('non-ac')) dbId = 9;
+      else if (ln.includes('20-seater')) dbId = 10;
+      else if (ln.includes('32-seater')) dbId = 11;
+      else if (ln.includes('50-seater')) dbId = 12;
+
+      let kmRate = 13;
+      const lowerName = carName.toLowerCase();
+      if (lowerName.includes('wagonr') || lowerName.includes('dzire') || lowerName.includes('etios') || lowerName.includes('brezza') || lowerName.includes('swift')) {
+        kmRate = 13;
+      } else if (lowerName.includes('ertiga') || lowerName.includes('carens')) {
+        kmRate = 16;
+      } else if (lowerName.includes('innova')) {
+        kmRate = 21;
+      } else if (lowerName.includes('17-seater') && lowerName.includes('non-ac')) {
+        kmRate = 24;
+      } else if (lowerName.includes('17-seater') || lowerName.includes('20-seater')) {
+        kmRate = 26;
+      } else if (lowerName.includes('32-seater')) {
+        kmRate = 35;
+      } else if (lowerName.includes('50-seater')) {
+        kmRate = 48;
       }
 
       setSelectedItem({
@@ -312,7 +324,7 @@ export default function RouteDetailsPage({
         name: carName,
         image: isBus ? '🚌' : '🚗',
         price_per_seat: isBus ? finalPrice : null,
-        price_per_km: !isBus ? (activeTab === '1-4' ? 13 : 16) : null,
+        price_per_km: !isBus ? kmRate : null,
         exactPrice: finalPrice,
         details: (card.seats || '') + ' | ' + (card.bags || '') + ' | ' + (card.ac || '')
       });

@@ -27,8 +27,17 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 // --- MOCK DATA FOR FRONTEND OFFLINE FALLBACK ---
 const MOCK_CABS = [
   { id: 1, type: 'Hatchback', name: 'Maruti Suzuki WagonR', price_per_km: 13, seating_capacity: 4, image: '🚗' },
-  { id: 2, type: 'SUV', name: 'Maruti Suzuki Brezza', price_per_km: 16, seating_capacity: 4, image: '🚘' },
-  { id: 3, type: 'Bus', name: 'Pooja Luxury Traveler (17-seater)', price_per_km: 24, seating_capacity: 17, image: '🚌' }
+  { id: 2, type: 'SUV', name: 'Maruti Suzuki Brezza', price_per_km: 13, seating_capacity: 4, image: '🚘' },
+  { id: 3, type: 'Sedan', name: 'Maruti Suzuki Dzire', price_per_km: 13, seating_capacity: 4, image: '🚗' },
+  { id: 4, type: 'Comfort Sedan', name: 'Toyota Etios', price_per_km: 13, seating_capacity: 4, image: '🚗' },
+  { id: 5, type: 'Family MUV', name: 'Maruti Ertiga', price_per_km: 16, seating_capacity: 7, image: '🚘' },
+  { id: 6, type: 'Comfort SUV', name: 'Kia Carens', price_per_km: 16, seating_capacity: 7, image: '🚘' },
+  { id: 7, type: 'Comfort MUV', name: 'Toyota Innova Crysta', price_per_km: 21, seating_capacity: 7, image: '🚘' },
+  { id: 8, type: 'AC Tourist Coach', name: '17-Seater Premium AC Tempo Traveller', price_per_km: 26, seating_capacity: 17, image: '🚌' },
+  { id: 9, type: 'Standard Coach', name: '17-Seater Standard Non-AC Tempo Traveller', price_per_km: 24, seating_capacity: 17, image: '🚌' },
+  { id: 10, type: 'Standard Coach', name: '20-Seater Standard Non-AC Tempo Traveller', price_per_km: 26, seating_capacity: 20, image: '🚌' },
+  { id: 11, type: 'Tourist Coach', name: '32-Seater Comfort Tourist Coach', price_per_km: 35, seating_capacity: 32, image: '🚌' },
+  { id: 12, type: 'Tourist Bus', name: '50-Seater Comfort Tourist Bus', price_per_km: 48, seating_capacity: 50, image: '🚌' }
 ];
 
 const MOCK_BUSES = [

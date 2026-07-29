@@ -252,25 +252,30 @@ export default function FleetDetailsPage({ setSearchParams, setCurrentPage, setS
     }));
 
     if (setSelectedItem && setBookingStep) {
-      let dbId = isBus ? 1 : 2; // default
-      if (!isBus) {
-        if (vehicle.id.includes('innova') || vehicle.id.includes('suv')) {
-          dbId = 2; // Brezza/SUV is ID 2
-        } else if (vehicle.id.includes('wagonr') || vehicle.id.includes('dzire')) {
-          dbId = 1; // WagonR/Hatchback is ID 1
-        }
-      } else {
-        if (vehicle.id.includes('tempo') || vehicle.title.toLowerCase().includes('tempo')) {
-          dbId = 3; // Tempo/Coach is ID 3
-        }
-      }
+      let dbId = 1;
+      const ln = vehicle.title.toLowerCase();
+      if (ln.includes('wagonr')) dbId = 1;
+      else if (ln.includes('brezza')) dbId = 2;
+      else if (ln.includes('dzire')) dbId = 3;
+      else if (ln.includes('etios')) dbId = 4;
+      else if (ln.includes('ertiga')) dbId = 5;
+      else if (ln.includes('carens')) dbId = 6;
+      else if (ln.includes('innova')) dbId = 7;
+      else if (ln.includes('17-seater') && (ln.includes('premium') || ln.includes('executive'))) dbId = 8;
+      else if (ln.includes('17-seater') && ln.includes('non-ac')) dbId = 9;
+      else if (ln.includes('20-seater')) dbId = 10;
+      else if (ln.includes('32-seater')) dbId = 11;
+      else if (ln.includes('50-seater')) dbId = 12;
+
+      const rateMatch = vehicle.rate ? vehicle.rate.match(/\d+/) : null;
+      const rateNum = rateMatch ? parseInt(rateMatch[0]) : 13;
 
       setSelectedItem({
         id: dbId,
         name: vehicle.title,
         image: isBus ? '🚌' : '🚗',
         price_per_seat: isBus ? 750 : null,
-        price_per_km: !isBus ? 13 : null,
+        price_per_km: !isBus ? rateNum : null,
         details: vehicle.seats + ' | ' + vehicle.ac
       });
       setBookingStep(3); // Go straight to passenger details
