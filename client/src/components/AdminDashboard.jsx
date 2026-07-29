@@ -1098,51 +1098,6 @@ export default function AdminDashboard({
                   </div>
                 </div>
 
-                {/* Bus section */}
-                <div className="bg-white border border-[#e2e8f0] rounded-2xl p-6 shadow-sm">
-                  <h3 className="text-base font-black text-slate-800 mb-4">Bus Route Control</h3>
-                  <div className="flex flex-col gap-4 divide-y divide-slate-100">
-                    {buses.map(b => (
-                      <div key={b.id} className="flex flex-col sm:flex-row justify-between sm:items-center pt-4 first:pt-0 gap-4">
-                        <div>
-                          <h4 className="text-sm font-black text-slate-800 leading-tight">{b.name}</h4>
-                          <span className="text-xs font-black text-[#00b4d8] block mt-1.5 uppercase tracking-wide">
-                            {b.route_from.split(',')[0]} ➔ {b.route_to.split(',')[0]}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="flex flex-col gap-1">
-                            <label className="text-[0.62rem] font-black text-slate-450 uppercase">Route Price (₹)</label>
-                            <div className="flex gap-2">
-                              <input 
-                                type="number" 
-                                defaultValue={b.price_per_seat} 
-                                id={`bus-price-${b.id}`}
-                                className="w-24 border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-semibold focus:outline-none focus:border-[#00b4d8]"
-                              />
-                              <button
-                                onClick={() => {
-                                  const val = document.getElementById(`bus-price-${b.id}`).value;
-                                  handleUpdateBusPrice(b.id, val);
-                                }}
-                                className="bg-[#00b4d8] hover:bg-[#0083b0] text-white text-xs font-black px-3.5 rounded-lg shadow-sm transition-colors"
-                              >
-                                Save
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteBus(b.id)}
-                                className="text-rose-500 hover:text-rose-700 text-xs font-black px-2.5 py-1.5 rounded border border-rose-100 bg-rose-50/50 hover:bg-rose-50 transition-colors"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
 
               </div>
 
@@ -1273,73 +1228,6 @@ export default function AdminDashboard({
                   </form>
                 </div>
 
-                {/* Add Bus */}
-                <div className="bg-white border border-[#e2e8f0] rounded-2xl p-6 shadow-sm">
-                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100">Add Bus Route</h4>
-                  <form onSubmit={handleAddBus} className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-black text-slate-500 uppercase">Bus Service Name *</label>
-                      <input 
-                        type="text" 
-                        required
-                        placeholder="e.g. Shirdi Super AC Coach"
-                        value={busName}
-                        onChange={(e) => setBusName(e.target.value)}
-                        className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-black text-slate-500 uppercase">From Location</label>
-                        <input 
-                          type="text" 
-                          required
-                          value={busFrom}
-                          onChange={(e) => setBusFrom(e.target.value)}
-                          placeholder="Pune"
-                          className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-black text-slate-500 uppercase">To Location</label>
-                        <input 
-                          type="text" 
-                          required
-                          value={busTo}
-                          onChange={(e) => setBusTo(e.target.value)}
-                          placeholder="Mumbai"
-                          className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-black text-slate-500 uppercase">Hire Price *</label>
-                        <input 
-                          type="number" 
-                          required
-                          value={busPrice}
-                          onChange={(e) => setBusPrice(e.target.value)}
-                          placeholder="₹600"
-                          className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-black text-slate-500 uppercase">Capacity</label>
-                        <input 
-                          type="number" 
-                          required
-                          value={busSeats}
-                          onChange={(e) => setBusSeats(e.target.value)}
-                          className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold"
-                        />
-                      </div>
-                    </div>
-                    <button type="submit" className="bg-[#00b4d8] hover:bg-[#0083b0] text-white text-xs font-bold py-2.5 rounded-lg mt-2 transition-colors">
-                      Add Bus Line
-                    </button>
-                  </form>
-                </div>
 
               </div>
 
