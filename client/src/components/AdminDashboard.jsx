@@ -51,7 +51,9 @@ export default function AdminDashboard({
   const [cabCapacity, setCabCapacity] = useState('4');
   const [cabBags, setCabBags] = useState('2 Bags');
   const [cabAc, setCabAc] = useState('AC Cabin');
-  const [cabImageUrl, setCabImageUrl] = useState('white-swift-right.png');
+  const [cabImageUrl, setCabImageUrl] = useState('');
+  const [isCabUploading, setIsCabUploading] = useState(false);
+  const [cabFileInputKey, setCabFileInputKey] = useState(Date.now());
   const [cabDescription, setCabDescription] = useState('');
   const [cabInclusions, setCabInclusions] = useState('Fuel Charges, Toll Charges, Driver Allowance');
   const [cabExclusions, setCabExclusions] = useState('State Permit (if any), Parking Fees, Extra Hours / KM');
@@ -408,6 +410,36 @@ export default function AdminDashboard({
     }
   };
 
+  const handleCabImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsCabUploading(true);
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      try {
+        const base64Data = reader.result;
+        const res = await fetch(`${API_URL}/upload`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64Data })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCabImageUrl(data.url);
+        } else {
+          alert('Failed to upload image. Please try again.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error uploading image.');
+      } finally {
+        setIsCabUploading(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Add Cab
   const handleAddCab = async (e) => {
     e.preventDefault();
@@ -443,7 +475,8 @@ export default function AdminDashboard({
         setCabDescription('');
         setCabBags('2 Bags');
         setCabAc('AC Cabin');
-        setCabImageUrl('white-swift-right.png');
+        setCabImageUrl('');
+        setCabFileInputKey(Date.now());
         setCabInclusions('Fuel Charges, Toll Charges, Driver Allowance');
         setCabExclusions('State Permit (if any), Parking Fees, Extra Hours / KM');
         alert('Cab added to fleet successfully!');
@@ -1216,16 +1249,25 @@ export default function AdminDashboard({
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-black text-slate-500 uppercase">Image Filename</label>
-                      <input 
-                        type="text" 
-                        placeholder="e.g. white-swift-right.png"
-                        value={cabImageUrl}
-                        onChange={(e) => setCabImageUrl(e.target.value)}
-                        className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
-                      />
-                    </div>
+                     <div className="flex flex-col gap-1.5">
+                       <label className="text-xs font-black text-slate-500 uppercase">Upload Cab Image *</label>
+                       <input 
+                         key={cabFileInputKey}
+                         type="file" 
+                         accept="image/*"
+                         onChange={handleCabImageUpload}
+                         className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#00b4d8]"
+                         required={!cabImageUrl}
+                       />
+                       {isCabUploading && (
+                         <span className="text-[10px] font-bold text-[#00b4d8] animate-pulse">Uploading image...</span>
+                       )}
+                       {cabImageUrl && (
+                         <div className="mt-2 text-[10px] font-bold text-emerald-600 flex items-center gap-1.5">
+                           <span>✓ Selected: {cabImageUrl}</span>
+                         </div>
+                       )}
+                     </div>
 
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-black text-slate-500 uppercase">Description</label>
