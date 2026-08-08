@@ -123,164 +123,173 @@ export default function FleetSection({
   const visibleCategories = categories.slice(startIndex, startIndex + cardsToShow);
 
   return (
-    <div id="fleet-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
-      
-      {/* Header and Controls */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-end mb-12">
-        <div className="text-left max-w-3xl">
-          <h2 className="text-3xl font-extrabold text-[#0f172a] sm:text-4xl tracking-tight">
-            Our Professional Fleet
-          </h2>
-          <div className="w-16 h-1 bg-[#00b4d8] mt-4 mb-4 rounded-full"></div>
-          <p className="text-lg text-gray-500">
-            Clean, fully sanitized cabs driven by experienced local drivers. Choose the perfect ride for your next trip.
-          </p>
+    <div id="fleet-section" className="bg-slate-50/40 border-y border-slate-200/40 py-24 my-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Header and Controls */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-end mb-12">
+          <div className="text-left max-w-3xl">
+            <h2 className="text-3.5xl font-black text-[#0f172a] sm:text-4xl tracking-tight">
+              Our Professional Fleet
+            </h2>
+            <div className="w-16 h-1.5 bg-gradient-to-r from-[#00b4d8] to-[#0083b0] mt-4 mb-4 rounded-full"></div>
+            <p className="text-sm sm:text-base text-slate-500 font-semibold leading-relaxed">
+              Clean, fully sanitized cabs driven by experienced local drivers. Choose the perfect ride for your next trip.
+            </p>
+          </div>
+          
+          {/* Slider Navigation Arrows (No Emojis) */}
+          <div className="flex gap-3 mt-6 md:mt-0">
+            <button 
+              type="button"
+              onClick={handlePrev}
+              disabled={startIndex === 0}
+              className={`w-11 h-11 rounded-xl border flex items-center justify-center transition-all ${
+                startIndex === 0 
+                  ? 'border-gray-100 text-gray-300 bg-white/50 cursor-not-allowed' 
+                  : 'border-slate-200 text-[#0f172a] bg-white hover:border-[#00b4d8] hover:text-[#00b4d8] hover:scale-105 active:scale-95 shadow-sm shadow-slate-100'
+              }`}
+              title="Previous Fleet"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button 
+              type="button"
+              onClick={handleNext}
+              disabled={startIndex >= maxIndex}
+              className={`w-11 h-11 rounded-xl border flex items-center justify-center transition-all ${
+                startIndex >= maxIndex 
+                  ? 'border-gray-100 text-gray-300 bg-white/50 cursor-not-allowed' 
+                  : 'border-slate-200 text-[#0f172a] bg-white hover:border-[#00b4d8] hover:text-[#00b4d8] hover:scale-105 active:scale-95 shadow-sm shadow-slate-100'
+              }`}
+              title="Next Fleet"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
         
-        {/* Slider Navigation Arrows (No Emojis) */}
-        <div className="flex gap-3 mt-6 md:mt-0">
-          <button 
-            type="button"
-            onClick={handlePrev}
-            disabled={startIndex === 0}
-            className={`w-11 h-11 rounded-xl border flex items-center justify-center transition-all ${
-              startIndex === 0 
-                ? 'border-gray-100 text-gray-300 cursor-not-allowed' 
-                : 'border-gray-200 text-[#0f172a] hover:border-[#00b4d8] hover:text-[#00b4d8] hover:scale-105 active:scale-95 shadow-sm'
-            }`}
-            title="Previous Fleet"
+        {/* Cards Slider Wrapper - Smooth horizontal sliding without abrupt snaps */}
+        <div className="overflow-hidden w-full mb-12">
+          <div 
+            className="flex transition-transform duration-700 ease-in-out py-4"
+            style={{ 
+              transform: `translateX(-${startIndex * (100 / cardsToShow)}%)`,
+            }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button 
-            type="button"
-            onClick={handleNext}
-            disabled={startIndex >= maxIndex}
-            className={`w-11 h-11 rounded-xl border flex items-center justify-center transition-all ${
-              startIndex >= maxIndex 
-                ? 'border-gray-100 text-gray-300 cursor-not-allowed' 
-                : 'border-gray-200 text-[#0f172a] hover:border-[#00b4d8] hover:text-[#00b4d8] hover:scale-105 active:scale-95 shadow-sm'
-            }`}
-            title="Next Fleet"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      
-      {/* Cards Slider Wrapper - Smooth horizontal sliding without abrupt snaps */}
-      <div className="overflow-hidden w-full mb-12">
-        <div 
-          className="flex transition-transform duration-700 ease-in-out"
-          style={{ 
-            transform: `translateX(-${startIndex * (100 / cardsToShow)}%)`,
-          }}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          {categories.map((cat, idx) => (
-            <div 
-              key={idx} 
-              className="w-full shrink-0 px-3"
-              style={{ width: `${100 / cardsToShow}%` }}
-            >
-              <div className="bg-white border border-gray-150 rounded-2xl p-5 flex flex-col justify-between hover:border-[#00b4d8] hover:shadow-[0_12px_30px_rgba(0,180,216,0.08)] transition-all duration-300 group h-full">
-                <div>
-                  {/* Availability tag */}
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="flex items-center gap-1.5 text-[0.68rem] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                      Available
-                    </span>
-                    <span className="text-[0.68rem] font-bold text-gray-400">Pooja Travels</span>
+            {categories.map((cat, idx) => (
+              <div 
+                key={idx} 
+                className="w-full shrink-0 px-3.5"
+                style={{ width: `${100 / cardsToShow}%` }}
+              >
+                <div 
+                  className="bg-white border border-[#00b4d8]/35 rounded-3xl p-6 flex flex-col justify-between hover:border-[#00b4d8] hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,180,216,0.08)] shadow-lg shadow-slate-200/40 transition-all duration-500 group h-full relative overflow-hidden"
+                  style={{
+                    backgroundImage: "url('/container border/blue_frame.jpg')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                >
+                  <div>
+                    {/* Availability tag */}
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="flex items-center gap-1.5 text-[0.65rem] font-black text-emerald-600 bg-emerald-50 border border-emerald-100/50 px-2.5 py-0.5 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Available
+                      </span>
+                      <span className="text-[0.65rem] font-bold text-slate-400">Pooja Travels</span>
+                    </div>
+
+                    {/* Image box */}
+                    <div className="h-48 flex items-center justify-center overflow-hidden mb-6 rounded-2xl bg-white border border-[#00b4d8]/15 p-3 transition-transform duration-500 group-hover:scale-[1.02] z-10 relative">
+                      <img 
+                        src={cat.image} 
+                        alt={cat.title} 
+                        className="max-h-full max-w-full object-contain transition-all duration-500 scale-110 group-hover:scale-[1.20]"
+                      />
+                    </div>
+
+                    {/* Title & Description */}
+                    <h3 className="font-extrabold text-sm text-[#0f172a] mb-1 group-hover:text-[#00b4d8] transition-colors uppercase tracking-wide">
+                      {cat.title}
+                    </h3>
+                    <p className="text-[0.7rem] text-slate-400 mb-5 leading-relaxed min-h-[32px] font-semibold">
+                      {cat.desc}
+                    </p>
+
+                    {/* Specifications pills (Clean vector icons, no emojis) */}
+                    <div className="flex flex-wrap gap-1.5 mb-5 border-t border-b border-slate-100 py-3">
+                      <span className="text-[0.62rem] font-black bg-cyan-50/50 text-[#0083b0] border border-cyan-100/20 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5 text-cyan-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        {cat.seats}
+                      </span>
+                      <span className="text-[0.62rem] font-black bg-cyan-50/50 text-[#0083b0] border border-cyan-100/20 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5 text-cyan-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14a1 1 0 011 1v10a2 2 0 01-2 2H6a2 2 0 01-2-2V9a1 1 0 011-1zm3 0V5a2 2 0 012-2h4a2 2 0 012 2v3" />
+                        </svg>
+                        {cat.bags}
+                      </span>
+                      <span className="text-[0.62rem] font-black bg-cyan-50/50 text-[#0083b0] border border-cyan-100/20 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5 text-cyan-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m9-9H3m15.5-6.5l-13 13m0-13l13 13" />
+                        </svg>
+                        {cat.ac}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Image box */}
-                  <div className="h-52 flex items-center justify-center overflow-hidden mb-6 rounded-xl bg-slate-50/50 p-3 transition-transform duration-500 group-hover:scale-[1.03]">
-                    <img 
-                      src={cat.image} 
-                      alt={cat.title} 
-                      className="max-h-full max-w-full object-contain transition-all duration-500 scale-110 group-hover:scale-[1.22]"
-                    />
-                  </div>
+                  <div>
+                    {/* Rate */}
+                    <div className="flex justify-between items-baseline mb-4">
+                      <span className="text-[0.65rem] uppercase tracking-wider text-slate-400 font-extrabold">Est. Rate</span>
+                      <span className="text-sm font-extrabold text-[#ea580c]">{cat.rate}</span>
+                    </div>
 
-                  {/* Title & Description */}
-                  <h3 className="font-extrabold text-sm text-[#0f172a] mb-1 group-hover:text-[#00b4d8] transition-colors">
-                    {cat.title}
-                  </h3>
-                  <p className="text-[0.72rem] text-gray-400 mb-4 leading-relaxed min-h-[32px]">
-                    {cat.desc}
-                  </p>
-
-                  {/* Specifications pills (Clean vector icons, no emojis) */}
-                  <div className="flex flex-wrap gap-1.5 mb-4 border-t border-b border-slate-50 py-3">
-                    <span className="text-[0.62rem] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded flex items-center gap-1">
-                      <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    {/* Book Button */}
+                    <button 
+                      onClick={() => {
+                        if (setSelectedRouteName && setCurrentPage) {
+                          setSelectedRouteName('Pune ⇄ Mumbai Airport Drops'); // Open default route
+                          setCurrentPage('route-details');
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                      }}
+                      className="w-full py-2.5 bg-gradient-to-r from-[#00b4d8] to-[#0083b0] text-white text-xs font-black rounded-xl flex items-center justify-center gap-1.5 hover:from-[#ea580c] hover:to-[#d04a00] active:scale-95 transition-all shadow-sm shadow-[#00b4d8]/10"
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <span>Book Now</span>
+                      <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                       </svg>
-                      {cat.seats}
-                    </span>
-                    <span className="text-[0.62rem] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded flex items-center gap-1">
-                      <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14a1 1 0 011 1v10a2 2 0 01-2 2H6a2 2 0 01-2-2V9a1 1 0 011-1zm3 0V5a2 2 0 012-2h4a2 2 0 012 2v3" />
-                      </svg>
-                      {cat.bags}
-                    </span>
-                    <span className="text-[0.62rem] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded flex items-center gap-1">
-                      <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m9-9H3m15.5-6.5l-13 13m0-13l13 13" />
-                      </svg>
-                      {cat.ac}
-                    </span>
+                    </button>
                   </div>
-                </div>
-
-                <div>
-                  {/* Rate */}
-                  <div className="flex justify-between items-baseline mb-4">
-                    <span className="text-[0.65rem] uppercase tracking-wider text-gray-400 font-bold">Est. Rate</span>
-                    <span className="text-sm font-extrabold text-[#ea580c]">{cat.rate}</span>
-                  </div>
-
-                  {/* Book Button (Clean vector arrow, no emojis) */}
-                  {/* Book Button */}
-                  <button 
-                    onClick={() => {
-                      if (setSelectedRouteName && setCurrentPage) {
-                        setSelectedRouteName('Pune ⇄ Mumbai Airport Drops'); // Open default route
-                        setCurrentPage('route-details');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }
-                    }}
-                    className="w-full py-2 bg-gradient-to-r from-[#00b4d8] to-[#0083b0] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 hover:from-[#ea580c] hover:to-[#d04a00] active:scale-95 transition-all shadow-sm shadow-[#00b4d8]/10"
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <span>Book Now</span>
-                    <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="text-center">
-        <button 
-          className="px-6 py-2.5 border border-slate-200 text-[#0f172a] hover:bg-[#00b4d8] hover:text-white hover:border-[#00b4d8] text-xs font-bold rounded-xl active:scale-95 transition-all shadow-sm"
-          onClick={() => {
-            setCurrentPage('fleet-details');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-        >
-          Explore Full Fleet Details
-        </button>
+        <div className="text-center">
+          <button 
+            className="px-6 py-2.5 border border-slate-200 text-[#0f172a] hover:bg-[#00b4d8] hover:text-white hover:border-[#00b4d8] text-xs font-bold rounded-xl active:scale-95 transition-all shadow-sm bg-white"
+            onClick={() => {
+              setCurrentPage('fleet-details');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
+            Explore Full Fleet Details
+          </button>
+        </div>
       </div>
     </div>
   );

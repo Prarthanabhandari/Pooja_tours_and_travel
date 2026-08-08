@@ -6,10 +6,10 @@ const DEFAULT_ROUTE_DATA = {
   from: 'Pune',
   to: 'Mumbai',
   faresTable: [
-    { type: 'Sedan A/C (Dzire/Etios)', seating: '4 + 1 Chauffeur', oneway: '₹2,200', round: '₹4,400' },
-    { type: 'Ertiga A/C (Family SUV)', seating: '6 + 1 Chauffeur', oneway: '₹3,000', round: '₹6,000' },
-    { type: 'Kia Carens A/C (Premium)', seating: '6 + 1 Chauffeur', oneway: '₹3,500', round: '₹7,000' },
-    { type: 'Tempo Traveller A/C', seating: '17 + 1 Chauffeur', oneway: '₹6,500', round: '₹12,500' }
+    { type: 'Sedan A/C (Dzire/Etios)', seating: '4 + 1 Chauffeur', oneway: '₹2,500', round: '₹5,000' },
+    { type: 'Ertiga A/C (Family SUV)', seating: '6 + 1 Chauffeur', oneway: '₹3,500', round: '₹7,000' },
+    { type: 'Kia Carens A/C (Premium)', seating: '6 + 1 Chauffeur', oneway: '₹3,800', round: '₹7,600' },
+    { type: 'Tempo Traveller A/C', seating: '17 + 1 Chauffeur', oneway: '₹8,400', round: '₹16,800' }
   ]
 };
 
@@ -41,10 +41,10 @@ const ROUTES_SPECIFIC_FARES = {
     from: 'Pune',
     to: 'Mumbai Airport',
     faresTable: [
-      { type: 'Sedan A/C (Dzire/Etios)', seating: '4 + 1 Chauffeur', oneway: '₹2,200', round: '₹4,400' },
-      { type: 'Ertiga A/C (Family SUV)', seating: '6 + 1 Chauffeur', oneway: '₹3,000', round: '₹6,000' },
-      { type: 'Kia Carens A/C (Premium)', seating: '6 + 1 Chauffeur', oneway: '₹3,500', round: '₹7,000' },
-      { type: 'Tempo Traveller A/C (17-Seater)', seating: '17 + 1 Chauffeur', oneway: '₹6,500', round: '₹12,500' }
+      { type: 'Sedan A/C (Dzire/Etios)', seating: '4 + 1 Chauffeur', oneway: '₹2,500', round: '₹5,000' },
+      { type: 'Ertiga A/C (Family SUV)', seating: '6 + 1 Chauffeur', oneway: '₹3,500', round: '₹7,000' },
+      { type: 'Kia Carens A/C (Premium)', seating: '6 + 1 Chauffeur', oneway: '₹3,800', round: '₹7,600' },
+      { type: 'Tempo Traveller A/C (17-Seater)', seating: '17 + 1 Chauffeur', oneway: '₹8,400', round: '₹16,800' }
     ]
   },
   'Pune ⇄ Ashtavinayak Yatra': {
@@ -79,14 +79,18 @@ export default function RouteDetailsPage({
   setSelectedItem,
   setBookingStep
 }) {
-  const routeData = ROUTES_SPECIFIC_FARES[routeName] || {
-    ...DEFAULT_ROUTE_DATA,
-    title: routeName || DEFAULT_ROUTE_DATA.title
-  };
+  const routeData = ROUTES_SPECRAPHIC_FARES_lookup(routeName);
+  
+  function ROUTES_SPECRAPHIC_FARES_lookup(name) {
+    return ROUTES_SPECIFIC_FARES[name] || {
+      ...DEFAULT_ROUTE_DATA,
+      title: name || DEFAULT_ROUTE_DATA.title
+    };
+  }
 
   const [activeTab, setActiveTab] = useState('1-4'); // '1-4', '1-7', '17-20', '32-50'
+  const [selectedVehicleDetails, setSelectedVehicleDetails] = useState(null);
 
-  // Tabs structure matching updated 13 fleets
   const categoryTabs = [
     { slug: '1-4', label: '1-4 Passengers (Hatchback/Sedan/SUV)' },
     { slug: '1-7', label: '1-7 Passengers (Ertiga/Carens/Innova)' },
@@ -102,6 +106,65 @@ export default function RouteDetailsPage({
   const formatPrice = (priceVal) => {
     if (!priceVal || priceVal <= 0) return 'N/A';
     return `₹${priceVal.toLocaleString('en-IN')}`;
+  };
+
+  const handleManualBookingRedirect = (carName) => {
+    const isBus = (activeTab === '17-20' || activeTab === '32-50');
+    
+    setSearchParams({
+      ...searchParams,
+      bookingType: 'cab', // All outstation packages are vehicle charter bookings (stored in cabs table)
+      fromCity: searchParams.fromCity || 'Pune, Maharashtra, India',
+      toCity: routeData.to + ', Maharashtra, India'
+    });
+
+    if (setSelectedItem && setBookingStep) {
+      let dbId = 1;
+      const ln = carName.toLowerCase();
+      if (ln.includes('wagonr')) dbId = 1;
+      else if (ln.includes('brezza')) dbId = 2;
+      else if (ln.includes('dzire')) dbId = 3;
+      else if (ln.includes('etios')) dbId = 4;
+      else if (ln.includes('ertiga')) dbId = 5;
+      else if (ln.includes('carens')) dbId = 6;
+      else if (ln.includes('innova')) dbId = 7;
+      else if (ln.includes('17-seater') && (ln.includes('premium') || ln.includes('executive'))) dbId = 8;
+      else if (ln.includes('17-seater') && ln.includes('non-ac')) dbId = 9;
+      else if (ln.includes('20-seater')) dbId = 10;
+      else if (ln.includes('32-seater')) dbId = 11;
+      else if (ln.includes('50-seater')) dbId = 12;
+
+      let kmRate = 13;
+      if (ln.includes('wagonr') || ln.includes('dzire') || ln.includes('etios') || ln.includes('brezza') || ln.includes('swift')) {
+        kmRate = 13;
+      } else if (ln.includes('ertiga') || ln.includes('carens')) {
+        kmRate = 16;
+      } else if (ln.includes('innova')) {
+        kmRate = 20;
+      } else if (ln.includes('17-seater') && ln.includes('non-ac')) {
+        kmRate = 24;
+      } else if (ln.includes('17-seater') || ln.includes('20-seater')) {
+        kmRate = 28;
+      } else if (ln.includes('32-seater')) {
+        kmRate = 52;
+      } else if (ln.includes('50-seater')) {
+        kmRate = 60;
+      }
+
+      setSelectedItem({
+        id: dbId,
+        name: carName,
+        image: isBus ? '🚌' : '🚗',
+        price_per_seat: null,
+        price_per_km: kmRate,
+        exactPrice: null, // calculated in App.jsx outstation rules
+        details: isBus ? 'AC Coach' : 'AC Cabin'
+      });
+      setBookingStep(3); // Go straight to passenger details
+      setCurrentPage('booking-flow');
+    } else {
+      setCurrentPage('home');
+    }
   };
 
   // Helper to retrieve prices for current active tab (handles all 13 vehicles dynamically)
@@ -131,8 +194,8 @@ export default function RouteDetailsPage({
           seats: '4 Seats',
           bags: '2 Bags',
           ac: 'AC Cabin',
-          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(sedanOneway - 100),
-          roundPrice: formatPrice(sedanRound - 200),
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(Math.round(sedanOneway - 100)),
+          roundPrice: formatPrice(Math.round(sedanRound - 200)),
           whatsappText: `Hello Pooja Tours & Travels, I would like to book a Suzuki Swift for ${routeData.title}.`
         },
         {
@@ -161,8 +224,8 @@ export default function RouteDetailsPage({
           seats: '4 Seats',
           bags: '3 Bags',
           ac: 'AC Cabin',
-          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(sedanOneway + 100),
-          roundPrice: formatPrice(sedanRound + 200),
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(Math.round(sedanOneway + 100)),
+          roundPrice: formatPrice(Math.round(sedanRound + 200)),
           whatsappText: `Hello Pooja Tours & Travels, I would like to book a Maruti Brezza for ${routeData.title}.`
         }
       ];
@@ -194,8 +257,8 @@ export default function RouteDetailsPage({
           seats: '7 Seats',
           bags: '5 Bags',
           ac: 'Dual AC',
-          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(carensOneway + 800),
-          roundPrice: formatPrice(carensRound + 1500),
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(Math.round(carensOneway + 800)),
+          roundPrice: formatPrice(Math.round(carensRound + 1500)),
           whatsappText: `Hello Pooja Tours & Travels, I would like to book a Toyota Innova Crysta for ${routeData.title}.`
         }
       ];
@@ -207,8 +270,8 @@ export default function RouteDetailsPage({
           seats: '17 Seats',
           bags: '12 Bags',
           ac: 'Premium Dual AC',
-          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(tempoOneway + 500),
-          roundPrice: formatPrice(tempoRound + 1000),
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(Math.round(tempoOneway + 500)),
+          roundPrice: formatPrice(Math.round(tempoRound + 1000)),
           whatsappText: `Hello Pooja Tours & Travels, I would like to book a 17-Seater Premium AC Tempo Traveller for ${routeData.title}.`
         },
         {
@@ -223,22 +286,22 @@ export default function RouteDetailsPage({
         },
         {
           name: '17-Seater Standard Non-AC Tempo Traveller',
-          image: '/17-seat-tempo-traveller-right.jpg',
+          image: '/white-swift-right.png', // Fallback standard coach placeholder
           seats: '17 Seats',
           bags: '12 Bags',
           ac: 'Blower System',
-          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(tempoOneway - 1000),
-          roundPrice: formatPrice(tempoRound - 2000),
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(Math.round(tempoOneway - 400)),
+          roundPrice: formatPrice(Math.round(tempoRound - 800)),
           whatsappText: `Hello Pooja Tours & Travels, I would like to book a 17-Seater Standard Non-AC Tempo Traveller for ${routeData.title}.`
         },
         {
           name: '20-Seater Standard Non-AC Tempo Traveller',
-          image: '/17-seat-tempo-traveller-right.jpg',
+          image: '/17-seat-tempo-traveller-right.png',
           seats: '20 Seats',
           bags: '15 Bags',
           ac: 'Blower System',
-          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(tempoOneway - 500),
-          roundPrice: formatPrice(tempoRound - 1000),
+          onewayPrice: isOnewayNA ? 'N/A (Round Trip Only)' : formatPrice(Math.round(tempoOneway + 300)),
+          roundPrice: formatPrice(Math.round(tempoRound + 600)),
           whatsappText: `Hello Pooja Tours & Travels, I would like to book a 20-Seater Standard Non-AC Tempo Traveller for ${routeData.title}.`
         }
       ];
@@ -270,70 +333,215 @@ export default function RouteDetailsPage({
 
   const activeFares = getFaresForTab();
 
-  const handleManualBookingRedirect = (carName) => {
-    const isBus = (activeTab === '17-20' || activeTab === '32-50');
-    const card = activeFares.find(f => f.name === carName) || {};
+  // DEDICATED FULL-PAGE DETAILS VIEW
+  if (selectedVehicleDetails) {
+    const name = selectedVehicleDetails.name;
+    const lowerName = name.toLowerCase();
     
-    // Choose one-way or round-trip price based on trip type selection
-    const priceStr = (searchParams.tripType === 'roundtrip') ? card.roundPrice : card.onewayPrice;
-    const finalPrice = parsePrice(priceStr) || parsePrice(card.onewayPrice) || parsePrice(card.roundPrice);
-
-    setSearchParams({
-      ...searchParams,
-      bookingType: isBus ? 'bus' : 'cab',
-      fromCity: searchParams.fromCity || 'Pune, Maharashtra, India',
-      toCity: routeData.to + ', Maharashtra, India'
-    });
-
-    if (setSelectedItem && setBookingStep) {
-      let dbId = 1;
-      const ln = carName.toLowerCase();
-      if (ln.includes('wagonr')) dbId = 1;
-      else if (ln.includes('brezza')) dbId = 2;
-      else if (ln.includes('dzire')) dbId = 3;
-      else if (ln.includes('etios')) dbId = 4;
-      else if (ln.includes('ertiga')) dbId = 5;
-      else if (ln.includes('carens')) dbId = 6;
-      else if (ln.includes('innova')) dbId = 7;
-      else if (ln.includes('17-seater') && (ln.includes('premium') || ln.includes('executive'))) dbId = 8;
-      else if (ln.includes('17-seater') && ln.includes('non-ac')) dbId = 9;
-      else if (ln.includes('20-seater')) dbId = 10;
-      else if (ln.includes('32-seater')) dbId = 11;
-      else if (ln.includes('50-seater')) dbId = 12;
-
-      let kmRate = 13;
-      const lowerName = carName.toLowerCase();
-      if (lowerName.includes('wagonr') || lowerName.includes('dzire') || lowerName.includes('etios') || lowerName.includes('brezza') || lowerName.includes('swift')) {
-        kmRate = 13;
-      } else if (lowerName.includes('ertiga') || lowerName.includes('carens')) {
-        kmRate = 16;
-      } else if (lowerName.includes('innova')) {
-        kmRate = 21;
-      } else if (lowerName.includes('17-seater') && lowerName.includes('non-ac')) {
-        kmRate = 24;
-      } else if (lowerName.includes('17-seater') || lowerName.includes('20-seater')) {
-        kmRate = 26;
-      } else if (lowerName.includes('32-seater')) {
-        kmRate = 35;
-      } else if (lowerName.includes('50-seater')) {
-        kmRate = 48;
-      }
-
-      setSelectedItem({
-        id: dbId,
-        name: carName,
-        image: isBus ? '🚌' : '🚗',
-        price_per_seat: isBus ? finalPrice : null,
-        price_per_km: !isBus ? kmRate : null,
-        exactPrice: finalPrice,
-        details: (card.seats || '') + ' | ' + (card.bags || '') + ' | ' + (card.ac || '')
-      });
-      setBookingStep(3); // Go straight to passenger details
-      setCurrentPage('booking-flow');
-    } else {
-      setCurrentPage('home');
+    let kmRate = 13;
+    if (lowerName.includes('wagonr') || lowerName.includes('dzire') || lowerName.includes('etios') || lowerName.includes('brezza') || lowerName.includes('swift')) {
+      kmRate = 13;
+    } else if (lowerName.includes('ertiga') || lowerName.includes('carens')) {
+      kmRate = 16;
+    } else if (lowerName.includes('innova')) {
+      kmRate = 20;
+    } else if (lowerName.includes('17-seater') && lowerName.includes('non-ac')) {
+      kmRate = 24;
+    } else if (lowerName.includes('17-seater') || lowerName.includes('20-seater')) {
+      kmRate = 28;
+    } else if (lowerName.includes('32-seater')) {
+      kmRate = 52;
+    } else if (lowerName.includes('50-seater')) {
+      kmRate = 60;
     }
-  };
+    
+    const isBusOrTempo = lowerName.includes('seater') || lowerName.includes('bus') || lowerName.includes('coach');
+    const oneDayPkgRate = 300 * kmRate;
+    const twoDayPkgRate = 600 * kmRate;
+    
+    return (
+      <div className="relative bg-slate-50/30 overflow-hidden w-full flex-1 flex flex-col" style={{ minHeight: '80vh' }}>
+        {/* Background Watermark Pattern */}
+        <div 
+          className="absolute inset-0 z-0 opacity-[0.08] pointer-events-none"
+          style={{ 
+            backgroundImage: `url('/travel-watermark-clean.png')`,
+            backgroundRepeat: 'repeat',
+            backgroundSize: '400px 400px'
+          }}
+        />
+        {/* Glowing Blurred Blobs */}
+        <div className="absolute top-[10%] left-[-10%] w-[350px] h-[350px] rounded-full bg-cyan-200/30 blur-3xl z-0 pointer-events-none" />
+        <div className="absolute bottom-[20%] right-[-10%] w-[350px] h-[350px] rounded-full bg-yellow-100/30 blur-3xl z-0 pointer-events-none" />
+
+        <HeaderBreadcrumbs title={`${name} Details`} setCurrentPage={setCurrentPage} />
+        
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full flex-1 text-left">
+          {/* Back Button */}
+          <div className="mb-8">
+            <button 
+              onClick={() => setSelectedVehicleDetails(null)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200/80 text-slate-700 rounded-full text-xs font-black transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-sm"
+            >
+              ← Back to Vehicles Comparison
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+            {/* Left Column: Vehicle Image & Specs */}
+            <div className="md:col-span-5 bg-white/90 backdrop-blur-md border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 flex flex-col items-center">
+              <div className="w-full relative group">
+                <img 
+                  src={selectedVehicleDetails.image} 
+                  alt={name} 
+                  className="w-auto h-44 object-contain mx-auto mb-6 transform group-hover:-translate-y-1 transition-transform duration-300"
+                />
+              </div>
+              
+              <h3 className="text-xs uppercase font-black text-slate-400 tracking-wider mb-3.5">{name} Specifications</h3>
+              
+              <div className="grid grid-cols-3 gap-3 w-full text-center text-[11px] text-slate-655 font-bold bg-slate-50/50 border border-slate-100 p-4 rounded-2xl">
+                <div className="flex flex-col items-center gap-1.5">
+                  <span className="text-[10px] text-slate-400 font-extrabold uppercase">Seats</span>
+                  <span>{selectedVehicleDetails.seats}</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5">
+                  <span className="text-[10px] text-slate-400 font-extrabold uppercase">Bags</span>
+                  <span>{selectedVehicleDetails.bags}</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5">
+                  <span className="text-[10px] text-slate-400 font-extrabold uppercase">AC</span>
+                  <span>{selectedVehicleDetails.ac}</span>
+                </div>
+              </div>
+              
+              <div className="w-full mt-8 space-y-3.5">
+                <a 
+                  href={`https://wa.me/919623324139?text=${encodeURIComponent(selectedVehicleDetails.whatsappText)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-2xl text-xs font-black shadow-md shadow-emerald-500/10 text-center transition-all block"
+                >
+                  Book via WhatsApp
+                </a>
+                <button 
+                  onClick={() => handleManualBookingRedirect(selectedVehicleDetails.name)}
+                  className="w-full py-3.5 bg-gradient-to-r from-[#00b4d8] to-[#0083b0] hover:from-[#0083b0] hover:to-[#007799] text-white rounded-2xl text-xs font-black shadow-md shadow-[#00b4d8]/10 transition-all cursor-pointer"
+                >
+                  Book Online Now
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column: Pricing Breakdown & Rules */}
+            <div className="md:col-span-7 bg-white/90 backdrop-blur-md border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 space-y-6">
+              <div>
+                <span className="inline-block text-[9px] uppercase font-black text-[#00b4d8] bg-cyan-50 px-2.5 py-1 rounded-md tracking-widest leading-none mb-2">Journey Packages &amp; Rates</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight leading-tight">{name}</h2>
+                <p className="text-xs text-slate-500 mt-1.5 font-semibold flex items-center gap-1.5">
+                  <span className="text-[#00b4d8] font-black">•</span> Route: <span className="font-bold text-slate-700">{routeData.title}</span>
+                </p>
+              </div>
+
+              {/* Specific Route Price Table */}
+              <div>
+                <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2.5">Specific Route Rates</h4>
+                <div className="border border-slate-150 rounded-2xl overflow-hidden bg-white/70">
+                  <div className="grid grid-cols-2 bg-slate-50 border-b border-slate-150 text-[10px] font-black text-slate-500 uppercase tracking-wider p-3.5">
+                    <span>Journey Type</span>
+                    <span className="text-right">Rate</span>
+                  </div>
+                  <div className="grid grid-cols-2 border-b border-slate-100 p-3.5 text-xs font-bold text-slate-855">
+                    <span>One-Way Drop</span>
+                    <span className="text-right text-emerald-600 font-black">{selectedVehicleDetails.onewayPrice}</span>
+                  </div>
+                  <div className="grid grid-cols-2 p-3.5 text-xs font-bold text-slate-855">
+                    <span>Round-Trip (1-Day Return)</span>
+                    <span className="text-right text-cyan-600 font-black">{selectedVehicleDetails.roundPrice}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* General Outstation Packages */}
+              <div>
+                <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2.5">General Outstation Packages</h4>
+                <div className="border border-slate-150 rounded-2xl overflow-hidden bg-white/70">
+                  <div className="grid grid-cols-2 bg-slate-50 border-b border-slate-150 text-[10px] font-black text-slate-500 uppercase tracking-wider p-3.5">
+                    <span>Package Type</span>
+                    <span className="text-right">Estimated Fare</span>
+                  </div>
+                  <div className="grid grid-cols-2 border-b border-slate-100 p-3.5 text-xs font-semibold text-slate-700">
+                    <div>
+                      <span className="block font-bold text-slate-800">Base KM Charge</span>
+                      <span className="text-[10px] text-slate-400">Charged per actual KM run</span>
+                    </div>
+                    <span className="text-right font-black text-slate-800 mt-1">₹{kmRate}/km</span>
+                  </div>
+                  <div className="grid grid-cols-2 border-b border-slate-100 p-3.5 text-xs font-semibold text-slate-700">
+                    <div>
+                      <span className="block font-bold text-slate-800">1-Day Package</span>
+                      <span className="text-[10px] text-slate-400">Min 300 km limit return</span>
+                    </div>
+                    <span className="text-right font-black text-emerald-600 mt-1">₹{oneDayPkgRate.toLocaleString('en-IN')}/-</span>
+                  </div>
+                  <div className="grid grid-cols-2 p-3.5 text-xs font-semibold text-slate-700">
+                    <div>
+                      <span className="block font-bold text-slate-800">2-Day Package</span>
+                      <span className="text-[10px] text-slate-400">Min 600 km limit return</span>
+                    </div>
+                    <span className="text-right font-black text-cyan-600 mt-1">₹{twoDayPkgRate.toLocaleString('en-IN')}/-</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Inclusions & Exclusions */}
+              <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-5">
+                <div className="bg-[#eefcfc]/40 border border-[#d2f4f7]/50 rounded-2xl p-4">
+                  <h4 className="text-[0.65rem] font-black text-[#00b4d8] uppercase tracking-wider mb-2">Inclusion</h4>
+                  <ul className="text-[0.62rem] font-semibold text-slate-500 space-y-1">
+                    <li>✓ Fuel Charges</li>
+                  </ul>
+                </div>
+                <div className="bg-rose-50/20 border border-rose-100/50 rounded-2xl p-4">
+                  <h4 className="text-[0.65rem] font-black text-rose-500 uppercase tracking-wider mb-2">Exclusion</h4>
+                  <ul className="text-[0.62rem] font-semibold text-slate-500 space-y-1">
+                    <li>✗ Toll Charges</li>
+                    <li>✗ Driver Allowance</li>
+                    <li>✗ Parking Fees</li>
+                    <li>✗ Extra Hours / KM</li>
+                    {isBusOrTempo && <li>✗ State Permit</li>}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Important Terms & Rules */}
+              <div className="bg-amber-50/50 border border-amber-200/60 rounded-2xl p-5 text-[11px] font-semibold text-amber-900/90 space-y-3">
+                <div className="flex gap-2 items-start">
+                  <span className="text-amber-500 font-bold mt-0.5">•</span>
+                  <div>
+                    <strong className="text-amber-950 font-black">Driver Allowance:</strong> Driver allowance of ₹300/- per day is charged extra.
+                  </div>
+                </div>
+                <div className="flex gap-2 items-start">
+                  <span className="text-amber-500 font-bold mt-0.5">•</span>
+                  <div>
+                    <strong className="text-amber-950 font-black">Tolls &amp; Parking:</strong> Toll taxes, border taxes, state permit (only for buses), and parking fees are paid extra at actuals.
+                  </div>
+                </div>
+                <div className="flex gap-2 items-start">
+                  <span className="text-amber-500 font-bold mt-0.5">•</span>
+                  <div>
+                    <strong className="text-amber-950 font-black">Average Limit:</strong> Minimum 300 km daily average running limit applies for all outstation bookings.
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative bg-slate-50/30 overflow-hidden w-full flex-1 flex flex-col" style={{ minHeight: '80vh' }}>
@@ -381,7 +589,7 @@ export default function RouteDetailsPage({
               className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all ${
                 activeTab === tab.slug
                   ? 'bg-[#00b4d8] text-white shadow-sm shadow-[#00b4d8]/40'
-                  : 'bg-white hover:bg-slate-50 text-slate-600'
+                  : 'bg-white hover:bg-slate-50 text-slate-650'
               }`}
             >
               {tab.label}
@@ -394,7 +602,18 @@ export default function RouteDetailsPage({
           {activeFares.map((card, idx) => (
             <div key={idx} className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
               <div className="p-3 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
-                <span className="text-xs font-black text-slate-800">{card.name}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black text-slate-800">{card.name}</span>
+                  <button 
+                    onClick={() => setSelectedVehicleDetails(card)}
+                    className="p-1 rounded-full text-[#00b4d8] hover:bg-cyan-50 transition-colors flex items-center justify-center cursor-pointer"
+                    title="View Package Details & Rates"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
                 <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[0.62rem] font-bold uppercase tracking-wider">Available</span>
               </div>
               
@@ -407,27 +626,27 @@ export default function RouteDetailsPage({
                 
                 {/* Vehicle parameters strip */}
                 <div className="flex justify-center gap-4 text-slate-500 text-[0.65rem] font-bold mb-6">
-                  <span className="flex items-center gap-1"><span className="text-slate-400">👤</span> {card.seats}</span>
-                  <span className="flex items-center gap-1"><span className="text-slate-400">🧳</span> {card.bags}</span>
-                  <span className="flex items-center gap-1"><span className="text-slate-400">❄️</span> {card.ac}</span>
+                  <span>Seats: {card.seats}</span>
+                  <span>Bags: {card.bags}</span>
+                  <span>A/C: {card.ac}</span>
                 </div>
 
                 {/* Inclusions / Exclusions */}
-                <div className="w-full grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 mb-6">
+                <div className="w-full grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 mb-6 text-left">
                   <div>
                     <h4 className="text-[0.65rem] font-black text-[#00b4d8] uppercase tracking-wider mb-2">Inclusion</h4>
                     <ul className="text-[0.62rem] font-semibold text-slate-500 space-y-1">
                       <li>✓ Fuel Charges</li>
-                      <li>✓ Toll Charges</li>
-                      <li>✓ Driver Allowance</li>
                     </ul>
                   </div>
                   <div>
                     <h4 className="text-[0.65rem] font-black text-rose-500 uppercase tracking-wider mb-2">Exclusion</h4>
                     <ul className="text-[0.62rem] font-semibold text-slate-500 space-y-1">
-                      <li>✗ State Permit (if any)</li>
+                      <li>✗ Toll Charges</li>
+                      <li>✗ Driver Allowance</li>
                       <li>✗ Parking Fees</li>
                       <li>✗ Extra Hours / KM</li>
+                      {(activeTab === '17-20' || activeTab === '32-50') && <li>✗ State Permit</li>}
                     </ul>
                   </div>
                 </div>

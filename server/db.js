@@ -32,12 +32,12 @@ const initializeMockDb = () => {
         { id: 4, type: "Comfort Sedan", name: "Toyota Etios", price_per_km: 13.00, seating_capacity: 4, image_url: "etios.png" },
         { id: 5, type: "Family MUV", name: "Maruti Ertiga", price_per_km: 16.00, seating_capacity: 7, image_url: "ertiga.png" },
         { id: 6, type: "Comfort SUV", name: "Kia Carens", price_per_km: 16.00, seating_capacity: 7, image_url: "carens.png" },
-        { id: 7, type: "Comfort MUV", name: "Toyota Innova Crysta", price_per_km: 21.00, seating_capacity: 7, image_url: "innova.png" },
-        { id: 8, type: "AC Tourist Coach", name: "17-Seater Premium AC Tempo Traveller", price_per_km: 26.00, seating_capacity: 17, image_url: "traveller.png" },
+        { id: 7, type: "Comfort MUV", name: "Toyota Innova Crysta", price_per_km: 20.00, seating_capacity: 7, image_url: "innova.png" },
+        { id: 8, type: "AC Tourist Coach", name: "17-Seater Premium AC Tempo Traveller", price_per_km: 28.00, seating_capacity: 17, image_url: "traveller.png" },
         { id: 9, type: "Standard Coach", name: "17-Seater Standard Non-AC Tempo Traveller", price_per_km: 24.00, seating_capacity: 17, image_url: "traveller.png" },
-        { id: 10, type: "Standard Coach", name: "20-Seater Standard Non-AC Tempo Traveller", price_per_km: 26.00, seating_capacity: 20, image_url: "traveller.png" },
-        { id: 11, type: "Tourist Coach", name: "32-Seater Comfort Tourist Coach", price_per_km: 35.00, seating_capacity: 32, image_url: "bus.png" },
-        { id: 12, type: "Tourist Bus", name: "50-Seater Comfort Tourist Bus", price_per_km: 48.00, seating_capacity: 50, image_url: "bus.png" }
+        { id: 10, type: "Standard Coach", name: "20-Seater Standard Non-AC Tempo Traveller", price_per_km: 25.00, seating_capacity: 20, image_url: "traveller.png" },
+        { id: 11, type: "Tourist Coach", name: "32-Seater Comfort Tourist Coach", price_per_km: 52.00, seating_capacity: 32, image_url: "bus.png" },
+        { id: 12, type: "Tourist Bus", name: "50-Seater Comfort Tourist Bus", price_per_km: 60.00, seating_capacity: 50, image_url: "bus.png" }
       ],
       buses: [
         { id: 1, name: "Pooja Travels Luxury Coach 1", type: "17-Seater AC Luxury", total_seats: 17, price_per_seat: 750.00, departure_time: "06:00:00", arrival_time: "10:00:00", route_from: "Pune, Maharashtra, India", route_to: "Mumbai, Maharashtra, India" },
@@ -50,7 +50,7 @@ const initializeMockDb = () => {
         { id: 1, key: "contact_email", value: "booking.poojatravel@gmail.com", category: "contact", description: "Primary contact email address for reservations and support" },
         { id: 2, key: "contact_phone", value: "+919623324139", category: "contact", description: "Primary business mobile number" },
         { id: 3, key: "contact_phone_alt", value: "+917387129287", category: "contact", description: "Alternative backup mobile number" },
-        { id: 4, key: "hero_title", value: "Explore Maharashtra with Pooja Tours & Travels", category: "content", description: "Headline text displayed in the home page hero section" },
+        { id: 4, key: "hero_title", value: "Travel Beyond Boundaries with Pooja Tours & Travels", category: "content", description: "Headline text displayed in the home page hero section" },
         { id: 5, key: "hero_subtitle", value: "Premium Chauffeur Cabs & AC Bus Rentals out of Pune. Low price guarantee, transparent pricing.", category: "content", description: "Subheadline text displayed under the main hero title" },
         { id: 6, key: "about_text", value: "Pooja Tours and Travels is a leading travel operator based in Pune, offering outstation chauffeur cabs and luxury bus rental solutions. We pride ourselves on punctuality, safety, and excellent service quality.", category: "content", description: "Short company introduction paragraph displayed in About and Footer" }
       ],
@@ -127,12 +127,12 @@ const syncCabsTable = async () => {
     { id: 4, type: "Comfort Sedan", name: "Toyota Etios", price_per_km: 13.00, seating_capacity: 4, image_url: "etios.png" },
     { id: 5, type: "Family MUV", name: "Maruti Ertiga", price_per_km: 16.00, seating_capacity: 7, image_url: "ertiga.png" },
     { id: 6, type: "Comfort SUV", name: "Kia Carens", price_per_km: 16.00, seating_capacity: 7, image_url: "carens.png" },
-    { id: 7, type: "Comfort MUV", name: "Toyota Innova Crysta", price_per_km: 21.00, seating_capacity: 7, image_url: "innova.png" },
-    { id: 8, type: "AC Tourist Coach", name: "17-Seater Premium AC Tempo Traveller", price_per_km: 26.00, seating_capacity: 17, image_url: "traveller.png" },
+    { id: 7, type: "Comfort MUV", name: "Toyota Innova Crysta", price_per_km: 20.00, seating_capacity: 7, image_url: "innova.png" },
+    { id: 8, type: "AC Tourist Coach", name: "17-Seater Premium AC Tempo Traveller", price_per_km: 28.00, seating_capacity: 17, image_url: "traveller.png" },
     { id: 9, type: "Standard Coach", name: "17-Seater Standard Non-AC Tempo Traveller", price_per_km: 24.00, seating_capacity: 17, image_url: "traveller.png" },
-    { id: 10, type: "Standard Coach", name: "20-Seater Standard Non-AC Tempo Traveller", price_per_km: 26.00, seating_capacity: 20, image_url: "traveller.png" },
-    { id: 11, type: "Tourist Coach", name: "32-Seater Comfort Tourist Coach", price_per_km: 35.00, seating_capacity: 32, image_url: "bus.png" },
-    { id: 12, type: "Tourist Bus", name: "50-Seater Comfort Tourist Bus", price_per_km: 48.00, seating_capacity: 50, image_url: "bus.png" }
+    { id: 10, type: "Standard Coach", name: "20-Seater Standard Non-AC Tempo Traveller", price_per_km: 25.00, seating_capacity: 20, image_url: "traveller.png" },
+    { id: 11, type: "Tourist Coach", name: "32-Seater Comfort Tourist Coach", price_per_km: 52.00, seating_capacity: 32, image_url: "bus.png" },
+    { id: 12, type: "Tourist Bus", name: "50-Seater Comfort Tourist Bus", price_per_km: 60.00, seating_capacity: 50, image_url: "bus.png" }
   ];
 
   try {
@@ -147,7 +147,7 @@ const syncCabsTable = async () => {
       } else {
         await query(
           'INSERT INTO cabs (id, type, name, price_per_km, seating_capacity, image_url) VALUES ($1, $2, $3, $4, $5, $6)',
-          [cab.id, cab.type, cab.name, cab.price_per_km, cab.seating_capacity, cab.image_url, cab.id]
+          [cab.id, cab.type, cab.name, cab.price_per_km, cab.seating_capacity, cab.image_url]
         );
       }
     }

@@ -20,6 +20,8 @@ import HeaderBreadcrumbs from './components/HeaderBreadcrumbs';
 import RouteDetailsPage from './components/RouteDetailsPage';
 import FleetDetailsPage from './components/FleetDetailsPage';
 import AdminDashboard from './components/AdminDashboard';
+import PrivacyPolicyPage from './components/PrivacyPolicyPage';
+import TermsConditionsPage from './components/TermsConditionsPage';
 
 // API Base URL - points to our Express server
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -32,12 +34,12 @@ const MOCK_CABS = [
   { id: 4, type: 'Comfort Sedan', name: 'Toyota Etios', price_per_km: 13, seating_capacity: 4, image: '🚗' },
   { id: 5, type: 'Family MUV', name: 'Maruti Ertiga', price_per_km: 16, seating_capacity: 7, image: '🚘' },
   { id: 6, type: 'Comfort SUV', name: 'Kia Carens', price_per_km: 16, seating_capacity: 7, image: '🚘' },
-  { id: 7, type: 'Comfort MUV', name: 'Toyota Innova Crysta', price_per_km: 21, seating_capacity: 7, image: '🚘' },
-  { id: 8, type: 'AC Tourist Coach', name: '17-Seater Premium AC Tempo Traveller', price_per_km: 26, seating_capacity: 17, image: '🚌' },
+  { id: 7, type: 'Comfort MUV', name: 'Toyota Innova Crysta', price_per_km: 20, seating_capacity: 7, image: '🚘' },
+  { id: 8, type: 'AC Tourist Coach', name: '17-Seater Premium AC Tempo Traveller', price_per_km: 28, seating_capacity: 17, image: '🚌' },
   { id: 9, type: 'Standard Coach', name: '17-Seater Standard Non-AC Tempo Traveller', price_per_km: 24, seating_capacity: 17, image: '🚌' },
-  { id: 10, type: 'Standard Coach', name: '20-Seater Standard Non-AC Tempo Traveller', price_per_km: 26, seating_capacity: 20, image: '🚌' },
-  { id: 11, type: 'Tourist Coach', name: '32-Seater Comfort Tourist Coach', price_per_km: 35, seating_capacity: 32, image: '🚌' },
-  { id: 12, type: 'Tourist Bus', name: '50-Seater Comfort Tourist Bus', price_per_km: 48, seating_capacity: 50, image: '🚌' }
+  { id: 10, type: 'Standard Coach', name: '20-Seater Standard Non-AC Tempo Traveller', price_per_km: 25, seating_capacity: 20, image: '🚌' },
+  { id: 11, type: 'Tourist Coach', name: '32-Seater Comfort Tourist Coach', price_per_km: 52, seating_capacity: 32, image: '🚌' },
+  { id: 12, type: 'Tourist Bus', name: '50-Seater Comfort Tourist Bus', price_per_km: 60, seating_capacity: 50, image: '🚌' }
 ];
 
 const MOCK_BUSES = [
@@ -49,12 +51,32 @@ const MOCK_BUSES = [
 const POPULAR_PACKAGES = [
   { id: 1, title: 'Pune to Shirdi Darshan', type: 'Bus & Cab options', desc: 'Complete round trip package for Sai Baba Darshan, includes flexible timing.', price: '₹2,400 onwards', image: '🕌' },
   { id: 2, title: 'Pune to Mahabaleshwar Scenic Tour', type: 'Weekend Getaway', desc: 'Enjoy scenic viewpoints, strawberry farms, and Mapro garden trip.', price: '₹3,500 onwards', image: '🍓' },
-  { id: 3, title: 'Mumbai Airport Drops', type: 'Assured Cab Drops', desc: 'Punctual, clean sedan or SUV drops direct to T2 airport terminal.', price: '₹2,200 fixed', image: '✈️' },
+  { id: 3, title: 'Mumbai Airport Drops', type: 'Assured Cab Drops', desc: 'Punctual, clean sedan or SUV drops direct to T2 airport terminal.', price: '₹2,500 fixed', image: '✈️' },
   { id: 4, title: 'Ashtavinayak Yatra Package', type: '8 Ganesha Temples', desc: '2-day custom bus/cab spiritual package covering all 8 holy sites.', price: '₹8,500 total', image: '🪔' }
 ];
 
+const renderItemImage = (imgStr) => {
+  const isBus = imgStr === '🚌' || imgStr?.toLowerCase().includes('bus') || imgStr?.toLowerCase().includes('coach') || imgStr?.toLowerCase().includes('tempo');
+  if (isBus) {
+    return (
+      <svg className="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.75a1.125 1.125 0 01-1.125-1.125V15h1.5a1.5 1.5 0 003 0h9.75a1.5 1.5 0 003 0h1.5v2.625c0 .621-.504 1.125-1.125 1.125H18.75m-9 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m3 0a1.5 1.5 0 003 0m-3 0a1.5 1.5 0 013 0m-3 0H18.75m0 0h-.75m-9-6h3.75m3 0h3m-9 3h12m-9-6a3 3 0 013-3h1.5a3 3 0 013 3m-7.5-3h4.5" />
+      </svg>
+    );
+  }
+  return (
+    <svg className="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.75a1.125 1.125 0 01-1.125-1.125V15h1.5a1.5 1.5 0 003 0h9.75a1.5 1.5 0 003 0h1.5v2.625c0 .621-.504 1.125-1.125 1.125H18.75m-9 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m3 0a1.5 1.5 0 003 0m-3 0a1.5 1.5 0 013 0m-3 0H18.75m0 0h-.75m-9-6h3.75m3 0h3m-9 3h12m-9-6a3 3 0 013-3h1.5a3 3 0 013 3m-7.5-3h4.5" />
+    </svg>
+  );
+};
+
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, setCurrentPage] = useState(() => {
+    const path = window.location.pathname.replace(/^\/+/, '');
+    const validPages = ['home', 'fleet', 'tours', 'gallery', 'about', 'blog', 'contact', 'admin', 'booking-flow', 'privacy', 'terms'];
+    return validPages.includes(path) ? path : 'home';
+  });
   const [selectedRouteName, setSelectedRouteName] = useState('');
   const [theme, setTheme] = useState('dark');
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -65,19 +87,58 @@ export default function App() {
   // Auth & Booking States
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('pooja_user');
-    return saved ? JSON.parse(saved) : null;
+    if (saved) {
+      try {
+        const user = JSON.parse(saved);
+        if (user && (user.name === 'Pooja Admin' || user.email === 'booking.poojatravel@gmail.com' || user.email === 'admin@example.com')) {
+          user.name = 'Ajay Bhandari';
+          user.email = 'booking.poojatravel@gmail.com';
+          user.phone = '9623324139';
+          localStorage.setItem('pooja_user', JSON.stringify(user));
+        }
+        return user;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   });
   const [token, setToken] = useState(() => localStorage.getItem('pooja_token') || '');
   const [bookings, setBookings] = useState([]);
   
   const [siteSettings, setSiteSettings] = useState({
     contact_email: 'booking.poojatravel@gmail.com',
-    contact_phone: '+917387129287',
-    contact_phone_alt: '+919880303752',
-    hero_title: 'Explore Maharashtra with Pooja Tours & Travels',
+    contact_phone: '+919623324139',
+    contact_phone_alt: '+917387129287',
+    hero_title: 'Travel Beyond Boundaries with Pooja Tours & Travels',
     hero_subtitle: 'Premium Chauffeur Cabs & AC Bus Rentals out of Pune. Low price guarantee, transparent pricing.',
     about_text: 'Pooja Tours and Travels is a leading travel operator based in Pune, offering outstation chauffeur cabs and luxury bus rental solutions. We pride ourselves on punctuality, safety, and excellent service quality.'
   });
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.replace(/^\/+/, '');
+      const validPages = ['home', 'fleet', 'tours', 'gallery', 'about', 'blog', 'contact', 'admin', 'booking-flow', 'privacy', 'terms'];
+      if (validPages.includes(path)) {
+        setCurrentPage(path);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (!path) {
+        setCurrentPage('home');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    const currentPath = window.location.pathname.replace(/^\/+/, '');
+    const targetPath = currentPage === 'home' ? '' : currentPage;
+    if (currentPage && targetPath !== currentPath) {
+      window.history.pushState({ page: currentPage }, '', `/${targetPath}`);
+    }
+  }, [currentPage]);
 
   const fetchSiteSettings = async () => {
     try {
@@ -165,6 +226,11 @@ export default function App() {
     }
   }, [currentUser]);
 
+  // Scroll to top automatically when the page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [currentPage]);
+
   const fetchUserBookings = async () => {
     try {
       const res = await fetch(`${API_URL}/bookings/user/${currentUser.id}`);
@@ -236,6 +302,21 @@ export default function App() {
     setPaymentData({ ...paymentData, [name]: value });
   };
 
+  const getTripDays = () => {
+    if (searchParams.tripType !== 'roundtrip' || !searchParams.date || !searchParams.returnDate) {
+      return 1;
+    }
+    try {
+      const start = new Date(searchParams.date.split('T')[0]);
+      const end = new Date(searchParams.returnDate.split('T')[0]);
+      const diffTime = end.getTime() - start.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      return diffDays > 0 ? diffDays : 1;
+    } catch (e) {
+      return 1;
+    }
+  };
+
   // Submit Booking
   const handleCompleteBooking = async (e) => {
     e.preventDefault();
@@ -248,8 +329,9 @@ export default function App() {
     } else {
       // Estimate cab fare
       const basePrice = selectedItem.price_per_km || 13;
-      const distance = 150; // Pune-Mumbai approximation
-      totalAmount = (distance * basePrice) + 250; // + 250 driver allowance
+      const days = getTripDays();
+      const distance = searchParams.tripType === 'roundtrip' ? (300 * days) : 150;
+      totalAmount = distance * basePrice;
     }
 
     const enrichedPassengers = passengerDetails.map((p, idx) => {
@@ -728,6 +810,16 @@ export default function App() {
           <BlogPage setCurrentPage={setCurrentPage} API_URL={API_URL} />
         )}
 
+        {/* PAGE: PRIVACY POLICY */}
+        {currentPage === 'privacy-policy' && (
+          <PrivacyPolicyPage setCurrentPage={setCurrentPage} />
+        )}
+
+        {/* PAGE: TERMS & CONDITIONS */}
+        {currentPage === 'terms-conditions' && (
+          <TermsConditionsPage setCurrentPage={setCurrentPage} />
+        )}
+
         {/* PAGE: CONTACT US */}
         {currentPage === 'contact' && (
           <div className="relative bg-slate-50/30 overflow-hidden w-full flex-1 flex flex-col" style={{ minHeight: '80vh' }}>
@@ -769,8 +861,10 @@ export default function App() {
               {/* Left Column: Office details */}
               <div className="lg:col-span-5 bg-white/65 backdrop-blur-md border border-white/60 rounded-3xl p-6 sm:p-8 shadow-sm space-y-8">
                 <div>
-                  <span className="text-[0.65rem] font-black text-[#00b4d8] uppercase tracking-wider">Pooja Travels Office</span>
-                  <h3 className="text-lg font-black text-slate-800 mt-1">Our Location</h3>
+                  <span className="text-[0.65rem] font-black text-[#00b4d8] uppercase tracking-wider">Pooja Travels Office &amp; Branch</span>
+                  <h3 className="text-lg font-black text-slate-800 mt-1">Our Locations</h3>
+                  
+                  {/* Location 1: Bhugaon */}
                   <div className="flex gap-3.5 mt-4 items-start group">
                     <div className="w-9 h-9 rounded-xl bg-cyan-50 border border-cyan-100 flex items-center justify-center text-[#00b4d8] shrink-0">
                       <svg className="w-5 h-5 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -778,12 +872,30 @@ export default function App() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                       </svg>
                     </div>
-                    <p className="text-xs sm:text-sm font-semibold text-slate-650 leading-relaxed">
-                      <a href="https://maps.google.com/?q=Bhugaon+Bavdhan+Pune+Maharashtra+412115" target="_blank" rel="noopener noreferrer" className="hover:text-[#00b4d8] transition-colors duration-300">
+                    <div className="text-left leading-relaxed">
+                      <span className="block text-[10px] font-black text-[#ea580c] uppercase tracking-wider">Main Office (Bhugaon)</span>
+                      <a href="https://maps.google.com/?q=Bhugaon+Bavdhan+Pune+Maharashtra+412115" target="_blank" rel="noopener noreferrer" className="hover:text-[#00b4d8] transition-colors duration-300 font-semibold text-slate-650 text-xs sm:text-sm">
                         BHUGAON ON MULSHI RD, Bhugaon, Bavdhan,<br />
                         Bhugaon, Maharashtra - 412115
                       </a>
-                    </p>
+                    </div>
+                  </div>
+
+                  {/* Location 2: Kolwan */}
+                  <div className="flex gap-3.5 mt-4 items-start group border-t border-slate-100 pt-4">
+                    <div className="w-9 h-9 rounded-xl bg-cyan-50 border border-cyan-100 flex items-center justify-center text-[#00b4d8] shrink-0">
+                      <svg className="w-5 h-5 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                      </svg>
+                    </div>
+                    <div className="text-left leading-relaxed">
+                      <span className="block text-[10px] font-black text-[#ea580c] uppercase tracking-wider">Branch Office (Kolwan)</span>
+                      <a href="https://maps.google.com/?q=Kolwan+Mulshi+Pune+Maharashtra" target="_blank" rel="noopener noreferrer" className="hover:text-[#00b4d8] transition-colors duration-300 font-semibold text-slate-650 text-xs sm:text-sm">
+                        At Post Kolwan, Taluka Mulshi,<br />
+                        District Pune, Maharashtra - 412108
+                      </a>
+                    </div>
                   </div>
                 </div>
 
@@ -1000,7 +1112,21 @@ export default function App() {
 
         {/* BOOKING FLOW PAGES */}
         {currentPage === 'booking-flow' && (
-          <div className="relative bg-slate-50/30 w-full flex-1 flex flex-col" style={{ minHeight: '80vh' }}>
+          <div className="relative bg-slate-50/30 w-full flex-1 flex flex-col overflow-hidden" style={{ minHeight: '80vh' }}>
+            {/* Background Watermark Pattern Layer */}
+            <div 
+              className="absolute inset-0 z-0 opacity-[0.06] pointer-events-none"
+              style={{ 
+                backgroundImage: `url('/Booking/35391d4ec4071348ab4a67b69866bdbd.jpg')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            />
+            {/* Glowing Blurred Blobs */}
+            <div className="absolute top-[10%] left-[-10%] w-[350px] h-[350px] rounded-full bg-cyan-200/20 blur-3xl z-0 pointer-events-none" />
+            <div className="absolute bottom-[20%] right-[-10%] w-[350px] h-[350px] rounded-full bg-yellow-100/20 blur-3xl z-0 pointer-events-none" />
+
             <HeaderBreadcrumbs title="Booking & Traveler Details" setCurrentPage={setCurrentPage} />
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full flex-1 animate-fade" style={{ maxWidth: '1200px' }}>
             
@@ -1046,10 +1172,12 @@ export default function App() {
                     } else {
                       // Cab estimate calculation
                       const basePrice = item.price_per_km || 13;
-                      const distance = 150; // Pune-Mumbai approximation
-                      const estFare = (distance * basePrice) + 250;
-                      priceText = `₹${estFare} estimated`;
-                      detailsText = `₹${basePrice}/km + ₹250 Driver allowance`;
+                      const isRoundTrip = searchParams.tripType === 'roundtrip';
+                      const days = getTripDays();
+                      const distance = isRoundTrip ? (300 * days) : 150;
+                      const estFare = distance * basePrice;
+                      priceText = `₹${estFare.toLocaleString('en-IN')}`;
+                      detailsText = `${isRoundTrip ? `₹${basePrice}/km (Min 300 km/day × ${days} days)` : `₹${basePrice}/km (Approx 150 km)`} | Toll & Driver allowance extra`;
                     }
 
                     return (
@@ -1059,7 +1187,7 @@ export default function App() {
                       >
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ fontSize: '2rem' }}>{item.image || (searchParams.bookingType === 'bus' ? '🚌' : '🚗')}</span>
+                            <span className="flex items-center justify-center bg-slate-100 p-2.5 rounded-xl">{renderItemImage(item.image)}</span>
                             <h4 style={{ margin: 0 }}>{item.name}</h4>
                           </div>
                           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '6px' }}>{detailsText}</p>
@@ -1077,246 +1205,446 @@ export default function App() {
 
             {/* STEP 3: DETAILS & SEAT MAP */}
             {bookingStep === 3 && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left animate-fade-in">
                 
                 {/* Left Column: Checkout Inputs Form (8 cols) */}
-                <div className="lg:col-span-8 bg-white border-2 border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm">
-                  <h3 className="text-lg font-black text-slate-900 uppercase tracking-wider mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
-                    Booking & Traveler Details
-                  </h3>
-                  
-                  <form onSubmit={(e) => {
-                    e.preventDefault();
-                    handleCompleteBooking(e);
-                  }} className="space-y-6">
-                    
-                    {/* Segment 1: Passengers list */}
-                    <div className="space-y-4">
-                      <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">
-                        Passenger Details
-                      </h3>
-                      {passengerDetails.map((passenger, idx) => (
-                        <div key={idx} className="bg-slate-50 border-2 border-slate-200/80 rounded-2xl p-4 space-y-3 relative">
-                          <div className="flex justify-between items-center">
-                            <span className="text-[10px] font-black text-[#00b4d8] uppercase tracking-wider">Passenger #{idx + 1}</span>
-                            {passengerDetails.length > 1 && (
-                              <button 
-                                type="button" 
-                                onClick={() => removePassenger(idx)} 
-                                className="text-xs font-black text-rose-500 hover:text-rose-600 transition-colors"
-                              >
-                                Remove
-                              </button>
-                            )}
-                          </div>
-                          
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider">Name *</label>
-                              <input 
-                                type="text" 
-                                placeholder="Full Name" 
-                                className="w-full border-2 border-slate-700 rounded-xl px-3.5 py-2 text-xs font-black text-slate-900 bg-white outline-none focus:border-[#00b4d8] transition-all shadow-sm placeholder:text-slate-400" 
-                                value={passenger.name}
-                                onChange={(e) => {
-                                  const newDetails = [...passengerDetails];
-                                  newDetails[idx].name = e.target.value;
-                                  setPassengerDetails(newDetails);
-                                }}
-                                required
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider">Age *</label>
-                              <input 
-                                type="number" 
-                                placeholder="Age" 
-                                className="w-full border-2 border-slate-700 rounded-xl px-3.5 py-2 text-xs font-black text-slate-900 bg-white outline-none focus:border-[#00b4d8] transition-all shadow-sm placeholder:text-slate-400" 
-                                value={passenger.age}
-                                onChange={(e) => {
-                                  const newDetails = [...passengerDetails];
-                                  newDetails[idx].age = e.target.value;
-                                  setPassengerDetails(newDetails);
-                                }}
-                                required
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider">Gender *</label>
-                              <select 
-                                className="w-full border-2 border-slate-700 rounded-xl px-3.5 py-2 text-xs font-black text-slate-900 bg-white outline-none focus:border-[#00b4d8] transition-all shadow-sm cursor-pointer" 
-                                value={passenger.gender}
-                                onChange={(e) => {
-                                  const newDetails = [...passengerDetails];
-                                  newDetails[idx].gender = e.target.value;
-                                  setPassengerDetails(newDetails);
-                                }}
-                              >
-                                <option>Male</option>
-                                <option>Female</option>
-                                <option>Other</option>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      <button 
-                        type="button" 
-                        onClick={addPassenger} 
-                        className="w-full py-2.5 border-2 border-dashed border-[#00b4d8]/40 hover:border-[#00b4d8] text-[#00b4d8] font-black text-xs rounded-xl transition-all hover:bg-cyan-50/20 flex items-center justify-center gap-1.5"
-                      >
-                        Add Passenger
-                      </button>
-                    </div>
-
-                    {/* Segment 2: Contact Details */}
-                    <div className="space-y-4 border-t border-slate-100 pt-4">
-                      <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">
-                        Contact Information
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider">Mobile Number *</label>
-                          <input 
-                            type="tel" 
-                            placeholder="10-digit primary mobile" 
-                            pattern="[0-9]{10}"
-                            title="Please enter a valid 10-digit mobile number."
-                            className="w-full border-2 border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-black text-slate-900 bg-white outline-none focus:border-[#00b4d8] transition-all shadow-sm placeholder:text-slate-400" 
-                            value={contactPhone}
-                            onChange={(e) => setContactPhone(e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider">Alt Mobile (Safety) *</label>
-                          <input 
-                            type="tel" 
-                            placeholder="10-digit alternate mobile" 
-                            pattern="[0-9]{10}"
-                            title="Please enter a valid 10-digit alternate mobile number."
-                            className="w-full border-2 border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-black text-slate-900 bg-white outline-none focus:border-[#00b4d8] transition-all shadow-sm placeholder:text-slate-400" 
-                            value={altPhone}
-                            onChange={(e) => setAltPhone(e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider">Email Address *</label>
-                          <input 
-                            type="email" 
-                            placeholder="name@example.com" 
-                            className="w-full border-2 border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-black text-slate-900 bg-white outline-none focus:border-[#00b4d8] transition-all shadow-sm placeholder:text-slate-400" 
-                            value={contactEmail}
-                            onChange={(e) => setContactEmail(e.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Segment 3: Pickup & Travel details */}
-                    <div className="space-y-4 border-t border-slate-100 pt-4">
-                      <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">
-                        Pickup & Journey Details
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="sm:col-span-2 flex flex-col gap-1.5">
-                          <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider">Exact Pickup Address *</label>
-                          <input 
-                            type="text" 
-                            placeholder="Hotel name, station, airport terminal, or home address..." 
-                            className="w-full border-2 border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-black text-slate-900 bg-white outline-none focus:border-[#00b4d8] transition-all shadow-sm placeholder:text-slate-400" 
-                            value={pickupAddress}
-                            onChange={(e) => setPickupAddress(e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider">Preferred Pickup Time *</label>
-                          <input 
-                            type="time" 
-                            className="w-full border-2 border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-black text-slate-900 bg-white outline-none focus:border-[#00b4d8] transition-all shadow-sm cursor-pointer" 
-                            value={pickupTime}
-                            onChange={(e) => setPickupTime(e.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Segment 4: Special requests */}
-                    <div className="space-y-2 border-t border-slate-100 pt-4">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider">Special Instructions (Optional)</label>
-                        <textarea 
-                          rows="2"
-                          placeholder="E.g., excessive luggage size, child seats needed, preferred routes, or medical requirements..." 
-                          className="w-full border-2 border-slate-700 rounded-xl px-3.5 py-2 text-xs font-black text-slate-900 bg-white outline-none focus:border-[#00b4d8] transition-all shadow-sm resize-none placeholder:text-slate-400" 
-                          value={specialNotes}
-                          onChange={(e) => setSpecialNotes(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Action Submit */}
-                    <button 
-                      type="submit" 
-                      className="w-full py-3.5 bg-gradient-to-r from-[#00b4d8] to-[#0083b0] hover:from-[#ea580c] hover:to-[#d04a00] text-white font-black text-xs rounded-xl transition-all shadow-md shadow-[#00b4d8]/20 flex items-center justify-center gap-1.5 hover:-translate-y-0.5 active:scale-[0.99] cursor-pointer"
+                <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-xl shadow-slate-100/50">
+                  {/* Background Skyline Banner with Car */}
+                  {selectedItem && (
+                    <div 
+                      className="w-full h-48 sm:h-56 relative overflow-hidden flex justify-center items-end pb-3 sm:pb-4 border-b border-slate-100 bg-[#eefcfc]"
+                      style={{
+                        backgroundImage: `url('/Booking/city-skyline-bus.jpg')`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat'
+                      }}
                     >
-                      <span>Confirm Booking</span>
-                    </button>
-                  </form>
+                      <img 
+                        src={(() => {
+                          const ln = selectedItem.name ? selectedItem.name.toLowerCase() : '';
+                          if (ln.includes('wagonr')) return '/white-swift-right.png';
+                          else if (ln.includes('brezza')) return '/white-brezza-right.png';
+                          else if (ln.includes('dzire')) return '/white-swift.png';
+                          else if (ln.includes('etios')) return '/white-swift-right.png';
+                          else if (ln.includes('ertiga')) return '/white-ertiga-right.png';
+                          else if (ln.includes('carens')) return '/white-carens-right.png';
+                          else if (ln.includes('innova')) return '/white-innova-right.png';
+                          else if (ln.includes('17-seater')) return '/17-seat-tempo-traveller-right.png';
+                          return '/50-seat-bus-right.png';
+                        })()} 
+                        alt={selectedItem.name} 
+                        className="h-28 sm:h-32 w-auto object-contain z-10 drop-shadow-lg"
+                      />
+                    </div>
+                  )}
+
+                  <div className="p-6 sm:p-8 space-y-6">
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+                      <h3 className="text-base sm:text-lg font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                        Enter Booking Details
+                      </h3>
+                      {!currentUser ? (
+                        <button 
+                          type="button" 
+                          onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}
+                          className="px-3.5 py-1.5 bg-[#00b4d8] hover:bg-[#0083b0] text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                        >
+                          Login
+                        </button>
+                      ) : (
+                        <span className="text-[10px] font-bold text-slate-500 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-150">
+                          Logged in as {currentUser.email}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      handleCompleteBooking(e);
+                    }} className="space-y-6">
+                      
+                      {/* Segment 1: Passengers list */}
+                      <div className="space-y-4">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                          Passenger Details
+                        </h3>
+                        {passengerDetails.map((passenger, idx) => (
+                          <div key={idx} className="bg-slate-50/50 border border-slate-150 rounded-2xl p-5 space-y-4 relative">
+                            <div className="flex justify-between items-center">
+                              <span className="text-[10px] font-black text-[#00b4d8] uppercase tracking-wider">Passenger #{idx + 1}</span>
+                              {passengerDetails.length > 1 && (
+                                <button 
+                                  type="button" 
+                                  onClick={() => removePassenger(idx)} 
+                                  className="text-xs font-black text-rose-500 hover:text-rose-600 transition-colors"
+                                >
+                                  Remove
+                                </button>
+                              )}
+                            </div>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-[13px] font-black text-slate-700 uppercase tracking-wider">Name *</label>
+                                <input 
+                                  type="text" 
+                                  placeholder="Full Name" 
+                                  className="w-full border border-slate-250 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 bg-white outline-none focus:border-[#00b4d8] focus:ring-1 focus:ring-[#00b4d8] transition-all shadow-sm placeholder:text-slate-400" 
+                                  value={passenger.name}
+                                  onChange={(e) => {
+                                    const newDetails = [...passengerDetails];
+                                    newDetails[idx].name = e.target.value;
+                                    setPassengerDetails(newDetails);
+                                  }}
+                                  required
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-[13px] font-black text-slate-700 uppercase tracking-wider">Age *</label>
+                                <input 
+                                  type="number" 
+                                  placeholder="Age" 
+                                  min="1"
+                                  max="120"
+                                  className="w-full border border-slate-250 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 bg-white outline-none focus:border-[#00b4d8] focus:ring-1 focus:ring-[#00b4d8] transition-all shadow-sm placeholder:text-slate-400" 
+                                  value={passenger.age}
+                                  onChange={(e) => {
+                                    let val = e.target.value;
+                                    // Strip non-digit characters (including negative minus sign)
+                                    val = val.replace(/[^0-9]/g, '');
+                                    const newDetails = [...passengerDetails];
+                                    newDetails[idx].age = val;
+                                    setPassengerDetails(newDetails);
+                                  }}
+                                  required
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-[13px] font-black text-slate-700 uppercase tracking-wider">Gender *</label>
+                                <select 
+                                  className="w-full border border-slate-250 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 bg-white outline-none focus:border-[#00b4d8] focus:ring-1 focus:ring-[#00b4d8] transition-all shadow-sm cursor-pointer" 
+                                  value={passenger.gender}
+                                  onChange={(e) => {
+                                    const newDetails = [...passengerDetails];
+                                    newDetails[idx].gender = e.target.value;
+                                    setPassengerDetails(newDetails);
+                                  }}
+                                >
+                                  <option>Male</option>
+                                  <option>Female</option>
+                                  <option>Other</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        <button 
+                          type="button" 
+                          onClick={addPassenger} 
+                          className="w-full py-3 border border-dashed border-[#00b4d8]/40 hover:border-[#00b4d8] text-[#00b4d8] font-black text-xs rounded-xl transition-all hover:bg-cyan-50/20 flex items-center justify-center gap-1.5"
+                        >
+                          Add Passenger
+                        </button>
+                      </div>
+
+                      {/* Segment 2: Contact Details */}
+                      <div className="space-y-4 border-t border-slate-100 pt-4">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                          Contact Information
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[13px] font-black text-slate-700 uppercase tracking-wider">Mobile Number *</label>
+                            <input 
+                              type="tel" 
+                              placeholder="10-digit primary mobile" 
+                              pattern="[0-9]{10}"
+                              title="Please enter a valid 10-digit mobile number."
+                              className="w-full border border-slate-250 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 bg-white outline-none focus:border-[#00b4d8] focus:ring-1 focus:ring-[#00b4d8] transition-all shadow-sm placeholder:text-slate-400" 
+                              value={contactPhone}
+                              onChange={(e) => setContactPhone(e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[13px] font-black text-slate-700 uppercase tracking-wider">Alt Mobile (Safety) *</label>
+                            <input 
+                              type="tel" 
+                              placeholder="10-digit alternate mobile" 
+                              pattern="[0-9]{10}"
+                              title="Please enter a valid 10-digit alternate mobile number."
+                              className="w-full border border-slate-250 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 bg-white outline-none focus:border-[#00b4d8] focus:ring-1 focus:ring-[#00b4d8] transition-all shadow-sm placeholder:text-slate-400" 
+                              value={altPhone}
+                              onChange={(e) => setAltPhone(e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[13px] font-black text-slate-700 uppercase tracking-wider">Email Address *</label>
+                            <input 
+                              type="email" 
+                              placeholder="name@example.com" 
+                              className="w-full border border-slate-250 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 bg-white outline-none focus:border-[#00b4d8] focus:ring-1 focus:ring-[#00b4d8] transition-all shadow-sm placeholder:text-slate-400" 
+                              value={contactEmail}
+                              onChange={(e) => setContactEmail(e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Segment 3: Pickup & Travel details */}
+                      <div className="space-y-4 border-t border-slate-100 pt-4">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                          Pickup &amp; Journey Details
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="sm:col-span-2 flex flex-col gap-1.5">
+                            <label className="text-[13px] font-black text-slate-700 uppercase tracking-wider">Exact Pickup Address *</label>
+                            <input 
+                              type="text" 
+                              placeholder="Hotel name, station, airport terminal, or home address..." 
+                              className="w-full border border-slate-250 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 bg-white outline-none focus:border-[#00b4d8] focus:ring-1 focus:ring-[#00b4d8] transition-all shadow-sm placeholder:text-slate-400" 
+                              value={pickupAddress}
+                              onChange={(e) => setPickupAddress(e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[13px] font-black text-slate-700 uppercase tracking-wider">Preferred Pickup Time *</label>
+                            <input 
+                              type="time" 
+                              className="w-full border border-slate-250 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 bg-white outline-none focus:border-[#00b4d8] focus:ring-1 focus:ring-[#00b4d8] transition-all shadow-sm cursor-pointer" 
+                              value={pickupTime}
+                              onChange={(e) => setPickupTime(e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Segment 4: Special requests */}
+                      <div className="space-y-2 border-t border-slate-100 pt-4">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[13px] font-black text-slate-700 uppercase tracking-wider">Special Instructions (Optional)</label>
+                          <textarea 
+                            rows="2"
+                            placeholder="E.g., excessive luggage size, child seats needed, preferred routes, or medical requirements..." 
+                            className="w-full border border-slate-250 rounded-xl px-4 py-2 text-sm font-bold text-slate-800 bg-white outline-none focus:border-[#00b4d8] focus:ring-1 focus:ring-[#00b4d8] transition-all shadow-sm resize-none placeholder:text-slate-400" 
+                            value={specialNotes}
+                            onChange={(e) => setSpecialNotes(e.target.value)}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Action Submit */}
+                      <button 
+                        type="submit" 
+                        className="w-full py-4 bg-[#00b4d8] hover:bg-[#0083b0] text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md shadow-[#00b4d8]/10 flex items-center justify-center gap-1.5 hover:-translate-y-0.5 active:scale-[0.99] cursor-pointer"
+                      >
+                        <span>Confirm Booking</span>
+                      </button>
+                    </form>
+                  </div>
                 </div>
 
-                {/* Right Column: Booking Summary Card (4 cols) */}
-                <div className="lg:col-span-4 bg-[#0d3859] border-2 border-[#0d3859] text-white rounded-3xl p-6 shadow-md">
-                  <h3 className="text-xs font-black uppercase tracking-widest border-b border-white/20 pb-3 mb-5">
-                    Booking Summary
-                  </h3>
+                {/* Right Column: Pick-up & Summary Cards (4 cols) */}
+                <div className="lg:col-span-4 space-y-6">
                   
-                  {selectedItem && (
-                    <div className="space-y-6">
-                      <div className="flex items-center gap-3.5 bg-white/5 border border-white/10 p-3 rounded-2xl">
-                        <div className="flex flex-col">
-                          <span className="text-[9px] uppercase font-black text-cyan-300 tracking-widest leading-none">Vehicle Type</span>
-                          <span className="text-xs font-black mt-1">{selectedItem.name}</span>
-                          {selectedItem.details && (
-                            <span className="text-[9px] font-semibold text-white/50 mt-0.5">{selectedItem.details}</span>
-                          )}
-                        </div>
+                  {/* Pick-up / Drop Destinations Route Card */}
+                  <div className="bg-white border border-slate-200/85 rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-100/50 space-y-4">
+                    <div className="flex items-start gap-3">
+                      <span className="text-slate-400 mt-0.5 text-base">📍</span>
+                      <div className="flex-1 text-left">
+                        <span className="block text-xs uppercase font-extrabold text-[#00b4d8] tracking-wider">Pick-Up</span>
+                        <span className="block text-sm font-extrabold text-slate-800 mt-0.5 leading-snug">{searchParams.fromCity || 'Pune, Maharashtra, India'}</span>
                       </div>
-
-                      <div className="space-y-4 border-t border-white/15 pt-4 text-xs">
-                        <div className="flex justify-between items-start">
-                          <span className="text-white/50 font-bold uppercase tracking-wider text-[10px]">From:</span>
-                          <span className="font-extrabold text-right max-w-[200px] break-words">{searchParams.fromCity || 'Pune, MH'}</span>
-                        </div>
-                        <div className="flex justify-between items-start">
-                          <span className="text-white/50 font-bold uppercase tracking-wider text-[10px]">To:</span>
-                          <span className="font-extrabold text-right max-w-[200px] break-words">{searchParams.toCity || 'Destination'}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-white/50 font-bold uppercase tracking-wider text-[10px]">Trip Type:</span>
-                          <span className="font-extrabold capitalize">{searchParams.tripType === 'roundtrip' ? 'Round-Trip' : 'One-Way'}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-white/50 font-bold uppercase tracking-wider text-[10px]">Travel Date:</span>
-                          <span className="font-extrabold">{searchParams.date || new Date().toISOString().split('T')[0]}</span>
-                        </div>
-                      </div>
-
-                      <div className="pt-5 border-t border-white/15 flex justify-between items-end">
-                        <div className="flex flex-col">
-                          <span className="text-[10px] uppercase font-black text-white/40 tracking-widest leading-none">Total Fare</span>
-                          <span className="text-[9px] font-semibold text-cyan-300 mt-1">Inclusive of GST, Toll & Taxes</span>
-                        </div>
-                        <span className="text-2xl font-black text-emerald-400 leading-none">
-                          ₹{selectedItem.exactPrice || '---'}
+                    </div>
+                    <div className="flex items-start gap-3 border-t border-slate-100 pt-3">
+                      <span className="text-slate-400 mt-0.5 text-base">🏁</span>
+                      <div className="flex-1 text-left">
+                        <span className="block text-xs uppercase font-extrabold text-[#00b4d8] tracking-wider">Trip Destination</span>
+                        <span className="block text-sm font-extrabold text-slate-800 mt-0.5 leading-snug">
+                          {(() => {
+                            const from = searchParams.fromCity?.split(',')[0] || 'Pune';
+                            const to = searchParams.toCity?.split(',')[0] || 'Destination';
+                            return searchParams.tripType === 'roundtrip' ? `${from} -> ${to} -> ${from}` : `${from} -> ${to}`;
+                          })()}
                         </span>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Trip Summary Details Card */}
+                  {selectedItem && (
+                    <div className="bg-white border border-slate-200/85 rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-100/50 space-y-4 text-left">
+                      <h3 className="text-sm font-black uppercase text-center tracking-widest text-slate-800 border-b border-slate-100 pb-3.5 mb-2">
+                        Trip Summary
+                      </h3>
+                      
+                      <div className="space-y-1.5 text-xs text-slate-700 font-semibold">
+                        <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                          <span className="text-slate-500 font-extrabold text-xs uppercase tracking-wide">Journey Type</span>
+                          <span className="font-extrabold text-slate-800 text-sm">: {searchParams.tripType === 'roundtrip' ? 'Round-Trip' : 'One-Way'}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                          <span className="text-slate-500 font-extrabold text-xs uppercase tracking-wide">Pick-Up City</span>
+                          <span className="font-extrabold text-slate-800 text-sm">: {searchParams.fromCity?.split(',')[0] || 'Pune'}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                          <span className="text-slate-500 font-extrabold text-xs uppercase tracking-wide">Trip Destination</span>
+                          <span className="font-extrabold text-slate-800 text-sm text-right max-w-[150px] truncate">: {searchParams.toCity?.split(',')[0] || 'Destination'}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                          <span className="text-slate-500 font-extrabold text-xs uppercase tracking-wide">Base Fare</span>
+                          <span className="font-black text-slate-800 text-sm">
+                            : ₹{(() => {
+                              if (selectedItem.exactPrice) return selectedItem.exactPrice.toLocaleString('en-IN');
+                              const basePrice = selectedItem.price_per_km || 13;
+                              const isRoundTrip = searchParams.tripType === 'roundtrip';
+                              const days = getTripDays();
+                              const distance = isRoundTrip ? Math.max(300 * days, searchParams.distance || 0) : 150;
+                              return (distance * basePrice).toLocaleString('en-IN');
+                            })()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                          <span className="text-slate-500 font-extrabold text-xs uppercase tracking-wide">Inter-State Tax</span>
+                          <span className="font-extrabold text-slate-800 text-sm">: Excluded</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                          <span className="text-slate-500 font-extrabold text-xs uppercase tracking-wide">Toll &amp; Parking</span>
+                          <span className="font-extrabold text-slate-800 text-sm">: Excluded</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2">
+                          <span className="text-slate-500 font-extrabold text-xs uppercase tracking-wide">Driver Allowance</span>
+                          <span className="font-extrabold text-slate-800 text-sm">: Excluded (Rs. 300/day)</span>
+                        </div>
+
+                        {/* Gross Total Strip */}
+                        <div className="mt-5 bg-gradient-to-r from-[#00b4d8] to-[#0083b0] text-white py-3.5 px-5 rounded-2xl text-center font-black text-sm sm:text-base uppercase tracking-wider shadow-md shadow-[#00b4d8]/20">
+                          Gross Total: ₹{(() => {
+                            if (selectedItem.exactPrice) return selectedItem.exactPrice.toLocaleString('en-IN');
+                            const basePrice = selectedItem.price_per_km || 13;
+                            const isRoundTrip = searchParams.tripType === 'roundtrip';
+                            const days = getTripDays();
+                            const distance = isRoundTrip ? Math.max(300 * days, searchParams.distance || 0) : 150;
+                            return (distance * basePrice).toLocaleString('en-IN');
+                          })()}/-
+                        </div>
+                      </div>
+                    </div>
                   )}
+
+                  {/* Seating & Luggage Guide Card */}
+                  {selectedItem && (
+                    <div className="bg-white border border-slate-200/85 rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-100/50 space-y-4 text-left">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-2">
+                        <span>🎒</span> Luggage &amp; Seating Guide
+                      </h4>
+                      <div className="space-y-3 text-xs text-slate-600 font-bold">
+                        <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
+                          <span>Seating Capacity</span>
+                          <span className="font-extrabold text-[#00b4d8]">{selectedItem.seating_capacity} Passengers Max</span>
+                        </div>
+                        <div className="flex justify-between items-start py-1.5">
+                          <span>Luggage Limit</span>
+                          <span className="font-extrabold text-slate-800 text-right max-w-[160px] leading-relaxed">
+                            {(() => {
+                              const cap = selectedItem.seating_capacity || 4;
+                              if (cap <= 4) return "2 Large Bags + 2 Handbags";
+                              if (cap <= 7) return "4 Large Bags + 3 Handbags";
+                              if (cap <= 20) return "Ample Roof Carrier Storage";
+                              return "Under-Bus Luggage Hold";
+                            })()}
+                          </span>
+                        </div>
+                        <div className="bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f766e] p-3 rounded-xl text-[11px] leading-relaxed font-semibold">
+                          💡 <strong>Need more space?</strong> Mention excess baggage details in the Special Instructions form on the left.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Why Choose Pooja Travels Trust Card */}
+                  <div className="bg-white border border-slate-200/85 rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-100/50 space-y-4 text-left">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-2">
+                      <span>🛡️</span> Pooja Travels Guarantees
+                    </h4>
+                    <ul className="space-y-3.5 text-xs text-slate-600 font-semibold">
+                      <li className="flex items-start gap-2.5">
+                        <span className="text-[#059669] font-bold">✓</span>
+                        <div>
+                          <strong className="text-slate-800 block">Professional Drivers</strong>
+                          <span className="text-[10px] text-slate-450 block mt-0.5">Vetted, licensed, and highly experienced drivers.</span>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2.5">
+                        <span className="text-[#059669] font-bold">✓</span>
+                        <div>
+                          <strong className="text-slate-800 block">Clean &amp; Sanitized Fleet</strong>
+                          <span className="text-[10px] text-slate-450 block mt-0.5">Vehicles are fully washed and sanitized before dispatch.</span>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2.5">
+                        <span className="text-[#059669] font-bold">✓</span>
+                        <div>
+                          <strong className="text-slate-800 block">No Hidden Charges</strong>
+                          <span className="text-[10px] text-slate-450 block mt-0.5">Transparent billing. Rates match listed fares exactly.</span>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2.5 border-t border-slate-100 pt-3">
+                        <span className="text-[#ea580c] font-bold">📞</span>
+                        <div>
+                          <strong className="text-slate-800 block">Need Urgent Help?</strong>
+                          <span className="text-[10px] text-slate-400 block mt-0.5">Call Owner (Ajay Bhandari): +91 9623324139</span>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Have A Question Card */}
+                  <div className="bg-white border border-slate-200/85 rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-100/50 space-y-4 text-center">
+                    <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">
+                      Have A Question?
+                    </h4>
+                    <div className="grid grid-cols-3 gap-2 py-2">
+                      {/* Go To FAQ / Support */}
+                      <div className="flex flex-col items-center gap-2 group cursor-pointer" onClick={() => setCurrentPage('home')}>
+                        <div className="w-12 h-12 rounded-full bg-white border border-slate-100 shadow-md shadow-slate-100/80 flex items-center justify-center text-[#00b4d8] text-lg font-black group-hover:scale-110 transition-transform duration-300">
+                          ?
+                        </div>
+                        <span className="text-[10px] sm:text-xs font-black text-slate-650 tracking-tight group-hover:text-[#00b4d8] transition-colors leading-tight">Go To FAQ</span>
+                      </div>
+
+                      {/* Give Us A Call */}
+                      <a href={`tel:${siteSettings.contact_phone}`} className="flex flex-col items-center gap-2 group text-decoration-none">
+                        <div className="w-12 h-12 rounded-full bg-white border border-slate-100 shadow-md shadow-slate-100/80 flex items-center justify-center text-[#00b4d8] group-hover:scale-110 transition-transform duration-300">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                          </svg>
+                        </div>
+                        <span className="text-[10px] sm:text-xs font-black text-slate-650 tracking-tight group-hover:text-[#00b4d8] transition-colors leading-tight">Give Us A Call</span>
+                      </a>
+
+                      {/* Message Us */}
+                      <a 
+                        href={`https://wa.me/${(siteSettings.contact_phone || '919623324139').replace(/[^0-9]/g, '')}?text=Hi%20Pooja%20Travels,%20I%20have%20a%20question%20about%20my%20booking.`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex flex-col items-center gap-2 group text-decoration-none"
+                      >
+                        <div className="w-12 h-12 rounded-full bg-white border border-slate-100 shadow-md shadow-slate-100/80 flex items-center justify-center text-[#00b4d8] group-hover:scale-110 transition-transform duration-300">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-3.658C3.02 15.908 2 14.07 2 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                          </svg>
+                        </div>
+                        <span className="text-[10px] sm:text-xs font-black text-slate-650 tracking-tight group-hover:text-[#00b4d8] transition-colors leading-tight">Message Us</span>
+                      </a>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             )}
@@ -1350,6 +1678,19 @@ export default function App() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
                       <span style={{ fontWeight: 750 }}>Seats:</span>
                       <strong style={{ color: 'var(--primary)' }}>{activeTicket.seats_selected.join(', ')}</strong>
+                    </div>
+                  )}
+                  {activeTicket.passenger_details && activeTicket.passenger_details.length > 0 && (
+                    <div style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginTop: '5px' }}>
+                      <span style={{ fontWeight: 750, display: 'block', marginBottom: '8px', color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase' }}>Travelers:</span>
+                      <div className="space-y-1.5">
+                        {activeTicket.passenger_details.map((p, idx) => (
+                          <div key={idx} className="flex justify-between items-center bg-slate-50/50 p-2 px-3 rounded-xl border border-slate-100">
+                            <span style={{ fontWeight: 800, color: '#1e293b', fontSize: '0.8rem' }}>{idx + 1}. {p.name}</span>
+                            <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>({p.age} Yrs, {p.gender})</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '5px' }}>

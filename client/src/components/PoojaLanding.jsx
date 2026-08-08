@@ -8,6 +8,123 @@ import Reviews from './Reviews';
 import FAQs from './FAQs';
 import OurServices from './OurServices';
 
+const POPULAR_DESTINATIONS = [
+  {
+    keys: ['trimbakeshwar', 'trambkeshwar', 'tryambakeshwar', 'trimbak', 'trambak'],
+    lat: 19.9328,
+    lon: 73.5307,
+    name: 'Trimbakeshwar Shiva Temple, Nashik, Maharashtra, India'
+  },
+  {
+    keys: ['mahabaleshwar', 'mahabaleswar'],
+    lat: 17.9229,
+    lon: 73.6586,
+    name: 'Mahabaleshwar, Satara, Maharashtra, India'
+  },
+  {
+    keys: ['lonavala', 'lonavla'],
+    lat: 18.7557,
+    lon: 73.4091,
+    name: 'Lonavala, Pune, Maharashtra, India'
+  },
+  {
+    keys: ['mumbai', 'bombay'],
+    lat: 19.0760,
+    lon: 72.8777,
+    name: 'Mumbai City, Maharashtra, India'
+  },
+  {
+    keys: ['shirdi', 'sirdi'],
+    lat: 19.7661,
+    lon: 74.4762,
+    name: 'Shirdi Sai Baba Temple, Ahmednagar, Maharashtra, India'
+  },
+  {
+    keys: ['pune', 'poona'],
+    lat: 18.5204,
+    lon: 73.8567,
+    name: 'Pune City, Maharashtra, India'
+  },
+  {
+    keys: ['alibaug', 'alibag'],
+    lat: 18.6584,
+    lon: 72.8773,
+    name: 'Alibaug, Raigad, Maharashtra, India'
+  },
+  {
+    keys: ['khandala'],
+    lat: 18.7612,
+    lon: 73.3615,
+    name: 'Khandala, Pune, Maharashtra, India'
+  },
+  {
+    keys: ['panchgani', 'panjgani'],
+    lat: 17.9248,
+    lon: 73.8055,
+    name: 'Panchgani, Satara, Maharashtra, India'
+  },
+  {
+    keys: ['bhimashankar'],
+    lat: 19.0721,
+    lon: 73.5358,
+    name: 'Bhimashankar Jyotirlinga, Pune, Maharashtra, India'
+  },
+  {
+    keys: ['lavasa'],
+    lat: 18.4111,
+    lon: 73.5074,
+    name: 'Lavasa, Pune, Maharashtra, India'
+  },
+  {
+    keys: ['kolhapur'],
+    lat: 16.7050,
+    lon: 74.2433,
+    name: 'Kolhapur, Maharashtra, India'
+  },
+  {
+    keys: ['aurangabad', 'sambhajinagar', 'chhatrapati sambhajinagar'],
+    lat: 19.8762,
+    lon: 75.3433,
+    name: 'Chhatrapati Sambhajinagar (Aurangabad), Maharashtra, India'
+  },
+  {
+    keys: ['shanishingnapur', 'shani shingnapur', 'singnapur'],
+    lat: 19.3852,
+    lon: 74.8217,
+    name: 'Shani Shingnapur, Ahmednagar, Maharashtra, India'
+  },
+  {
+    keys: ['grishneshwar', 'ghisneshwar'],
+    lat: 20.0245,
+    lon: 75.1691,
+    name: 'Grishneshwar Temple, Aurangabad, Maharashtra, India'
+  },
+  {
+    keys: ['nashik', 'nasik'],
+    lat: 19.9975,
+    lon: 73.7898,
+    name: 'Nashik City, Maharashtra, India'
+  },
+  {
+    keys: ['mumbai airport', 't2 airport', 'chhatrapati shivaji maharaj airport', 'csia'],
+    lat: 19.0896,
+    lon: 72.8656,
+    name: 'CSM International Airport (T2), Mumbai, Maharashtra, India'
+  },
+  {
+    keys: ['pune airport', 'lohegaon airport'],
+    lat: 18.5820,
+    lon: 73.9197,
+    name: 'Pune International Airport (PNQ), Lohegaon, Pune, Maharashtra, India'
+  },
+  {
+    keys: ['hampi', 'humpy', 'hampy'],
+    lat: 15.3350,
+    lon: 76.4600,
+    name: 'Hampi Heritage Site, Bellary, Karnataka, India'
+  }
+];
+
 export default function PoojaLanding({ 
   currentPage,
   searchParams, 
@@ -29,6 +146,8 @@ export default function PoojaLanding({
   const [searchingMap, setSearchingMap] = useState(false);
   const [estimatedKm, setEstimatedKm] = useState(null);
   const [estimatedTime, setEstimatedTime] = useState(null);
+  const [isTravelersOpen, setIsTravelersOpen] = useState(false);
+  const [isVehiclesOpen, setIsVehiclesOpen] = useState(false);
 
   const mapRef = React.useRef(null);
   const markerRef = React.useRef(null);
@@ -132,12 +251,46 @@ export default function PoojaLanding({
     }
   }, [showMap]);
 
-  // Search address coordinates via OSM Nominatim API
+  // Search address coordinates via OSM Nominatim API with a popular fuzzy dictionary fallback
   const handleMapSearchSubmit = async () => {
     if (!mapSearchQuery.trim()) return;
     setSearchingMap(true);
+    
+    const queryLower = mapSearchQuery.toLowerCase().trim();
+    
+    // 1. Try dictionary lookup for popular locations to resolve typos
+    const localMatch = POPULAR_DESTINATIONS.find(dest => 
+      dest.keys.some(key => queryLower.includes(key) || key.includes(queryLower))
+    );
+
+    if (localMatch) {
+      try {
+        const latitude = localMatch.lat;
+        const longitude = localMatch.lon;
+        const display_name = localMatch.name;
+
+        if (mapRef.current) {
+          mapRef.current.setView([latitude, longitude], 12);
+        }
+        if (markerRef.current) {
+          markerRef.current.setLatLng([latitude, longitude]);
+        }
+
+        const parts = display_name.split(',');
+        const shortened = parts.slice(0, 3).join(',').trim();
+        setSelectedMapAddress(shortened || display_name);
+        calculateEstimates(latitude, longitude);
+      } catch (err) {
+        console.warn("Fuzzy search error: ", err);
+      } finally {
+        setSearchingMap(false);
+      }
+      return;
+    }
+
+    // 2. Fallback to live API geocoding search (restricted to India only)
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(mapSearchQuery)}&limit=1&accept-language=en`);
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(mapSearchQuery)}&limit=1&accept-language=en&countrycodes=in&email=booking.poojatravel@gmail.com`);
       const data = await res.json();
       if (data && data.length > 0) {
         const { lat, lon, display_name } = data[0];
@@ -156,7 +309,7 @@ export default function PoojaLanding({
         setSelectedMapAddress(shortened || display_name);
         calculateEstimates(latitude, longitude);
       } else {
-        alert("Location not found. Please try a different query.");
+        alert("Location not found. Please verify spelling or try another query.");
       }
     } catch (err) {
       console.warn("Geocoding search failed: ", err);
@@ -171,8 +324,10 @@ export default function PoojaLanding({
       {/* 2. SPLIT-SCREEN EDITORIAL LAYOUT HERO & BOOKING CONSOLE */}
       {/* Background arches collage set as a background image stretching 100% height */}
       <section 
-        className={`relative min-h-0 lg:min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex items-stretch overflow-hidden bg-white lg:bg-[length:100%_100%] lg:bg-no-repeat lg:bg-center transition-all ${
-          showMap ? 'lg:bg-none bg-slate-50/50' : 'lg:bg-[url(\'/hero-bg-collage.png\')]'
+        className={`relative min-h-0 lg:min-h-[calc(100vh-64px)] flex items-stretch bg-white lg:bg-[length:100%_100%] lg:bg-no-repeat lg:bg-center transition-all ${
+          showMap 
+            ? 'lg:bg-none bg-slate-50/50 lg:h-auto overflow-y-visible py-6 pb-12' 
+            : 'lg:bg-[url(\'/hero-bg-collage.png\')] lg:h-[calc(100vh-64px)] overflow-hidden'
         }`}
       >
         {/* Inner container that aligns perfectly with the Logo margin (max-w-7xl mx-auto px-4 sm:px-6 lg:px-8) */}
@@ -246,7 +401,7 @@ export default function PoojaLanding({
                             <div className="relative">
                               <input 
                                 type="text"
-                                placeholder="🔍 Enter any destination..."
+                                placeholder="Enter any destination..."
                                 value={customDestText}
                                 onChange={(e) => {
                                   setCustomDestText(e.target.value);
@@ -267,7 +422,7 @@ export default function PoojaLanding({
                               }}
                               className="w-full text-left px-3 py-2 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 text-orange-600 text-xs font-black flex items-center justify-between border border-orange-200 transition-colors"
                             >
-                              <span>📦 View Tour Packages</span>
+                              <span>View Tour Packages</span>
                               <span>➔</span>
                             </button>
 
@@ -280,7 +435,7 @@ export default function PoojaLanding({
                               }}
                               className="w-full text-left px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-50 to-blue-50 hover:from-cyan-100 hover:to-blue-100 text-cyan-650 text-xs font-black flex items-center justify-between border border-cyan-200 transition-colors"
                             >
-                              <span>🗺️ Choose Location on Map</span>
+                              <span>Choose Location on Map</span>
                               <span>➔</span>
                             </button>
 
@@ -306,7 +461,7 @@ export default function PoojaLanding({
                                   }}
                                   className="w-full text-left px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#00b4d8] transition-colors"
                                 >
-                                  📍 {dest.label}
+                                  {dest.label}
                                 </button>
                               ))}
                             </div>
@@ -374,18 +529,59 @@ export default function PoojaLanding({
                     </div>
 
                     {/* Right box */}
-                    <div className="border border-slate-200 rounded-lg bg-white flex items-center px-3 h-10 relative">
-                      <select
-                        value={searchParams.travelers || '2'}
-                        onChange={(e) => setSearchParams({ ...searchParams, travelers: e.target.value })}
-                        className="w-full h-full text-slate-850 font-medium outline-none bg-transparent appearance-none cursor-pointer text-[13px]"
-                      >
-                        <option value="2">2 Adults</option>
-                        <option value="4">4 Adults</option>
-                        <option value="7">7 Pax</option>
-                        <option value="12">12+ Pax</option>
-                      </select>
-                      <div className="absolute right-3 pointer-events-none text-slate-400 text-[0.6rem]">▼</div>
+                    <div className="border border-slate-200 rounded-lg bg-white flex items-center px-3 h-10 relative cursor-pointer z-30" onClick={() => setIsTravelersOpen(!isTravelersOpen)}>
+                      <div className="w-full h-full flex items-center justify-between text-slate-850 font-bold text-[13px] select-none">
+                        <span>
+                          {(() => {
+                            const val = searchParams.travelers || '2';
+                            if (val === '1') return '1 Adult';
+                            if (val === '2') return '2 Adults';
+                            if (val === '4') return '4 Adults';
+                            if (val === '7') return '7 Pax';
+                            if (val === '12') return '12+ Pax';
+                            return `${val} Pax`;
+                          })()}
+                        </span>
+                        <span className="text-[0.6rem] text-slate-400">▼</span>
+                      </div>
+
+                      {isTravelersOpen && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-40" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsTravelersOpen(false);
+                            }} 
+                          />
+                          <div className="absolute top-11 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 p-1 flex flex-col gap-0.5 max-h-56 overflow-y-auto">
+                            {[
+                              { label: '1 Adult', value: '1' },
+                              { label: '2 Adults', value: '2' },
+                              { label: '4 Adults', value: '4' },
+                              { label: '7 Pax', value: '7' },
+                              { label: '12+ Pax', value: '12' }
+                            ].map(option => (
+                              <button
+                                key={option.value}
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSearchParams({ ...searchParams, travelers: option.value });
+                                  setIsTravelersOpen(false);
+                                }}
+                                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-black transition-colors ${
+                                  (searchParams.travelers || '2') === option.value 
+                                    ? 'bg-[#0d3859] text-white' 
+                                    : 'text-slate-700 hover:bg-slate-50 hover:text-[#00b4d8]'
+                                }`}
+                              >
+                                {option.label}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -400,17 +596,55 @@ export default function PoojaLanding({
                     </div>
 
                     {/* Right box */}
-                    <div className="border border-slate-200 rounded-lg bg-white flex items-center px-3 h-10 relative">
-                      <select
-                        value={searchParams.tripType || 'oneway'}
-                        onChange={(e) => setSearchParams({ ...searchParams, tripType: e.target.value })}
-                        className="w-full h-full text-slate-855 font-semibold outline-none bg-transparent appearance-none cursor-pointer text-[13px]"
-                      >
-                        <option value="oneway">Luxury Minibus</option>
-                        <option value="roundtrip">SUV / Innova</option>
-                        <option value="local">Sedan / Swift</option>
-                      </select>
-                      <div className="absolute right-3 pointer-events-none text-slate-400 text-[0.6rem]">▼</div>
+                    <div className="border border-slate-200 rounded-lg bg-white flex items-center px-3 h-10 relative cursor-pointer z-30" onClick={() => setIsVehiclesOpen(!isVehiclesOpen)}>
+                      <div className="w-full h-full flex items-center justify-between text-slate-850 font-bold text-[13px] select-none">
+                        <span>
+                          {(() => {
+                            const val = searchParams.tripType || 'oneway';
+                            if (val === 'oneway') return 'Luxury Minibus';
+                            if (val === 'roundtrip') return 'SUV / Innova';
+                            if (val === 'local') return 'Sedan / Swift';
+                            return val;
+                          })()}
+                        </span>
+                        <span className="text-[0.6rem] text-slate-400">▼</span>
+                      </div>
+
+                      {isVehiclesOpen && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-40" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsVehiclesOpen(false);
+                            }} 
+                          />
+                          <div className="absolute top-11 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 p-1 flex flex-col gap-0.5 max-h-56 overflow-y-auto">
+                            {[
+                              { label: 'Luxury Minibus', value: 'oneway' },
+                              { label: 'SUV / Innova', value: 'roundtrip' },
+                              { label: 'Sedan / Swift', value: 'local' }
+                            ].map(option => (
+                              <button
+                                key={option.value}
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSearchParams({ ...searchParams, tripType: option.value });
+                                  setIsVehiclesOpen(false);
+                                }}
+                                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-black transition-colors ${
+                                  (searchParams.tripType || 'oneway') === option.value 
+                                    ? 'bg-[#0d3859] text-white' 
+                                    : 'text-slate-700 hover:bg-slate-50 hover:text-[#00b4d8]'
+                                }`}
+                              >
+                                {option.label}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -486,7 +720,7 @@ export default function PoojaLanding({
                   {/* Map Container */}
                   <div 
                     id="map-container" 
-                    className="w-full h-64 sm:h-72 rounded-xl border border-slate-200 shadow-inner overflow-hidden z-0"
+                    className="w-full h-48 sm:h-56 rounded-xl border border-slate-200 shadow-inner overflow-hidden z-0"
                   />
 
                   {/* Selected Location Address block & estimates */}

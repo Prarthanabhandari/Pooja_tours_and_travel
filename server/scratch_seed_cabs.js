@@ -7,12 +7,12 @@ const initialCabs = [
   { type: "Comfort Sedan", name: "Toyota Etios", price_per_km: 13.00, seating_capacity: 4, image_url: "etios.png" },
   { type: "Family MUV", name: "Maruti Ertiga", price_per_km: 16.00, seating_capacity: 7, image_url: "ertiga.png" },
   { type: "Comfort SUV", name: "Kia Carens", price_per_km: 16.00, seating_capacity: 7, image_url: "carens.png" },
-  { type: "Comfort MUV", name: "Toyota Innova Crysta", price_per_km: 21.00, seating_capacity: 7, image_url: "innova.png" },
-  { type: "AC Tourist Coach", name: "17-Seater Premium AC Tempo Traveller", price_per_km: 26.00, seating_capacity: 17, image_url: "traveller.png" },
+  { type: "Comfort MUV", name: "Toyota Innova Crysta", price_per_km: 20.00, seating_capacity: 7, image_url: "innova.png" },
+  { type: "AC Tourist Coach", name: "17-Seater Premium AC Tempo Traveller", price_per_km: 28.00, seating_capacity: 17, image_url: "traveller.png" },
   { type: "Standard Coach", name: "17-Seater Standard Non-AC Tempo Traveller", price_per_km: 24.00, seating_capacity: 17, image_url: "traveller.png" },
-  { type: "Standard Coach", name: "20-Seater Standard Non-AC Tempo Traveller", price_per_km: 26.00, seating_capacity: 20, image_url: "traveller.png" },
-  { type: "Tourist Coach", name: "32-Seater Comfort Tourist Coach", price_per_km: 35.00, seating_capacity: 32, image_url: "bus.png" },
-  { type: "Tourist Bus", name: "50-Seater Comfort Tourist Bus", price_per_km: 48.00, seating_capacity: 50, image_url: "bus.png" }
+  { type: "Standard Coach", name: "20-Seater Standard Non-AC Tempo Traveller", price_per_km: 25.00, seating_capacity: 20, image_url: "traveller.png" },
+  { type: "Tourist Coach", name: "32-Seater Comfort Tourist Coach", price_per_km: 52.00, seating_capacity: 32, image_url: "bus.png" },
+  { type: "Tourist Bus", name: "50-Seater Comfort Tourist Bus", price_per_km: 60.00, seating_capacity: 50, image_url: "bus.png" }
 ];
 
 async function seed() {

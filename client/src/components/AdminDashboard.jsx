@@ -772,7 +772,7 @@ export default function AdminDashboard({
             <div className="w-[1px] h-4 bg-slate-200" />
             <div className="flex items-center gap-3">
               <div className="w-7 h-7 rounded-full bg-[#00b4d8] flex items-center justify-center text-white font-black text-xs shadow-sm shadow-[#00b4d8]/20">
-                {currentUser?.name?.charAt(0) || 'P'}
+                {currentUser?.name?.charAt(0) || 'A'}
               </div>
               <span className="text-xs font-black text-slate-800 hidden sm:inline">{currentUser?.name || 'Ajay Bhandari'}</span>
             </div>
@@ -790,7 +790,7 @@ export default function AdminDashboard({
               <div>
                 <h2 className="text-2xl font-black text-slate-800 tracking-tight">Dashboard</h2>
                 <p className="text-sm font-semibold text-slate-450 mt-1.5">
-                  Welcome back, <span className="text-[#00b4d8] font-black">{currentUser?.name || 'Prarthana'}</span> — here's your platform overview.
+                  Welcome back, <span className="text-[#00b4d8] font-black">{currentUser?.name || 'Ajay Bhandari'}</span> — here's your platform overview.
                 </p>
               </div>
 

@@ -10,7 +10,7 @@ const defaultSettings = [
   { key: 'contact_email', value: 'booking.poojatravel@gmail.com', category: 'contact', description: 'Primary contact email address for reservations and support' },
   { key: 'contact_phone', value: '+919623324139', category: 'contact', description: 'Primary business mobile number' },
   { key: 'contact_phone_alt', value: '+917387129287', category: 'contact', description: 'Alternative backup mobile number' },
-  { key: 'hero_title', value: 'Explore Maharashtra with Pooja Tours & Travels', category: 'content', description: 'Headline text displayed in the home page hero section' },
+  { key: 'hero_title', value: 'Travel Beyond Boundaries with Pooja Tours & Travels', category: 'content', description: 'Headline text displayed in the home page hero section' },
   { key: 'hero_subtitle', value: 'Premium Chauffeur Cabs & AC Bus Rentals out of Pune. Low price guarantee, transparent pricing.', category: 'content', description: 'Subheadline text displayed under the main hero title' },
   { key: 'about_text', value: 'Pooja Tours and Travels is a leading travel operator based in Pune, offering outstation chauffeur cabs and luxury bus rental solutions. We pride ourselves on punctuality, safety, and excellent service quality.', category: 'content', description: 'Short company introduction paragraph displayed in About and Footer' }
 ];

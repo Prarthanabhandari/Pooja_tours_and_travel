@@ -14,8 +14,8 @@ export default function FleetDetailsPage({ setSearchParams, setCurrentPage, setS
       image: '/white-swift-right.png',
       description: 'Simple, efficient, and highly reliable. Ideal for budget-conscious solo travelers or small families needing a quick, honest, and clean outstation ride.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a Suzuki Swift (Hatchback).',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'Parking Fees', 'Extra Hours / KM']
     },
     {
       id: 'dzire',
@@ -28,8 +28,8 @@ export default function FleetDetailsPage({ setSearchParams, setCurrentPage, setS
       image: '/white-swift.png',
       description: 'A beloved family sedan known for comfort and dependability. Features a clean cabin and isolated trunk space. We ensure safe, punctual highway trips with transparent per-kilometer pricing.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a Suzuki Dzire (Sedan).',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'Parking Fees', 'Extra Hours / KM']
     },
     {
       id: 'etios',
@@ -42,8 +42,8 @@ export default function FleetDetailsPage({ setSearchParams, setCurrentPage, setS
       image: '/white-swift-right.png',
       description: 'A highly trusted sedan built for durability and smooth highway cruising. Offers generous legroom and comfortable suspension. Perfect for travelers who value simplicity and reliable service.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a Toyota Etios (Comfort Sedan).',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'Parking Fees', 'Extra Hours / KM']
     },
     {
       id: 'brezza',
@@ -56,8 +56,8 @@ export default function FleetDetailsPage({ setSearchParams, setCurrentPage, setS
       image: '/white-brezza-right.png',
       description: 'A sturdy, compact SUV offering high ground clearance and visibility. Safe and reliable for navigating both town roads and hill stations. Driven by polite drivers who know every route.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a Maruti Brezza (Comfort SUV).',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'Parking Fees', 'Extra Hours / KM']
     },
     {
       id: 'ertiga',
@@ -70,8 +70,8 @@ export default function FleetDetailsPage({ setSearchParams, setCurrentPage, setS
       image: '/white-ertiga-right.png',
       description: 'A spacious and value-packed 6-passenger family carrier. Designed with flexible seating and direct rear AC vents. Our top choice for honest, family-friendly traveling where everyone rides together.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a Maruti Ertiga (Family MUV).',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'Parking Fees', 'Extra Hours / KM']
     },
     {
       id: 'carens',
@@ -84,50 +84,50 @@ export default function FleetDetailsPage({ setSearchParams, setCurrentPage, setS
       image: '/white-carens-right.png',
       description: 'A refined and comfortable family SUV. Focuses on cabin silence, neat interiors, and reliable climate control. Excellent for corporate transits and families seeking a calm, peaceful journey.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a Kia Carens (Comfort SUV).',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'Parking Fees', 'Extra Hours / KM']
     },
     {
       id: 'innova',
       title: 'Toyota Innova Crysta',
       category: 'Comfort MUV',
-      rate: 'From ₹21/km',
+      rate: 'From ₹20/km',
       seats: '7+1 Seats',
       bags: '5 Bags',
       ac: 'Dual AC',
       image: '/white-innova-right.png',
       description: 'A premium, highly dependable MUV offering unmatched cabin comfort and captain seating. Features independent AC control and robust highway safety. Trusted by corporate travelers and families alike.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a Toyota Innova Crysta (Comfort MUV).',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'Parking Fees', 'Extra Hours / KM']
     },
     {
       id: 'tempo-premium-ac',
       title: '17-Seater Premium AC Coach (Tempo Traveller)',
       category: 'AC Tourist Coach',
-      rate: 'From ₹26/km',
+      rate: 'From ₹28/km',
       seats: '17 Seats',
       bags: '12 Bags',
       ac: 'Premium Dual AC',
       image: '/17-seat-tempo-traveller-right.png',
       description: 'Built for comfortable group journeys. Features clean push-back seats, reliable dual-AC cooling, and a spacious cabin. Backed by our commitment to safe driving and customer satisfaction.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a 17-Seater Premium AC Coach for my journey.',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance', 'Standard Music System', 'Push-Back Seats'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges', 'Push-Back Seats', 'Premium Audio'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'State Permit', 'Parking Fees', 'Extra Hours / KM']
     },
     {
       id: 'tempo-executive-ac',
       title: '17-Seater Executive AC Coach (Tempo Traveller)',
       category: 'AC Tourist Coach',
-      rate: 'From ₹26/km',
+      rate: 'From ₹28/km',
       seats: '17 Seats',
       bags: '12 Bags',
       ac: 'Standard AC',
       image: '/17-seat-tempo-traveller.png',
       description: 'A highly dependable AC coach perfect for family pilgrimages and weekend picnics. Kept thoroughly clean and serviced. Driven by local experts who prioritize your safety and transparent pricing.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a 17-Seater Executive AC Coach for my journey.',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance', 'Standard AC'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges', 'Standard AC'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'State Permit', 'Parking Fees', 'Extra Hours / KM']
     },
     {
       id: 'tempo-standard-nonac',
@@ -140,50 +140,50 @@ export default function FleetDetailsPage({ setSearchParams, setCurrentPage, setS
       image: '/17-seat-tempo-traveller-right.jpg',
       description: 'An economical and robust non-AC coach for budget group travel. Features wide sliding windows for natural cooling, comfortable seats, and a sturdy roof carrier. A simple and honest choice.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a 17-Seater Standard Non-AC Coach for my journey.',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance', 'Blower System'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges', 'Blower System'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'State Permit', 'Parking Fees', 'Extra Hours / KM']
     },
     {
       id: 'tempo-20-nonac',
       title: '20-Seater Standard Non-AC Coach (Tempo Traveller)',
       category: 'Standard Coach',
-      rate: 'From ₹26/km',
+      rate: 'From ₹25/km',
       seats: '20 Seats',
       bags: '15 Bags',
       ac: 'Blower System',
       image: '/17-seat-tempo-traveller-right.jpg',
       description: 'A high-capacity, sturdy non-AC coach for wedding guest transits and pilgrim groups. Kept clean and well-maintained. Backed by our signature business loyalty and straightforward rates.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a 20-Seater Standard Non-AC Coach for my journey.',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance', 'Blower System'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges', 'Blower System'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'State Permit', 'Parking Fees', 'Extra Hours / KM']
     },
     {
       id: 'bus-32',
       title: '32-Seater Comfort Tourist Coach',
       category: 'Tourist Coach',
-      rate: 'From ₹35/km',
+      rate: 'From ₹52/km',
       seats: '32 Seats',
       bags: '25 Bags',
       ac: 'Climate Control',
       image: '/50-seat-bus-right.png',
       description: 'A spacious 32-seater coach designed for student tours and corporate outings. Offers excellent ventilation, smooth air-suspension, and clean seating. Driven by verified, polite drivers.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a 32-Seater Comfort Tourist Coach for my journey.',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance', 'Standard Audio', 'Air Suspension'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges', 'Standard Audio', 'Air Suspension'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'State Permit', 'Parking Fees', 'Extra Hours / KM']
     },
     {
       id: 'bus',
       title: '50-Seater Comfort Tourist Bus',
       category: 'Tourist Bus',
-      rate: 'From ₹48/km',
+      rate: 'From ₹60/km',
       seats: '50 Seats',
       bags: '40 Bags',
       ac: 'Climate Control',
       image: '/50-seat-bus-right.png',
       description: 'Our largest tourist bus, designed with a focus on safety and dependability. Features large windows, spacious luggage holds, and comfortable seating. A trusted choice for community events and school tours.',
       whatsappText: 'Hello Pooja Tours & Travels, I would like to book a 50-Seater Comfort Tourist Bus.',
-      inclusions: ['Fuel Charges', 'Toll Charges', 'Driver Allowance'],
-      exclusions: ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+      inclusions: ['Fuel Charges'],
+      exclusions: ['Toll Charges', 'Driver Allowance', 'State Permit', 'Parking Fees', 'Extra Hours / KM']
     }
   ];
 
@@ -209,8 +209,10 @@ export default function FleetDetailsPage({ setSearchParams, setCurrentPage, setS
             image: v.image_url ? (v.image_url.startsWith('/') ? v.image_url : `/${v.image_url}`) : '/white-swift-right.png',
             description: v.description || '',
             whatsappText: `Hello Pooja Tours & Travels, I would like to book a ${v.name} (${v.type}) for my journey.`,
-            inclusions: v.inclusions || ['Fuel Charges', 'Toll Charges', 'Driver Allowance'],
-            exclusions: v.exclusions || ['State Permit (if any)', 'Parking Fees', 'Extra Hours / KM']
+            inclusions: ['Fuel Charges'],
+            exclusions: (v.type.toLowerCase().includes('coach') || v.type.toLowerCase().includes('bus') || v.seating_capacity >= 17)
+              ? ['Toll Charges', 'Driver Allowance', 'State Permit', 'Parking Fees', 'Extra Hours / KM']
+              : ['Toll Charges', 'Driver Allowance', 'Parking Fees', 'Extra Hours / KM']
           }));
           setVehicles(formatted);
           if (formatted.length > 0) {
